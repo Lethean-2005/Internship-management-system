@@ -1,0 +1,23 @@
+# Dependencies
+frontend/node_modules/
+frontend/dist/
+backend/vendor/
+
+# Environment
+backend/.env
+backend/database/database.sqlite
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# PHP
+backend/storage/logs/*.log
+backend/bootstrap/cache/*.php
+
+# Claude
+.claude/
