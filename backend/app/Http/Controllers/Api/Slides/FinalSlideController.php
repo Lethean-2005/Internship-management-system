@@ -153,7 +153,7 @@ class FinalSlideController extends Controller
     public function upload(Request $request, FinalSlide $slide): JsonResponse
     {
         $request->validate([
-            'file' => 'required|file|mimes:pdf,ppt,pptx|max:20480',
+            'file' => 'required|file|mimes:pdf,ppt,pptx,key,odp,jpg,jpeg,png,mp4,zip|max:51200',
         ]);
 
         $path = $request->file('file')->store('slides', 'public');

@@ -59,6 +59,11 @@ class DemoSeeder extends Seeder
             'role_id' => $internRole->id,
             'department' => 'Engineering',
             'is_active' => true,
+            'tutor_id' => $tutor->id,
+            'company_name' => 'Tech Solutions Inc.',
+            'position' => 'Software Engineer Intern',
+            'supervisor_name' => 'Jane Smith',
+            'generation' => '2026',
         ]);
 
         // Create companies

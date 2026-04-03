@@ -15,6 +15,7 @@ import { FinalSlidesPage } from './features/slides/FinalSlidesPage';
 import { ContactSupervisorPage } from './features/contacts/ContactSupervisorPage';
 import { CompanyInterviewsPage } from './features/interviews/CompanyInterviewsPage';
 import { CompanyInternshipPage } from './features/companies/CompanyInternshipPage';
+import { MyInternsPage } from './features/interns/MyInternsPage';
 import { useAuthStore } from './stores/authStore';
 import { getMe } from './api/auth';
 
@@ -49,9 +50,10 @@ function App() {
             <Route path="roles" element={<RolesPage />} />
           </Route>
 
-          {/* Admin + Supervisor */}
-          <Route element={<RoleRoute roles={['admin', 'supervisor']} />}>
-            <Route path="company-internship" element={<CompanyInternshipPage />} />
+
+          {/* Tutor only */}
+          <Route element={<RoleRoute roles={['tutor']} />}>
+            <Route path="my-interns" element={<MyInternsPage />} />
           </Route>
 
           {/* All roles */}

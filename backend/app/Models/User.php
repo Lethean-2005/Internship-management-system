@@ -28,6 +28,7 @@ class User extends Authenticatable
         'position',
         'tutor_id',
         'supervisor_name',
+        'generation',
     ];
 
     protected $hidden = [

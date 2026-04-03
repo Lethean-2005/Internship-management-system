@@ -13,6 +13,8 @@ class CompanyInterview extends Model
     protected $fillable = [
         'user_id',
         'company_id',
+        'company_name',
+        'employment',
         'internship_id',
         'interview_date',
         'location',
@@ -26,8 +28,13 @@ class CompanyInterview extends Model
     protected function casts(): array
     {
         return [
-            'interview_date' => 'datetime',
+            'interview_date' => 'immutable_datetime',
         ];
+    }
+
+    public function isInterviewPast(): bool
+    {
+        return $this->interview_date->lessThanOrEqualTo(now());
     }
 
     public function user(): BelongsTo

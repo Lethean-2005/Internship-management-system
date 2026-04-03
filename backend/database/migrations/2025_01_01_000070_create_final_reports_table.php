@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('final_reports', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('internship_id')->constrained('internships')->cascadeOnDelete();
+            $table->foreignId('internship_id')->nullable()->constrained('internships')->nullOnDelete();
             $table->string('title');
             $table->longText('content')->nullable();
             $table->string('file_path')->nullable();

@@ -16,6 +16,7 @@ class UpdateReportRequest extends FormRequest
         return [
             'title' => ['sometimes', 'string', 'max:255'],
             'content' => ['nullable', 'string'],
+            'deadline' => ['nullable', 'date'],
         ];
     }
 }

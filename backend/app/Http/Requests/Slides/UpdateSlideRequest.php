@@ -17,6 +17,8 @@ class UpdateSlideRequest extends FormRequest
             'title' => ['sometimes', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'presentation_date' => ['nullable', 'date'],
+            'slide_link' => ['nullable', 'string', 'max:2000'],
+            'deadline' => ['nullable', 'date'],
         ];
     }
 }

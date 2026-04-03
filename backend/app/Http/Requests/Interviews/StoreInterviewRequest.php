@@ -15,11 +15,13 @@ class StoreInterviewRequest extends FormRequest
     {
         return [
             'user_id' => ['required', 'exists:users,id'],
-            'company_id' => ['required', 'exists:companies,id'],
+            'company_id' => ['nullable', 'exists:companies,id'],
+            'company_name' => ['required', 'string', 'max:255'],
             'internship_id' => ['nullable', 'exists:internships,id'],
             'interview_date' => ['required', 'date'],
-            'location' => ['nullable', 'string', 'max:255'],
-            'type' => ['nullable', 'in:onsite,online,phone'],
+            'location' => ['nullable', 'string', 'max:2000'],
+            'type' => ['nullable', 'in:onsite,online,hybrid'],
+            'employment' => ['nullable', 'in:internship,probation,staff,contract'],
             'status' => ['nullable', 'in:scheduled,completed,cancelled,no_show'],
             'notes' => ['nullable', 'string'],
         ];

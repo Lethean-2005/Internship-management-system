@@ -41,8 +41,92 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
 
+    // Update own profile (internship details)
+    Route::put('/me', function (\Illuminate\Http\Request $request) {
+        $user = $request->user();
+        $data = $request->validate([
+            'company_name' => ['sometimes', 'string', 'max:255'],
+            'position' => ['sometimes', 'string', 'max:255'],
+            'supervisor_name' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'tutor_id' => ['sometimes', 'nullable', 'exists:users,id'],
+            'department' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'phone' => ['sometimes', 'nullable', 'string', 'max:50'],
+            'generation' => ['sometimes', 'nullable', 'string', 'max:10'],
+        ]);
+        $user->update($data);
+        $user->load('role');
+        return response()->json([
+            'message' => 'Profile updated successfully.',
+            'data' => new \App\Http\Resources\UserResource($user),
+        ]);
+    });
+
     // Dashboard — all roles
     Route::get('/dashboard', [DashboardController::class, 'index']);
+
+    // Deadlines
+    Route::post('/deadlines', function (\Illuminate\Http\Request $request) {
+        $data = $request->validate([
+            'type' => ['required', 'in:final_slide,final_report'],
+            'deadline' => ['required', 'date'],
+        ]);
+        $data['tutor_id'] = $request->user()->id;
+        $deadline = \App\Models\Deadline::updateOrCreate(
+            ['tutor_id' => $data['tutor_id'], 'type' => $data['type']],
+            ['deadline' => $data['deadline']]
+        );
+        return response()->json(['message' => 'Deadline set.', 'data' => $deadline]);
+    })->middleware('role:tutor');
+
+    Route::get('/deadlines/{type}', function (\Illuminate\Http\Request $request, string $type) {
+        $user = $request->user();
+        $roleSlug = $user->role?->slug;
+        if ($roleSlug === 'tutor') {
+            $deadline = \App\Models\Deadline::where('tutor_id', $user->id)->where('type', $type)->first();
+        } elseif ($roleSlug === 'intern' && $user->tutor_id) {
+            $deadline = \App\Models\Deadline::where('tutor_id', $user->tutor_id)->where('type', $type)->first();
+        } else {
+            $deadline = null;
+        }
+        return response()->json(['data' => $deadline]);
+    });
+
+    // My Interns — tutor only
+    Route::middleware('role:tutor')->group(function (): void {
+        Route::get('/my-interns/{internId}/interviews', function (\Illuminate\Http\Request $request, int $internId) {
+            $user = $request->user();
+            // Verify this intern belongs to this tutor
+            $intern = \App\Models\User::where('id', $internId)->where('tutor_id', $user->id)->first();
+            if (!$intern) {
+                return response()->json(['message' => 'Intern not found.'], 404);
+            }
+            $interviews = \App\Models\CompanyInterview::with(['user', 'company'])
+                ->where('user_id', $internId)
+                ->latest('interview_date')
+                ->get();
+            return response()->json([
+                'data' => \App\Http\Resources\CompanyInterviewResource::collection($interviews),
+            ]);
+        });
+
+        Route::get('/my-interns', function (\Illuminate\Http\Request $request) {
+            $user = $request->user();
+            $interns = \App\Models\User::with('role')
+                ->where('tutor_id', $user->id)
+                ->latest()
+                ->paginate(50);
+
+            return response()->json([
+                'data' => \App\Http\Resources\UserResource::collection($interns),
+                'meta' => [
+                    'current_page' => $interns->currentPage(),
+                    'last_page' => $interns->lastPage(),
+                    'per_page' => $interns->perPage(),
+                    'total' => $interns->total(),
+                ],
+            ]);
+        });
+    });
 
     // Users — admin only
     Route::middleware('role:admin')->group(function (): void {
@@ -85,7 +169,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
     // Weekly Worklogs — all roles (intern sees own, others see all)
     Route::get('/weekly-worklogs', [WeeklyWorklogController::class, 'index']);
     Route::get('/weekly-worklogs/{worklog}', [WeeklyWorklogController::class, 'show']);
-    Route::middleware('role:admin,tutor,supervisor,intern')->group(function (): void {
+    Route::middleware('role:admin,supervisor,intern')->group(function (): void {
         Route::post('/weekly-worklogs', [WeeklyWorklogController::class, 'store']);
         Route::put('/weekly-worklogs/{worklog}', [WeeklyWorklogController::class, 'update']);
         Route::delete('/weekly-worklogs/{worklog}', [WeeklyWorklogController::class, 'destroy']);
@@ -135,11 +219,15 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::middleware('role:admin,supervisor,intern')->group(function (): void {
         Route::get('/company-interviews', [CompanyInterviewController::class, 'index']);
         Route::get('/company-interviews/{interview}', [CompanyInterviewController::class, 'show']);
+        Route::put('/company-interviews/{interview}', [CompanyInterviewController::class, 'update']);
+    });
+    Route::middleware('role:admin,supervisor,intern')->group(function (): void {
+        Route::patch('/company-interviews/{interview}/result', [CompanyInterviewController::class, 'updateResult']);
+    });
+    Route::middleware('role:admin,supervisor,intern')->group(function (): void {
+        Route::post('/company-interviews', [CompanyInterviewController::class, 'store']);
     });
     Route::middleware('role:admin,supervisor')->group(function (): void {
-        Route::post('/company-interviews', [CompanyInterviewController::class, 'store']);
-        Route::put('/company-interviews/{interview}', [CompanyInterviewController::class, 'update']);
         Route::delete('/company-interviews/{interview}', [CompanyInterviewController::class, 'destroy']);
-        Route::patch('/company-interviews/{interview}/result', [CompanyInterviewController::class, 'updateResult']);
     });
 });

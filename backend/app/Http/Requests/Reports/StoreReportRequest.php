@@ -14,9 +14,10 @@ class StoreReportRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'internship_id' => ['required', 'exists:internships,id'],
+            'internship_id' => ['nullable', 'exists:internships,id'],
             'title' => ['required', 'string', 'max:255'],
             'content' => ['nullable', 'string'],
+            'deadline' => ['nullable', 'date'],
         ];
     }
 }

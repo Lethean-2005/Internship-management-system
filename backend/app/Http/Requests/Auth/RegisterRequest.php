@@ -27,6 +27,7 @@ class RegisterRequest extends FormRequest
             'position' => ['nullable', 'string', 'max:255'],
             'tutor_id' => ['nullable', 'integer', 'exists:users,id'],
             'supervisor_name' => ['nullable', 'string', 'max:255'],
+            'generation' => ['nullable', 'string', 'max:10'],
         ];
     }
 }

@@ -30,6 +30,7 @@ class AuthController extends Controller
             'position' => $request->validated('position'),
             'tutor_id' => $request->validated('tutor_id'),
             'supervisor_name' => $request->validated('supervisor_name'),
+            'generation' => $request->validated('generation'),
             'role_id' => $role?->id,
         ]);
 

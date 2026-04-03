@@ -19,11 +19,15 @@ export const STATUS_COLORS: Record<string, string> = {
   online: 'blue',
   onsite: 'purple',
   hybrid: 'orange',
+  internship: 'blue',
+  probation: 'orange',
+  staff: 'green',
+  contract: 'yellow',
 };
 
 export const STATUS_LABELS: Record<string, string> = {
   draft: 'Draft',
-  pending: 'Pending',
+  pending: 'Wait Result',
   submitted: 'Submitted',
   approved: 'Approved',
   rejected: 'Rejected',
@@ -42,4 +46,8 @@ export const STATUS_LABELS: Record<string, string> = {
   online: 'Online',
   onsite: 'Onsite',
   hybrid: 'Hybrid',
+  internship: 'Internship',
+  probation: 'Probation',
+  staff: 'Staff',
+  contract: 'Contract',
 };

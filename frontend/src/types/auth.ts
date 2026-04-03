@@ -30,6 +30,7 @@ export interface RegisterPayload {
   position?: string;
   tutor_id?: number;
   supervisor_name?: string;
+  generation?: string;
 }
 
 export interface AuthResponse {

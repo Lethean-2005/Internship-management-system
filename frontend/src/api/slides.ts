@@ -10,10 +10,11 @@ export interface SlideFilters {
 }
 
 export interface SlidePayload {
-  internship_id: number;
+  internship_id?: number;
   title: string;
   description?: string | null;
   presentation_date?: string | null;
+  slide_link?: string | null;
 }
 
 export interface ReviewPayload {

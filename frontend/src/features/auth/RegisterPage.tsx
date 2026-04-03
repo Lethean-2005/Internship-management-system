@@ -5,7 +5,9 @@ import { useAuthStore } from '../../stores/authStore';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { Button } from '../../components/ui/Button';
+import { FilterDropdown } from '../../components/ui/FilterDropdown';
 import type { ApiError } from '../../types/api';
+import { GraduationCap, List } from 'lucide-react';
 import client from '../../api/client';
 
 const roleCards = [
@@ -36,6 +38,7 @@ export function RegisterPage() {
   const [companyName, setCompanyName] = useState('');
   const [position, setPosition] = useState('');
   const [department, setDepartment] = useState('');
+  const [generation, setGeneration] = useState('');
   const [tutorId, setTutorId] = useState('');
   const [supervisorName, setSupervisorName] = useState('');
   const [loading, setLoading] = useState(false);
@@ -66,14 +69,8 @@ export function RegisterPage() {
         phone: phone || undefined,
         role: roleSlug,
         department: department || undefined,
+        generation: generation || undefined,
         company_name: (isIntern || roleSlug === 'supervisor') ? (companyName || undefined) : undefined,
-        ...(isIntern
-          ? {
-              position: position || undefined,
-              tutor_id: tutorId ? Number(tutorId) : undefined,
-              supervisor_name: supervisorName || undefined,
-            }
-          : {}),
       });
       setAuth(res.user, res.token);
       navigate('/');
@@ -206,6 +203,25 @@ export function RegisterPage() {
 
             <Input label="Department" type="text" value={department} onChange={(e) => setDepartment(e.target.value)} error={errors.department} placeholder={isIntern ? 'e.g. Engineering' : 'e.g. Computer Science'} />
 
+            {isIntern && (
+              <div>
+                <label className="block text-[0.85rem] font-medium text-[#374151] mb-1">Generation</label>
+                <FilterDropdown
+                  options={[
+                    { value: '', label: 'Select Generation', icon: List },
+                    ...Array.from({ length: new Date().getFullYear() - 2007 + 1 }, (_, i) => {
+                      const year = new Date().getFullYear() - i;
+                      return { value: String(year), label: `Generation ${year}`, icon: GraduationCap };
+                    }),
+                  ]}
+                  value={generation}
+                  onChange={setGeneration}
+                  maxVisible={5}
+                />
+                {errors.generation && <p className="mt-1 text-[0.8rem] text-[#dc2626]">{errors.generation}</p>}
+              </div>
+            )}
+
             {roleSlug === 'supervisor' && (
               <Input label="Company Name" type="text" value={companyName} onChange={(e) => setCompanyName(e.target.value)} error={errors.company_name} placeholder="e.g. Tech Solutions Inc." required />
             )}
@@ -253,9 +269,9 @@ export function RegisterPage() {
       {step === 3 && isIntern && (
         <div className="bg-white rounded-[5px] w-full max-w-[480px] px-10 py-10" style={{ boxShadow: '0 2px 20px rgba(0,0,0,0.06)' }}>
           <div className="text-center mb-8">
-            <h1 className="text-[1.55rem] font-bold text-[#1e1e2d]">Internship Details</h1>
+            <h1 className="text-[1.55rem] font-bold text-[#1e1e2d]">Security</h1>
             <p className="mt-2 text-[0.88rem] text-[#a0a3b1]">
-              Tell us about your internship placement.
+              Set your password to secure your account.
             </p>
           </div>
 
@@ -266,31 +282,6 @@ export function RegisterPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Input label="Company Name" type="text" value={companyName} onChange={(e) => setCompanyName(e.target.value)} error={errors.company_name} placeholder="e.g. Tech Solutions Inc." />
-
-            <Input label="Position" type="text" value={position} onChange={(e) => setPosition(e.target.value)} error={errors.position} placeholder="e.g. Software Engineer Intern" />
-
-            <Select
-              label="Tutor"
-              options={tutorOptions}
-              value={tutorId}
-              onChange={(e) => setTutorId(e.target.value)}
-              error={errors.tutor_id}
-            />
-
-            <Input
-              label="Supervisor"
-              type="text"
-              value={supervisorName}
-              onChange={(e) => setSupervisorName(e.target.value)}
-              error={errors.supervisor_name}
-              placeholder="e.g. Mr. John Doe"
-            />
-
-            <div className="border-t border-[#f0f0f2] pt-4 mt-4">
-              <p className="text-[0.8rem] font-semibold text-[#a0a3b1] uppercase tracking-wider mb-4">Security</p>
-            </div>
-
             <Input label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} error={errors.password} required />
             <Input label="Confirm Password" type="password" value={passwordConfirmation} onChange={(e) => setPasswordConfirmation(e.target.value)} error={errors.password_confirmation} required />
 

@@ -154,7 +154,7 @@ class FinalReportController extends Controller
     public function upload(Request $request, FinalReport $report): JsonResponse
     {
         $request->validate([
-            'file' => 'required|file|mimes:pdf,doc,docx|max:10240',
+            'file' => 'required|file|mimes:pdf,doc,docx,pptx,zip,jpg,jpeg,png|max:51200',
         ]);
 
         $path = $request->file('file')->store('reports', 'public');

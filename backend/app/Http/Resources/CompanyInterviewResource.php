@@ -14,9 +14,13 @@ class CompanyInterviewResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'interview_date' => $this->interview_date,
+            'user_id' => $this->user_id,
+            'company_id' => $this->company_id,
+            'company_name' => $this->company_name,
+            'interview_date' => $this->getRawOriginal('interview_date'),
             'location' => $this->location,
             'type' => $this->type,
+            'employment' => $this->employment,
             'status' => $this->status,
             'notes' => $this->notes,
             'result' => $this->result,

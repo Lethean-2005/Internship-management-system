@@ -22,6 +22,8 @@ class FinalSlide extends Model
         'reviewed_by',
         'reviewed_at',
         'feedback',
+        'slide_link',
+        'deadline',
     ];
 
     protected function casts(): array

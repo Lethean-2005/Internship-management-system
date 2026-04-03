@@ -22,6 +22,8 @@ class CompanyInterviewController extends Controller
 
         if ($roleSlug === 'intern') {
             $query->where('user_id', $user->id);
+        } elseif ($roleSlug === 'tutor') {
+            $query->whereHas('user', fn ($q) => $q->where('tutor_id', $user->id));
         }
 
         if ($request->filled('user_id')) {
@@ -95,6 +97,12 @@ class CompanyInterviewController extends Controller
 
     public function updateResult(UpdateResultRequest $request, CompanyInterview $interview): JsonResponse
     {
+        if (in_array($interview->result, ['passed', 'failed'])) {
+            return response()->json([
+                'message' => 'Result cannot be changed once it is passed or failed.',
+            ], 422);
+        }
+
         $interview->update([
             'result' => $request->validated('result'),
             'feedback' => $request->validated('feedback'),

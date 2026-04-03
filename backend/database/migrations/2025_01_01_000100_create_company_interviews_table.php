@@ -11,10 +11,10 @@ return new class extends Migration
         Schema::create('company_interviews', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('company_id')->constrained('companies')->cascadeOnDelete();
+            $table->foreignId('company_id')->nullable()->constrained('companies')->nullOnDelete();
             $table->foreignId('internship_id')->nullable()->constrained('internships')->nullOnDelete();
             $table->dateTime('interview_date');
-            $table->string('location')->nullable();
+            $table->text('location')->nullable();
             $table->string('type')->default('onsite');
             $table->string('status')->default('scheduled');
             $table->text('notes')->nullable();

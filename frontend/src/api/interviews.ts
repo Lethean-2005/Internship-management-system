@@ -11,11 +11,13 @@ export interface InterviewFilters {
 
 export interface InterviewPayload {
   user_id: number;
-  company_id: number;
+  company_name: string;
+  company_id?: number;
   internship_id?: number | null;
   interview_date: string;
   location?: string | null;
   type: string;
+  employment?: string | null;
   notes?: string | null;
 }
 

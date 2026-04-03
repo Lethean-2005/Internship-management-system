@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Eye, List, FilePen, Send, CheckCircle, XCircle } from 'lucide-react';
 import { useWorklogs, useCreateWorklog } from '../../hooks/useWorklogs';
 import { useInternships } from '../../hooks/useInternships';
+import { useAuthStore } from '../../stores/authStore';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { FilterDropdown } from '../../components/ui/FilterDropdown';
@@ -22,6 +23,8 @@ const statusOptions = [
 
 export function WeeklyWorklogsPage() {
   const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
+  const isTutor = user?.role?.slug === 'tutor';
   const [status, setStatus] = useState('');
   const [page, setPage] = useState(1);
   const [formOpen, setFormOpen] = useState(false);
@@ -51,10 +54,12 @@ export function WeeklyWorklogsPage() {
           <h1 className="text-[1.35rem] font-bold text-[#1e1b4b]">Weekly Worklogs</h1>
           <p className="mt-1 text-[0.85rem] text-[#6b7280]">Track weekly internship progress and tasks.</p>
         </div>
-        <Button onClick={() => setFormOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          New Worklog
-        </Button>
+        {!isTutor && (
+          <Button onClick={() => setFormOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            New Worklog
+          </Button>
+        )}
       </div>
 
       <div className="bg-white border border-[#f0f0f0] rounded-[5px]">

@@ -22,6 +22,7 @@ class FinalReport extends Model
         'reviewed_at',
         'feedback',
         'grade',
+        'deadline',
     ];
 
     protected function casts(): array

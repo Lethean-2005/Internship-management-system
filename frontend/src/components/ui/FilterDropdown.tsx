@@ -11,9 +11,10 @@ interface FilterDropdownProps {
   value: string;
   onChange: (value: string) => void;
   options: FilterOption[];
+  maxVisible?: number;
 }
 
-export function FilterDropdown({ value, onChange, options }: FilterDropdownProps) {
+export function FilterDropdown({ value, onChange, options, maxVisible }: FilterDropdownProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -48,8 +49,8 @@ export function FilterDropdown({ value, onChange, options }: FilterDropdownProps
 
       {open && (
         <div
-          className="absolute top-full left-0 right-0 mt-1 bg-[#1e1e2d] border border-white/10 rounded-[5px] overflow-hidden z-50"
-          style={{ animation: 'slideDown 0.15s ease-out', boxShadow: '0 8px 24px rgba(0,0,0,0.25)' }}
+          className="absolute top-full left-0 right-0 mt-1 bg-[#1e1e2d] border border-white/10 rounded-[5px] overflow-hidden overflow-y-auto z-50"
+          style={{ animation: 'slideDown 0.15s ease-out', boxShadow: '0 8px 24px rgba(0,0,0,0.25)', maxHeight: maxVisible ? `${maxVisible * 40}px` : undefined }}
         >
           {options.map((opt) => {
             const isActive = value === opt.value;

@@ -15,7 +15,7 @@ class UserController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $query = User::with('role');
+        $query = User::with(['role', 'tutor']);
 
         if ($request->filled('role')) {
             $query->whereHas('role', fn ($q) => $q->where('slug', $request->input('role')));

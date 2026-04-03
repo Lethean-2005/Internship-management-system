@@ -14,9 +14,12 @@ class UpdateInterviewRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'user_id' => ['sometimes', 'exists:users,id'],
+            'company_name' => ['sometimes', 'string', 'max:255'],
             'interview_date' => ['sometimes', 'date'],
-            'location' => ['nullable', 'string', 'max:255'],
-            'type' => ['nullable', 'in:onsite,online,phone'],
+            'location' => ['nullable', 'string', 'max:2000'],
+            'type' => ['nullable', 'in:onsite,online,hybrid'],
+            'employment' => ['nullable', 'in:internship,probation,staff,contract'],
             'status' => ['nullable', 'in:scheduled,completed,cancelled,no_show'],
             'notes' => ['nullable', 'string'],
         ];
