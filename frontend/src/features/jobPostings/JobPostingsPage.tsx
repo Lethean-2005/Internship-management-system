@@ -368,59 +368,80 @@ function DetailCard({ posting, isAdmin, onView, onEdit, onDelete }: {
   );
 }
 
-// === Image Card ===
+// === Image Card (same layout as Detail, image only in modal) ===
 function ImageCard({ posting, isAdmin, onView, onEdit, onDelete }: {
   posting: JobPosting; isAdmin: boolean;
   onView: (p: JobPosting) => void; onEdit: (p: JobPosting) => void; onDelete: (id: number) => void;
 }) {
   return (
-    <div className="bg-white rounded-[5px] border border-[#e5e7eb] overflow-hidden hover:shadow-lg transition-all duration-200 flex flex-col">
-      {/* Image */}
-      {posting.image_url && (
-        <div className="w-full aspect-[4/3] overflow-hidden bg-[#f3f4f6]">
-          <img src={posting.image_url} alt={posting.title} className="w-full h-full object-cover" />
-        </div>
-      )}
-
-      <div className="p-5 flex flex-col flex-1">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-8 h-8 rounded-[5px] bg-[#f8f9fa] border border-[#e5e7eb] flex items-center justify-center overflow-hidden flex-shrink-0">
-            <img src="/passerellesnum_riques_logo.jfif" alt="Logo" className="w-6 h-6 object-contain" />
+    <div className="bg-white rounded-[5px] border border-[#e5e7eb] p-6 hover:shadow-lg transition-all duration-200 flex flex-col">
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-[5px] bg-[#f8f9fa] border border-[#e5e7eb] flex items-center justify-center overflow-hidden flex-shrink-0">
+            <img src="/passerellesnum_riques_logo.jfif" alt="Logo" className="w-8 h-8 object-contain" />
           </div>
-          <p className="text-[0.8rem] font-medium text-[#6b7280]">{posting.company_name}</p>
-          <span className="text-[0.7rem] text-[#9ca3af] ml-auto">{timeAgo(posting.created_at)}</span>
+          <div>
+            <p className="text-[0.85rem] font-semibold text-[#1e1b4b]">{posting.company_name}</p>
+            <p className="text-[0.72rem] text-[#9ca3af]">{timeAgo(posting.created_at)}</p>
+          </div>
         </div>
-
-        <h3 className="text-[1rem] font-bold text-[#111827] mb-2 leading-snug">{posting.title}</h3>
-
-        {posting.description && (
-          <p className="text-[0.78rem] text-[#6b7280] mb-3 line-clamp-2">{posting.description}</p>
+        {posting.status === 'closed' && (
+          <span className="text-[0.68rem] font-medium text-red-500 bg-red-50 px-2 py-0.5 rounded-[5px]">Closed</span>
         )}
+      </div>
 
-        <div className="flex-1" />
+      <h3 className="text-[1.05rem] font-bold text-[#111827] mb-3 leading-snug">{posting.title}</h3>
 
-        <div className="flex items-center justify-between pt-3 border-t border-[#f0f0f0]">
-          {posting.location ? (
-            <span className="text-[0.75rem] text-[#6b7280]">
-              <LocationDisplay location={posting.location} />
-            </span>
-          ) : <span />}
+      <div className="flex flex-wrap gap-2 mb-4">
+        <span className="inline-flex items-center rounded-[5px] border border-[#e5e7eb] px-3 py-1 text-[0.73rem] font-medium text-[#374151] bg-white">
+          {TYPE_LABELS[posting.type] || posting.type}
+        </span>
+        {posting.department && (
+          <span className="inline-flex items-center rounded-[5px] border border-[#e5e7eb] px-3 py-1 text-[0.73rem] font-medium text-[#374151] bg-white">
+            {posting.department}
+          </span>
+        )}
+        {posting.location && (
+          <span className="inline-flex items-center rounded-[5px] border border-[#e5e7eb] px-3 py-1 text-[0.73rem] font-medium bg-white">
+            <LocationDisplay location={posting.location} className="text-[#374151]" />
+          </span>
+        )}
+      </div>
 
-          <div className="flex items-center gap-2">
-            {isAdmin && (
-              <>
-                <button onClick={() => onEdit(posting)} className="p-1.5 rounded-[5px] hover:bg-[#f5f5f7] text-[#9ca3af] hover:text-[#f59e0b] transition-colors" title="Edit">
-                  <Pencil className="w-3.5 h-3.5" />
-                </button>
-                <button onClick={() => onDelete(posting.id)} className="p-1.5 rounded-[5px] hover:bg-red-50 text-[#9ca3af] hover:text-[#ef4444] transition-colors" title="Delete">
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </>
-            )}
-            <button onClick={() => onView(posting)} className="inline-flex items-center gap-1 rounded-[5px] bg-[#1e1b4b] text-white px-4 py-2 text-[0.78rem] font-semibold hover:bg-[#2d2a5e] transition-colors">
-              View detail
-            </button>
-          </div>
+      <div className="flex items-center gap-4 mb-5 text-[0.78rem] text-[#6b7280]">
+        <span className="flex items-center gap-1">
+          <Users className="w-3.5 h-3.5" /> {posting.positions} position{posting.positions !== 1 ? 's' : ''}
+        </span>
+        {posting.application_deadline && (
+          <span className="flex items-center gap-1">
+            <Clock className="w-3.5 h-3.5" /> {new Date(posting.application_deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+          </span>
+        )}
+      </div>
+
+      <div className="flex-1" />
+
+      <div className="flex items-center justify-between pt-4 border-t border-[#f0f0f0]">
+        {posting.location ? (
+          <span className="text-[0.78rem] text-[#6b7280]">
+            <LocationDisplay location={posting.location} />
+          </span>
+        ) : <span />}
+
+        <div className="flex items-center gap-2">
+          {isAdmin && (
+            <>
+              <button onClick={() => onEdit(posting)} className="p-1.5 rounded-[5px] hover:bg-[#f5f5f7] text-[#9ca3af] hover:text-[#f59e0b] transition-colors" title="Edit">
+                <Pencil className="w-3.5 h-3.5" />
+              </button>
+              <button onClick={() => onDelete(posting.id)} className="p-1.5 rounded-[5px] hover:bg-red-50 text-[#9ca3af] hover:text-[#ef4444] transition-colors" title="Delete">
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            </>
+          )}
+          <button onClick={() => onView(posting)} className="inline-flex items-center gap-1 rounded-[5px] bg-[#1e1b4b] text-white px-4 py-2 text-[0.78rem] font-semibold hover:bg-[#2d2a5e] transition-colors">
+            View detail
+          </button>
         </div>
       </div>
     </div>
