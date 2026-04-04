@@ -10,6 +10,7 @@ export interface JobPostingFilters {
 }
 
 export interface JobPostingPayload {
+  post_mode?: string;
   title: string;
   company_name: string;
   location?: string | null;
@@ -24,6 +25,7 @@ export interface JobPostingPayload {
   application_deadline?: string | null;
   contact_email?: string | null;
   status?: string;
+  image?: File | null;
 }
 
 export const getJobPostings = (filters?: JobPostingFilters) =>
@@ -32,11 +34,34 @@ export const getJobPostings = (filters?: JobPostingFilters) =>
 export const getJobPosting = (id: number) =>
   client.get<{ data: JobPosting }>(`/job-postings/${id}`).then((r) => r.data.data);
 
-export const createJobPosting = (payload: JobPostingPayload) =>
-  client.post<{ data: JobPosting }>('/job-postings', payload).then((r) => r.data.data);
+export const createJobPosting = (payload: JobPostingPayload) => {
+  const formData = new FormData();
+  Object.entries(payload).forEach(([key, value]) => {
+    if (value !== null && value !== undefined) {
+      if (value instanceof File) {
+        formData.append(key, value);
+      } else {
+        formData.append(key, String(value));
+      }
+    }
+  });
+  return client.post<{ data: JobPosting }>('/job-postings', formData).then((r) => r.data.data);
+};
 
-export const updateJobPosting = (id: number, payload: Partial<JobPostingPayload>) =>
-  client.put<{ data: JobPosting }>(`/job-postings/${id}`, payload).then((r) => r.data.data);
+export const updateJobPosting = (id: number, payload: Partial<JobPostingPayload>) => {
+  const formData = new FormData();
+  formData.append('_method', 'PUT');
+  Object.entries(payload).forEach(([key, value]) => {
+    if (value !== null && value !== undefined) {
+      if (value instanceof File) {
+        formData.append(key, value);
+      } else {
+        formData.append(key, String(value));
+      }
+    }
+  });
+  return client.post<{ data: JobPosting }>(`/job-postings/${id}`, formData).then((r) => r.data.data);
+};
 
 export const deleteJobPosting = (id: number) =>
   client.delete(`/job-postings/${id}`).then((r) => r.data);

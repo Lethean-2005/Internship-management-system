@@ -11,6 +11,8 @@ class JobPosting extends Model
     use SoftDeletes;
 
     protected $fillable = [
+        'post_mode',
+        'image_path',
         'title',
         'company_name',
         'location',

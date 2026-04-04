@@ -52,6 +52,11 @@ class JobPostingController extends Controller
     {
         $data = $request->validated();
         $data['created_by'] = $request->user()->id;
+        unset($data['image']);
+
+        if ($request->hasFile('image')) {
+            $data['image_path'] = $request->file('image')->store('job-postings', 'public');
+        }
 
         $posting = JobPosting::create($data);
         $posting->load('creator');
@@ -73,7 +78,14 @@ class JobPostingController extends Controller
 
     public function update(UpdateJobPostingRequest $request, JobPosting $jobPosting): JsonResponse
     {
-        $jobPosting->update($request->validated());
+        $data = $request->validated();
+        unset($data['image']);
+
+        if ($request->hasFile('image')) {
+            $data['image_path'] = $request->file('image')->store('job-postings', 'public');
+        }
+
+        $jobPosting->update($data);
         $jobPosting->load('creator');
 
         return response()->json([

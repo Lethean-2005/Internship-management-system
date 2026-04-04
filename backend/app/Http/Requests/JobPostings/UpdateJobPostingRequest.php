@@ -14,6 +14,8 @@ class UpdateJobPostingRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'post_mode' => ['nullable', 'string', 'in:detail,image'],
+            'image' => ['nullable', 'image', 'max:5120'],
             'title' => ['sometimes', 'string', 'max:255'],
             'company_name' => ['sometimes', 'string', 'max:255'],
             'location' => ['nullable', 'string'],

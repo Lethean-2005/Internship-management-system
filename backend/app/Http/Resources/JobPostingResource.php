@@ -11,6 +11,9 @@ class JobPostingResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'post_mode' => $this->post_mode,
+            'image_path' => $this->image_path,
+            'image_url' => $this->image_path ? asset('storage/' . $this->image_path) : null,
             'title' => $this->title,
             'company_name' => $this->company_name,
             'location' => $this->location,

@@ -14,6 +14,8 @@ class StoreJobPostingRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'post_mode' => ['nullable', 'string', 'in:detail,image'],
+            'image' => ['nullable', 'image', 'max:5120'],
             'title' => ['required', 'string', 'max:255'],
             'company_name' => ['required', 'string', 'max:255'],
             'location' => ['nullable', 'string'],

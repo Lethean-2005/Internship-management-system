@@ -161,6 +161,9 @@ export interface CompanyInterview {
 
 export interface JobPosting {
   id: number;
+  post_mode: string;
+  image_path: string | null;
+  image_url: string | null;
   title: string;
   company_name: string;
   location: string | null;
