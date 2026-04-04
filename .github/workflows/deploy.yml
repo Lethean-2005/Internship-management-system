@@ -1,0 +1,29 @@
+name: Deploy to AWS EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Deploy via SSM
+        run: |
+          aws ssm send-command \
+            --instance-ids ${{ secrets.EC2_INSTANCE_ID }} \
+            --document-name "AWS-RunPowerShellScript" \
+            --parameters 'commands=["Invoke-WebRequest -Uri ''https://github.com/Lethean-2005/Internship-management-system/archive/refs/heads/main.zip'' -OutFile ''C:\\project-new.zip'' -UseBasicParsing","Expand-Archive -Path ''C:\\project-new.zip'' -DestinationPath ''C:\\inetpub\\wwwroot\\ims'' -Force","cd C:\\inetpub\\wwwroot\\ims\\Internship-management-system-main\\backend; C:\\php\\php.exe C:\\ProgramData\\ComposerSetup\\bin\\composer install --no-dev --optimize-autoloader","cd C:\\inetpub\\wwwroot\\ims\\Internship-management-system-main\\backend; C:\\php\\php.exe artisan migrate --force","iisreset"]' \
+            --region us-east-1
