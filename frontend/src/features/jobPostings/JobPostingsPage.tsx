@@ -368,7 +368,7 @@ function DetailCard({ posting, isAdmin, onView, onEdit, onDelete }: {
   );
 }
 
-// === Image Card (same layout as Detail, image only in modal) ===
+// === Image Card (same layout as Detail, uploaded image as logo) ===
 function ImageCard({ posting, isAdmin, onView, onEdit, onDelete }: {
   posting: JobPosting; isAdmin: boolean;
   onView: (p: JobPosting) => void; onEdit: (p: JobPosting) => void; onDelete: (id: number) => void;
@@ -378,7 +378,7 @@ function ImageCard({ posting, isAdmin, onView, onEdit, onDelete }: {
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 rounded-[5px] bg-[#f8f9fa] border border-[#e5e7eb] flex items-center justify-center overflow-hidden flex-shrink-0">
-            <img src="/passerellesnum_riques_logo.jfif" alt="Logo" className="w-8 h-8 object-contain" />
+            <img src={posting.image_url || '/passerellesnum_riques_logo.jfif'} alt="Logo" className="w-full h-full object-cover" />
           </div>
           <div>
             <p className="text-[0.85rem] font-semibold text-[#1e1b4b]">{posting.company_name}</p>
