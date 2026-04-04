@@ -30,7 +30,7 @@ const navItems: NavItem[] = [
   { to: '/roles', label: 'Roles', icon: Notebook, roles: ['admin'] },
   { to: '/my-interns', label: 'My Interns', icon: GraduationCap, roles: ['tutor'] },
   { to: '/weekly-worklogs', label: 'Weekly Worklog', icon: ClipboardList, roles: ['admin', 'tutor', 'supervisor', 'intern'] },
-  { to: '/final-reports', label: 'Final Reports', icon: FileText, roles: ['admin', 'tutor', 'supervisor', 'intern'] },
+  { to: '/final-reports', label: 'Final Report', icon: FileText, roles: ['admin', 'tutor', 'supervisor', 'intern'] },
   { to: '/final-slides', label: 'Final Slides', icon: Presentation, roles: ['admin', 'tutor', 'supervisor', 'intern'] },
   { to: '/contact-supervisor', label: 'Contact Supervisor', icon: MessageSquare, roles: ['admin', 'tutor', 'supervisor', 'intern'] },
   { to: '/company-interviews', label: 'Company Interviews', icon: CalendarCheck, roles: ['admin', 'supervisor', 'intern'] },
