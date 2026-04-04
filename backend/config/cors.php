@@ -10,7 +10,11 @@ return [
         'http://localhost:5173',
     ],
 
-    'allowed_origins_patterns' => [],
+    'allowed_origins_patterns' => [
+        '#^http://localhost:\d+$#',
+        '#^http://10\.11\.5\.57:\d+$#',
+        '#^http://192\.168\.\d+\.\d+:\d+$#',
+    ],
 
     'allowed_headers' => ['*'],
 
