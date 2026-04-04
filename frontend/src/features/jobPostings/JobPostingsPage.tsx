@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Briefcase, Plus, Pencil, Trash2, Eye, MapPin, Calendar, Users, Mail } from 'lucide-react';
+import { Briefcase, Plus, Pencil, Trash2, MapPin, Calendar, Users, Mail, Clock } from 'lucide-react';
 import { useJobPostings, useCreateJobPosting, useUpdateJobPosting, useDeleteJobPosting } from '../../hooks/useJobPostings';
 import { useAuthStore } from '../../stores/authStore';
 import { SearchInput } from '../../components/ui/SearchInput';
@@ -10,20 +10,27 @@ import { Select } from '../../components/ui/Select';
 import { Pagination } from '../../components/ui/Pagination';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { EmptyState } from '../../components/ui/EmptyState';
-import { Badge } from '../../components/ui/Badge';
 import type { JobPosting } from '../../types/ims';
 import type { JobPostingPayload } from '../../api/jobPostings';
 
-const STATUS_COLORS: Record<string, string> = {
-  open: 'bg-green-100 text-green-700',
-  closed: 'bg-red-100 text-red-700',
-};
-
 const TYPE_LABELS: Record<string, string> = {
   internship: 'Internship',
-  'full-time': 'Full Time',
-  'part-time': 'Part Time',
+  'full-time': 'Full-time',
+  'part-time': 'Part-time',
 };
+
+function timeAgo(dateStr: string): string {
+  const now = new Date();
+  const date = new Date(dateStr);
+  const diffMs = now.getTime() - date.getTime();
+  const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  if (days === 0) return 'Today';
+  if (days === 1) return '1 day ago';
+  if (days < 30) return `${days} days ago`;
+  const months = Math.floor(days / 30);
+  if (months === 1) return '1 month ago';
+  return `${months} months ago`;
+}
 
 export default function JobPostingsPage() {
   const { user } = useAuthStore();
@@ -31,25 +38,26 @@ export default function JobPostingsPage() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editPosting, setEditPosting] = useState<JobPosting | null>(null);
   const [viewPosting, setViewPosting] = useState<JobPosting | null>(null);
 
-  const { data, isLoading } = useJobPostings({ search, page, status: statusFilter || undefined });
+  const { data, isLoading } = useJobPostings({
+    search, page,
+    status: statusFilter || undefined,
+    type: typeFilter || undefined,
+  });
   const createMutation = useCreateJobPosting();
   const updateMutation = useUpdateJobPosting();
   const deleteMutation = useDeleteJobPosting();
 
   const handleCreate = (payload: JobPostingPayload) => {
-    createMutation.mutate(payload, {
-      onSuccess: () => setShowForm(false),
-    });
+    createMutation.mutate(payload, { onSuccess: () => setShowForm(false) });
   };
 
   const handleUpdate = (id: number, payload: Partial<JobPostingPayload>) => {
-    updateMutation.mutate({ id, payload }, {
-      onSuccess: () => setEditPosting(null),
-    });
+    updateMutation.mutate({ id, payload }, { onSuccess: () => setEditPosting(null) });
   };
 
   const handleDelete = (id: number) => {
@@ -69,11 +77,17 @@ export default function JobPostingsPage() {
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3 mb-6">
-        <SearchInput value={search} onChange={(v) => { setSearch(v); setPage(1); }} placeholder="Search job postings..." />
+        <SearchInput value={search} onChange={(v) => { setSearch(v); setPage(1); }} placeholder="Search jobs..." />
         <Select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} options={[
           { value: '', label: 'All Status' },
           { value: 'open', label: 'Open' },
           { value: 'closed', label: 'Closed' },
+        ]} />
+        <Select value={typeFilter} onChange={(e) => { setTypeFilter(e.target.value); setPage(1); }} options={[
+          { value: '', label: 'All Types' },
+          { value: 'internship', label: 'Internship' },
+          { value: 'full-time', label: 'Full Time' },
+          { value: 'part-time', label: 'Part Time' },
         ]} />
         {isAdmin && (
           <Button onClick={() => setShowForm(true)} className="ml-auto">
@@ -89,60 +103,87 @@ export default function JobPostingsPage() {
         <EmptyState icon={<Briefcase className="w-10 h-10" />} title="No job postings found" description="No job postings match your search criteria." />
       ) : (
         <>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {data.data.map((posting) => (
-              <div key={posting.id} className="bg-white rounded-lg border border-[#e5e7eb] p-5 hover:shadow-md transition-shadow">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-[0.95rem] font-semibold text-[#1e1b4b] truncate">{posting.title}</h3>
-                    <p className="text-[0.82rem] text-[#6b7280] mt-0.5">{posting.company_name}</p>
+              <div key={posting.id} className="bg-white rounded-xl border border-[#e5e7eb] p-6 hover:shadow-lg transition-all duration-200 flex flex-col">
+                {/* Header: Logo + Company + Time */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-11 h-11 rounded-xl bg-[#f8f9fa] border border-[#e5e7eb] flex items-center justify-center overflow-hidden flex-shrink-0">
+                      <img src="/passerellesnum_riques_logo.jfif" alt="Logo" className="w-8 h-8 object-contain" />
+                    </div>
+                    <div>
+                      <p className="text-[0.85rem] font-semibold text-[#1e1b4b]">{posting.company_name}</p>
+                      <p className="text-[0.72rem] text-[#9ca3af]">{timeAgo(posting.created_at)}</p>
+                    </div>
                   </div>
-                  <Badge className={STATUS_COLORS[posting.status] || 'bg-gray-100 text-gray-700'}>
-                    {posting.status}
-                  </Badge>
-                </div>
-
-                <div className="space-y-1.5 mb-4">
-                  {posting.location && (
-                    <div className="flex items-center gap-1.5 text-[0.8rem] text-[#6b7280]">
-                      <MapPin className="w-3.5 h-3.5" /> {posting.location}
-                    </div>
-                  )}
-                  {posting.department && (
-                    <div className="flex items-center gap-1.5 text-[0.8rem] text-[#6b7280]">
-                      <Briefcase className="w-3.5 h-3.5" /> {posting.department}
-                    </div>
-                  )}
-                  <div className="flex items-center gap-1.5 text-[0.8rem] text-[#6b7280]">
-                    <Users className="w-3.5 h-3.5" /> {posting.positions} position{posting.positions !== 1 ? 's' : ''}
-                  </div>
-                  {posting.application_deadline && (
-                    <div className="flex items-center gap-1.5 text-[0.8rem] text-[#6b7280]">
-                      <Calendar className="w-3.5 h-3.5" /> Deadline: {new Date(posting.application_deadline).toLocaleDateString()}
-                    </div>
+                  {posting.status === 'closed' && (
+                    <span className="text-[0.68rem] font-medium text-red-500 bg-red-50 px-2 py-0.5 rounded-full">Closed</span>
                   )}
                 </div>
 
-                <div className="flex items-center gap-1.5 mb-3">
-                  <Badge className="bg-blue-50 text-blue-700 text-[0.72rem]">
+                {/* Title */}
+                <h3 className="text-[1.05rem] font-bold text-[#111827] mb-3 leading-snug">{posting.title}</h3>
+
+                {/* Tags */}
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <span className="inline-flex items-center rounded-full border border-[#e5e7eb] px-3 py-1 text-[0.73rem] font-medium text-[#374151] bg-white">
                     {TYPE_LABELS[posting.type] || posting.type}
-                  </Badge>
+                  </span>
+                  {posting.department && (
+                    <span className="inline-flex items-center rounded-full border border-[#e5e7eb] px-3 py-1 text-[0.73rem] font-medium text-[#374151] bg-white">
+                      {posting.department}
+                    </span>
+                  )}
+                  {posting.location && (
+                    <span className="inline-flex items-center rounded-full border border-[#e5e7eb] px-3 py-1 text-[0.73rem] font-medium text-[#374151] bg-white">
+                      {posting.location}
+                    </span>
+                  )}
                 </div>
 
-                <div className="flex items-center gap-2 pt-3 border-t border-[#f0f0f0]">
-                  <button onClick={() => setViewPosting(posting)} className="text-[0.78rem] text-[#6366f1] hover:text-[#4f46e5] flex items-center gap-1">
-                    <Eye className="w-3.5 h-3.5" /> View
-                  </button>
-                  {isAdmin && (
-                    <>
-                      <button onClick={() => setEditPosting(posting)} className="text-[0.78rem] text-[#f59e0b] hover:text-[#d97706] flex items-center gap-1 ml-auto">
-                        <Pencil className="w-3.5 h-3.5" /> Edit
-                      </button>
-                      <button onClick={() => handleDelete(posting.id)} className="text-[0.78rem] text-[#ef4444] hover:text-[#dc2626] flex items-center gap-1">
-                        <Trash2 className="w-3.5 h-3.5" /> Delete
-                      </button>
-                    </>
+                {/* Info row */}
+                <div className="flex items-center gap-4 mb-5 text-[0.78rem] text-[#6b7280]">
+                  <span className="flex items-center gap-1">
+                    <Users className="w-3.5 h-3.5" /> {posting.positions} position{posting.positions !== 1 ? 's' : ''}
+                  </span>
+                  {posting.application_deadline && (
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3.5 h-3.5" /> {new Date(posting.application_deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </span>
                   )}
+                </div>
+
+                {/* Spacer */}
+                <div className="flex-1" />
+
+                {/* Footer */}
+                <div className="flex items-center justify-between pt-4 border-t border-[#f0f0f0]">
+                  {posting.location && (
+                    <span className="text-[0.78rem] text-[#6b7280] flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5" /> {posting.location}
+                    </span>
+                  )}
+                  {!posting.location && <span />}
+
+                  <div className="flex items-center gap-2">
+                    {isAdmin && (
+                      <>
+                        <button onClick={() => setEditPosting(posting)} className="p-1.5 rounded-lg hover:bg-[#f5f5f7] text-[#9ca3af] hover:text-[#f59e0b] transition-colors" title="Edit">
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
+                        <button onClick={() => handleDelete(posting.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-[#9ca3af] hover:text-[#ef4444] transition-colors" title="Delete">
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </>
+                    )}
+                    <button
+                      onClick={() => setViewPosting(posting)}
+                      className="inline-flex items-center gap-1 rounded-lg bg-[#1e1b4b] text-white px-4 py-2 text-[0.78rem] font-semibold hover:bg-[#2d2a5e] transition-colors"
+                    >
+                      View detail
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -175,49 +216,105 @@ export default function JobPostingsPage() {
         />
       )}
 
-      {/* View Modal */}
+      {/* View Detail Modal */}
       {viewPosting && (
-        <Modal open={true} onClose={() => setViewPosting(null)} title={viewPosting.title} size="lg">
-          <div className="space-y-4">
+        <Modal open={true} onClose={() => setViewPosting(null)} title="" size="lg">
+          <div className="space-y-5">
+            {/* Header */}
+            <div className="flex items-start gap-4">
+              <div className="w-14 h-14 rounded-xl bg-[#f8f9fa] border border-[#e5e7eb] flex items-center justify-center overflow-hidden flex-shrink-0">
+                <img src="/passerellesnum_riques_logo.jfif" alt="Logo" className="w-10 h-10 object-contain" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-[1.15rem] font-bold text-[#111827]">{viewPosting.title}</h2>
+                <p className="text-[0.88rem] text-[#6b7280] mt-0.5">{viewPosting.company_name}</p>
+                <p className="text-[0.75rem] text-[#9ca3af] mt-0.5">{timeAgo(viewPosting.created_at)}</p>
+              </div>
+              <span className={`text-[0.73rem] font-semibold px-3 py-1 rounded-full ${viewPosting.status === 'open' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'}`}>
+                {viewPosting.status === 'open' ? 'Open' : 'Closed'}
+              </span>
+            </div>
+
+            {/* Tags */}
             <div className="flex flex-wrap gap-2">
-              <Badge className={STATUS_COLORS[viewPosting.status] || 'bg-gray-100 text-gray-700'}>{viewPosting.status}</Badge>
-              <Badge className="bg-blue-50 text-blue-700">{TYPE_LABELS[viewPosting.type] || viewPosting.type}</Badge>
+              <span className="inline-flex items-center rounded-full border border-[#e5e7eb] px-3 py-1 text-[0.76rem] font-medium text-[#374151]">
+                {TYPE_LABELS[viewPosting.type] || viewPosting.type}
+              </span>
+              {viewPosting.department && (
+                <span className="inline-flex items-center rounded-full border border-[#e5e7eb] px-3 py-1 text-[0.76rem] font-medium text-[#374151]">
+                  {viewPosting.department}
+                </span>
+              )}
+              {viewPosting.location && (
+                <span className="inline-flex items-center rounded-full border border-[#e5e7eb] px-3 py-1 text-[0.76rem] font-medium text-[#374151]">
+                  <MapPin className="w-3 h-3 mr-1" /> {viewPosting.location}
+                </span>
+              )}
             </div>
 
-            <div className="grid grid-cols-2 gap-4 text-[0.85rem]">
-              <div><span className="text-[#6b7280]">Company:</span> <span className="font-medium">{viewPosting.company_name}</span></div>
-              {viewPosting.location && <div><span className="text-[#6b7280]">Location:</span> <span className="font-medium">{viewPosting.location}</span></div>}
-              {viewPosting.department && <div><span className="text-[#6b7280]">Department:</span> <span className="font-medium">{viewPosting.department}</span></div>}
-              <div><span className="text-[#6b7280]">Positions:</span> <span className="font-medium">{viewPosting.positions}</span></div>
-              {viewPosting.start_date && <div><span className="text-[#6b7280]">Start:</span> <span className="font-medium">{new Date(viewPosting.start_date).toLocaleDateString()}</span></div>}
-              {viewPosting.end_date && <div><span className="text-[#6b7280]">End:</span> <span className="font-medium">{new Date(viewPosting.end_date).toLocaleDateString()}</span></div>}
-              {viewPosting.application_deadline && <div><span className="text-[#6b7280]">Deadline:</span> <span className="font-medium">{new Date(viewPosting.application_deadline).toLocaleDateString()}</span></div>}
-              {viewPosting.contact_email && <div className="flex items-center gap-1"><Mail className="w-3.5 h-3.5 text-[#6b7280]" /> <span className="font-medium">{viewPosting.contact_email}</span></div>}
+            {/* Details grid */}
+            <div className="grid grid-cols-2 gap-x-6 gap-y-3 bg-[#f9fafb] rounded-xl p-4">
+              <div className="flex items-center gap-2 text-[0.82rem]">
+                <Users className="w-4 h-4 text-[#6b7280]" />
+                <span className="text-[#6b7280]">Positions:</span>
+                <span className="font-semibold text-[#111827]">{viewPosting.positions}</span>
+              </div>
+              {viewPosting.start_date && (
+                <div className="flex items-center gap-2 text-[0.82rem]">
+                  <Calendar className="w-4 h-4 text-[#6b7280]" />
+                  <span className="text-[#6b7280]">Start:</span>
+                  <span className="font-semibold text-[#111827]">{new Date(viewPosting.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                </div>
+              )}
+              {viewPosting.end_date && (
+                <div className="flex items-center gap-2 text-[0.82rem]">
+                  <Calendar className="w-4 h-4 text-[#6b7280]" />
+                  <span className="text-[#6b7280]">End:</span>
+                  <span className="font-semibold text-[#111827]">{new Date(viewPosting.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                </div>
+              )}
+              {viewPosting.application_deadline && (
+                <div className="flex items-center gap-2 text-[0.82rem]">
+                  <Clock className="w-4 h-4 text-[#6b7280]" />
+                  <span className="text-[#6b7280]">Deadline:</span>
+                  <span className="font-semibold text-[#111827]">{new Date(viewPosting.application_deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                </div>
+              )}
+              {viewPosting.contact_email && (
+                <div className="flex items-center gap-2 text-[0.82rem]">
+                  <Mail className="w-4 h-4 text-[#6b7280]" />
+                  <span className="font-semibold text-[#111827]">{viewPosting.contact_email}</span>
+                </div>
+              )}
             </div>
 
+            {/* Description */}
             {viewPosting.description && (
               <div>
-                <h4 className="text-[0.85rem] font-semibold text-[#1e1b4b] mb-1">Description</h4>
-                <p className="text-[0.83rem] text-[#374151] whitespace-pre-wrap">{viewPosting.description}</p>
+                <h4 className="text-[0.88rem] font-bold text-[#111827] mb-2">Description</h4>
+                <p className="text-[0.83rem] text-[#4b5563] whitespace-pre-wrap leading-relaxed">{viewPosting.description}</p>
               </div>
             )}
 
+            {/* Requirements */}
             {viewPosting.requirements && (
               <div>
-                <h4 className="text-[0.85rem] font-semibold text-[#1e1b4b] mb-1">Requirements</h4>
-                <p className="text-[0.83rem] text-[#374151] whitespace-pre-wrap">{viewPosting.requirements}</p>
+                <h4 className="text-[0.88rem] font-bold text-[#111827] mb-2">Requirements</h4>
+                <p className="text-[0.83rem] text-[#4b5563] whitespace-pre-wrap leading-relaxed">{viewPosting.requirements}</p>
               </div>
             )}
 
+            {/* Benefits */}
             {viewPosting.benefits && (
               <div>
-                <h4 className="text-[0.85rem] font-semibold text-[#1e1b4b] mb-1">Benefits</h4>
-                <p className="text-[0.83rem] text-[#374151] whitespace-pre-wrap">{viewPosting.benefits}</p>
+                <h4 className="text-[0.88rem] font-bold text-[#111827] mb-2">Benefits</h4>
+                <p className="text-[0.83rem] text-[#4b5563] whitespace-pre-wrap leading-relaxed">{viewPosting.benefits}</p>
               </div>
             )}
 
+            {/* Posted by */}
             {viewPosting.creator && (
-              <p className="text-[0.78rem] text-[#9ca3af]">Posted by {viewPosting.creator.name}</p>
+              <p className="text-[0.75rem] text-[#9ca3af] pt-2 border-t border-[#f0f0f0]">Posted by {viewPosting.creator.name}</p>
             )}
           </div>
         </Modal>
@@ -287,18 +384,18 @@ function JobPostingFormModal({ posting, onClose, onSubmit, isLoading }: {
         </div>
 
         <div>
-          <label className="block text-[0.82rem] font-medium text-[#374151] mb-1">Description</label>
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className="w-full rounded-md border border-[#d1d5db] px-3 py-2 text-[0.85rem] focus:outline-none focus:ring-2 focus:ring-[#6366f1] focus:border-transparent" placeholder="Job description..." />
+          <label className="block text-[0.85rem] font-medium text-[#374151] mb-1">Description</label>
+          <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className="w-full rounded-[5px] border border-[#e0e0e0] px-[14px] py-[11px] text-[0.88rem] transition-all focus:outline-none focus:border-[#48B6E8] focus:ring-[3px] focus:ring-[rgba(72,182,232,0.08)]" placeholder="Job description..." />
         </div>
 
         <div>
-          <label className="block text-[0.82rem] font-medium text-[#374151] mb-1">Requirements</label>
-          <textarea value={requirements} onChange={(e) => setRequirements(e.target.value)} rows={3} className="w-full rounded-md border border-[#d1d5db] px-3 py-2 text-[0.85rem] focus:outline-none focus:ring-2 focus:ring-[#6366f1] focus:border-transparent" placeholder="Job requirements..." />
+          <label className="block text-[0.85rem] font-medium text-[#374151] mb-1">Requirements</label>
+          <textarea value={requirements} onChange={(e) => setRequirements(e.target.value)} rows={3} className="w-full rounded-[5px] border border-[#e0e0e0] px-[14px] py-[11px] text-[0.88rem] transition-all focus:outline-none focus:border-[#48B6E8] focus:ring-[3px] focus:ring-[rgba(72,182,232,0.08)]" placeholder="Job requirements..." />
         </div>
 
         <div>
-          <label className="block text-[0.82rem] font-medium text-[#374151] mb-1">Benefits</label>
-          <textarea value={benefits} onChange={(e) => setBenefits(e.target.value)} rows={2} className="w-full rounded-md border border-[#d1d5db] px-3 py-2 text-[0.85rem] focus:outline-none focus:ring-2 focus:ring-[#6366f1] focus:border-transparent" placeholder="Benefits offered..." />
+          <label className="block text-[0.85rem] font-medium text-[#374151] mb-1">Benefits</label>
+          <textarea value={benefits} onChange={(e) => setBenefits(e.target.value)} rows={2} className="w-full rounded-[5px] border border-[#e0e0e0] px-[14px] py-[11px] text-[0.88rem] transition-all focus:outline-none focus:border-[#48B6E8] focus:ring-[3px] focus:ring-[rgba(72,182,232,0.08)]" placeholder="Benefits offered..." />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
