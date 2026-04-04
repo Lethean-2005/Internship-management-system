@@ -63,6 +63,7 @@ export function MyInternsPage() {
                   <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Company</th>
                   <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Position</th>
                   <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Supervisor</th>
+                  <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Allowance</th>
                   <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Status</th>
                   <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Actions</th>
                 </tr>
@@ -82,6 +83,7 @@ export function MyInternsPage() {
                     <td className="px-5 py-3 text-[0.82rem] text-[#374151]">{intern.company_name || '-'}</td>
                     <td className="px-5 py-3 text-[0.82rem] text-[#374151]">{intern.position || '-'}</td>
                     <td className="px-5 py-3 text-[0.82rem] text-[#374151]">{intern.supervisor_name || '-'}</td>
+                    <td className="px-5 py-3 text-[0.82rem] text-[#374151]">{intern.allowance ? `$${intern.allowance}` : '-'}</td>
                     <td className="px-5 py-3">
                       <Badge color={intern.is_active ? 'green' : 'gray'}>
                         {intern.is_active ? 'Active' : 'Inactive'}
@@ -99,7 +101,7 @@ export function MyInternsPage() {
                 ))}
                 {filteredData?.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">
+                    <td colSpan={8} className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">
                       {search ? 'No interns match your search.' : 'No interns assigned to you yet.'}
                     </td>
                   </tr>
@@ -160,6 +162,10 @@ export function MyInternsPage() {
                 <div className="bg-[#f9fafb] rounded-[5px] p-3">
                   <p className="text-[0.72rem] text-[#9ca3af] mb-1">Supervisor</p>
                   <p className="text-[0.82rem] font-medium text-[#374151]">{viewIntern.supervisor_name || '-'}</p>
+                </div>
+                <div className="bg-[#f9fafb] rounded-[5px] p-3">
+                  <p className="text-[0.72rem] text-[#9ca3af] mb-1">Allowance</p>
+                  <p className="text-[0.82rem] font-medium text-[#374151]">{viewIntern.allowance ? `$${viewIntern.allowance}/month` : '-'}</p>
                 </div>
                 <div className="bg-[#f9fafb] rounded-[5px] p-3">
                   <p className="text-[0.72rem] text-[#9ca3af] mb-1">Registered</p>
