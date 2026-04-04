@@ -88,7 +88,7 @@ export function DashboardPage() {
           Welcome, {user?.name || 'User'}
         </h1>
         <p className="mt-1 text-[0.88rem] text-[#6b7280]">
-          {greetingMap[roleSlug] || 'Overview of the Internship Management System.'}
+          {greetingMap[roleSlug] || 'Overview of the Internship Management System - Auto Deploy Test.'}
         </p>
       </div>
 
