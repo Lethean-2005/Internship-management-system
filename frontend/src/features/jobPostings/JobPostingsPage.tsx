@@ -111,11 +111,11 @@ export default function JobPostingsPage() {
         <>
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {data.data.map((posting) => (
-              <div key={posting.id} className="bg-white rounded-xl border border-[#e5e7eb] p-6 hover:shadow-lg transition-all duration-200 flex flex-col">
+              <div key={posting.id} className="bg-white rounded-[5px] border border-[#e5e7eb] p-6 hover:shadow-lg transition-all duration-200 flex flex-col">
                 {/* Header: Logo + Company + Time */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-xl bg-[#f8f9fa] border border-[#e5e7eb] flex items-center justify-center overflow-hidden flex-shrink-0">
+                    <div className="w-11 h-11 rounded-[5px] bg-[#f8f9fa] border border-[#e5e7eb] flex items-center justify-center overflow-hidden flex-shrink-0">
                       <img src="/passerellesnum_riques_logo.jfif" alt="Logo" className="w-8 h-8 object-contain" />
                     </div>
                     <div>
@@ -124,7 +124,7 @@ export default function JobPostingsPage() {
                     </div>
                   </div>
                   {posting.status === 'closed' && (
-                    <span className="text-[0.68rem] font-medium text-red-500 bg-red-50 px-2 py-0.5 rounded-full">Closed</span>
+                    <span className="text-[0.68rem] font-medium text-red-500 bg-red-50 px-2 py-0.5 rounded-[5px]">Closed</span>
                   )}
                 </div>
 
@@ -133,16 +133,16 @@ export default function JobPostingsPage() {
 
                 {/* Tags */}
                 <div className="flex flex-wrap gap-2 mb-4">
-                  <span className="inline-flex items-center rounded-full border border-[#e5e7eb] px-3 py-1 text-[0.73rem] font-medium text-[#374151] bg-white">
+                  <span className="inline-flex items-center rounded-[5px] border border-[#e5e7eb] px-3 py-1 text-[0.73rem] font-medium text-[#374151] bg-white">
                     {TYPE_LABELS[posting.type] || posting.type}
                   </span>
                   {posting.department && (
-                    <span className="inline-flex items-center rounded-full border border-[#e5e7eb] px-3 py-1 text-[0.73rem] font-medium text-[#374151] bg-white">
+                    <span className="inline-flex items-center rounded-[5px] border border-[#e5e7eb] px-3 py-1 text-[0.73rem] font-medium text-[#374151] bg-white">
                       {posting.department}
                     </span>
                   )}
                   {posting.location && (
-                    <span className="inline-flex items-center rounded-full border border-[#e5e7eb] px-3 py-1 text-[0.73rem] font-medium text-[#374151] bg-white">
+                    <span className="inline-flex items-center rounded-[5px] border border-[#e5e7eb] px-3 py-1 text-[0.73rem] font-medium text-[#374151] bg-white">
                       {posting.location}
                     </span>
                   )}
@@ -175,17 +175,17 @@ export default function JobPostingsPage() {
                   <div className="flex items-center gap-2">
                     {isAdmin && (
                       <>
-                        <button onClick={() => setEditPosting(posting)} className="p-1.5 rounded-lg hover:bg-[#f5f5f7] text-[#9ca3af] hover:text-[#f59e0b] transition-colors" title="Edit">
+                        <button onClick={() => setEditPosting(posting)} className="p-1.5 rounded-[5px] hover:bg-[#f5f5f7] text-[#9ca3af] hover:text-[#f59e0b] transition-colors" title="Edit">
                           <Pencil className="w-3.5 h-3.5" />
                         </button>
-                        <button onClick={() => handleDelete(posting.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-[#9ca3af] hover:text-[#ef4444] transition-colors" title="Delete">
+                        <button onClick={() => handleDelete(posting.id)} className="p-1.5 rounded-[5px] hover:bg-red-50 text-[#9ca3af] hover:text-[#ef4444] transition-colors" title="Delete">
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </>
                     )}
                     <button
                       onClick={() => setViewPosting(posting)}
-                      className="inline-flex items-center gap-1 rounded-lg bg-[#1e1b4b] text-white px-4 py-2 text-[0.78rem] font-semibold hover:bg-[#2d2a5e] transition-colors"
+                      className="inline-flex items-center gap-1 rounded-[5px] bg-[#1e1b4b] text-white px-4 py-2 text-[0.78rem] font-semibold hover:bg-[#2d2a5e] transition-colors"
                     >
                       View detail
                     </button>
@@ -228,7 +228,7 @@ export default function JobPostingsPage() {
           <div className="space-y-5">
             {/* Header */}
             <div className="flex items-start gap-4">
-              <div className="w-14 h-14 rounded-xl bg-[#f8f9fa] border border-[#e5e7eb] flex items-center justify-center overflow-hidden flex-shrink-0">
+              <div className="w-14 h-14 rounded-[5px] bg-[#f8f9fa] border border-[#e5e7eb] flex items-center justify-center overflow-hidden flex-shrink-0">
                 <img src="/passerellesnum_riques_logo.jfif" alt="Logo" className="w-10 h-10 object-contain" />
               </div>
               <div className="flex-1">
@@ -236,30 +236,30 @@ export default function JobPostingsPage() {
                 <p className="text-[0.88rem] text-[#6b7280] mt-0.5">{viewPosting.company_name}</p>
                 <p className="text-[0.75rem] text-[#9ca3af] mt-0.5">{timeAgo(viewPosting.created_at)}</p>
               </div>
-              <span className={`text-[0.73rem] font-semibold px-3 py-1 rounded-full ${viewPosting.status === 'open' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'}`}>
+              <span className={`text-[0.73rem] font-semibold px-3 py-1 rounded-[5px] ${viewPosting.status === 'open' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'}`}>
                 {viewPosting.status === 'open' ? 'Open' : 'Closed'}
               </span>
             </div>
 
             {/* Tags */}
             <div className="flex flex-wrap gap-2">
-              <span className="inline-flex items-center rounded-full border border-[#e5e7eb] px-3 py-1 text-[0.76rem] font-medium text-[#374151]">
+              <span className="inline-flex items-center rounded-[5px] border border-[#e5e7eb] px-3 py-1 text-[0.76rem] font-medium text-[#374151]">
                 {TYPE_LABELS[viewPosting.type] || viewPosting.type}
               </span>
               {viewPosting.department && (
-                <span className="inline-flex items-center rounded-full border border-[#e5e7eb] px-3 py-1 text-[0.76rem] font-medium text-[#374151]">
+                <span className="inline-flex items-center rounded-[5px] border border-[#e5e7eb] px-3 py-1 text-[0.76rem] font-medium text-[#374151]">
                   {viewPosting.department}
                 </span>
               )}
               {viewPosting.location && (
-                <span className="inline-flex items-center rounded-full border border-[#e5e7eb] px-3 py-1 text-[0.76rem] font-medium text-[#374151]">
+                <span className="inline-flex items-center rounded-[5px] border border-[#e5e7eb] px-3 py-1 text-[0.76rem] font-medium text-[#374151]">
                   <MapPin className="w-3 h-3 mr-1" /> {viewPosting.location}
                 </span>
               )}
             </div>
 
             {/* Details grid */}
-            <div className="grid grid-cols-2 gap-x-6 gap-y-3 bg-[#f9fafb] rounded-xl p-4">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-3 bg-[#f9fafb] rounded-[5px] p-4">
               <div className="flex items-center gap-2 text-[0.82rem]">
                 <Users className="w-4 h-4 text-[#6b7280]" />
                 <span className="text-[#6b7280]">Positions:</span>
