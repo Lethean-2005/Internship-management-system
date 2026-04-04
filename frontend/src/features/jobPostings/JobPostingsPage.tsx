@@ -176,7 +176,9 @@ export default function JobPostingsPage() {
           {viewPosting.post_mode === 'image' ? (
             <div className="space-y-4">
               {viewPosting.image_url && (
-                <img src={viewPosting.image_url} alt={viewPosting.title} className="w-full rounded-[5px] object-cover" />
+                <div className="flex justify-center">
+                  <img src={viewPosting.image_url} alt={viewPosting.title} className="max-h-[350px] rounded-[5px] object-contain border border-[#e5e7eb]" />
+                </div>
               )}
               <h2 className="text-[1.15rem] font-bold text-[#111827]">{viewPosting.title}</h2>
               <p className="text-[0.88rem] text-[#6b7280]">{viewPosting.company_name}</p>
