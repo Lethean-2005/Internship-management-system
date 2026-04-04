@@ -1,5 +1,5 @@
-import { useState, useRef } from 'react';
-import { Briefcase, Plus, Pencil, Trash2, MapPin, Calendar, Users, Mail, Clock, List, CheckCircle, XCircle, Building2, Laptop, ExternalLink, ImagePlus } from 'lucide-react';
+import { useState } from 'react';
+import { Briefcase, Plus, Pencil, Trash2, MapPin, Calendar, Users, Mail, Clock, List, CheckCircle, XCircle, Building2, Laptop, ExternalLink } from 'lucide-react';
 import { useJobPostings, useCreateJobPosting, useUpdateJobPosting, useDeleteJobPosting } from '../../hooks/useJobPostings';
 import { useAuthStore } from '../../stores/authStore';
 import { SearchInput } from '../../components/ui/SearchInput';
@@ -134,13 +134,9 @@ export default function JobPostingsPage() {
       ) : (
         <>
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {data.data.map((posting) =>
-              posting.post_mode === 'image' ? (
-                <ImageCard key={posting.id} posting={posting} isAdmin={isAdmin} onView={setViewPosting} onEdit={setEditPosting} onDelete={handleDelete} />
-              ) : (
-                <DetailCard key={posting.id} posting={posting} isAdmin={isAdmin} onView={setViewPosting} onEdit={setEditPosting} onDelete={handleDelete} />
-              )
-            )}
+            {data.data.map((posting) => (
+              <DetailCard key={posting.id} posting={posting} isAdmin={isAdmin} onView={setViewPosting} onEdit={setEditPosting} onDelete={handleDelete} />
+            ))}
           </div>
 
           {data.meta && data.meta.last_page > 1 && (
@@ -173,28 +169,6 @@ export default function JobPostingsPage() {
       {/* View Detail Modal */}
       {viewPosting && (
         <Modal open={true} onClose={() => setViewPosting(null)} title="" size="lg">
-          {viewPosting.post_mode === 'image' ? (
-            <div className="space-y-4">
-              {viewPosting.image_url && (
-                <div className="flex justify-center">
-                  <img src={viewPosting.image_url} alt={viewPosting.title} className="max-h-[350px] rounded-[5px] object-contain border border-[#e5e7eb]" />
-                </div>
-              )}
-              <h2 className="text-[1.15rem] font-bold text-[#111827]">{viewPosting.title}</h2>
-              <p className="text-[0.88rem] text-[#6b7280]">{viewPosting.company_name}</p>
-              {viewPosting.description && (
-                <p className="text-[0.83rem] text-[#4b5563] whitespace-pre-wrap leading-relaxed">{viewPosting.description}</p>
-              )}
-              {viewPosting.location && (
-                <div className="text-[0.82rem] text-[#6b7280]">
-                  <LocationDisplay location={viewPosting.location} />
-                </div>
-              )}
-              {viewPosting.creator && (
-                <p className="text-[0.75rem] text-[#9ca3af] pt-2 border-t border-[#f0f0f0]">Posted by {viewPosting.creator.name} · {timeAgo(viewPosting.created_at)}</p>
-              )}
-            </div>
-          ) : (
             <div className="space-y-5">
               <div className="flex items-start gap-4">
                 <div className="w-14 h-14 rounded-[5px] bg-[#f8f9fa] border border-[#e5e7eb] flex items-center justify-center overflow-hidden flex-shrink-0">
@@ -283,7 +257,6 @@ export default function JobPostingsPage() {
                 <p className="text-[0.75rem] text-[#9ca3af] pt-2 border-t border-[#f0f0f0]">Posted by {viewPosting.creator.name}</p>
               )}
             </div>
-          )}
         </Modal>
       )}
     </div>
@@ -370,39 +343,6 @@ function DetailCard({ posting, isAdmin, onView, onEdit, onDelete }: {
   );
 }
 
-// === Image Card (just image + view detail button) ===
-function ImageCard({ posting, isAdmin, onView, onEdit, onDelete }: {
-  posting: JobPosting; isAdmin: boolean;
-  onView: (p: JobPosting) => void; onEdit: (p: JobPosting) => void; onDelete: (id: number) => void;
-}) {
-  return (
-    <div className="bg-white rounded-[5px] border border-[#e5e7eb] p-4 hover:shadow-lg transition-all duration-200 flex flex-col">
-      {posting.image_url && (
-        <div className="w-full h-[200px] overflow-hidden rounded-[5px] bg-[#f3f4f6] mb-3 cursor-pointer" onClick={() => onView(posting)}>
-          <img src={posting.image_url} alt={posting.title} className="w-full h-full object-cover rounded-[5px]" />
-        </div>
-      )}
-
-      <div className="flex items-center justify-between">
-        {isAdmin && (
-          <div className="flex items-center gap-1">
-            <button onClick={() => onEdit(posting)} className="p-1.5 rounded-[5px] hover:bg-[#f5f5f7] text-[#9ca3af] hover:text-[#f59e0b] transition-colors" title="Edit">
-              <Pencil className="w-3.5 h-3.5" />
-            </button>
-            <button onClick={() => onDelete(posting.id)} className="p-1.5 rounded-[5px] hover:bg-red-50 text-[#9ca3af] hover:text-[#ef4444] transition-colors" title="Delete">
-              <Trash2 className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        )}
-        {!isAdmin && <span />}
-        <button onClick={() => onView(posting)} className="inline-flex items-center gap-1 rounded-[5px] bg-[#1e1b4b] text-white px-4 py-2 text-[0.78rem] font-semibold hover:bg-[#2d2a5e] transition-colors">
-          View detail
-        </button>
-      </div>
-    </div>
-  );
-}
-
 // === Form Modal ===
 function JobPostingFormModal({ posting, onClose, onSubmit, isLoading }: {
   posting?: JobPosting;
@@ -410,7 +350,6 @@ function JobPostingFormModal({ posting, onClose, onSubmit, isLoading }: {
   onSubmit: (payload: JobPostingPayload) => void;
   isLoading: boolean;
 }) {
-  const [postMode, setPostMode] = useState(posting?.post_mode || 'detail');
   const [title, setTitle] = useState(posting?.title || '');
   const [companyName, setCompanyName] = useState(posting?.company_name || '');
   const [location, setLocation] = useState(posting?.location || '');
@@ -425,80 +364,30 @@ function JobPostingFormModal({ posting, onClose, onSubmit, isLoading }: {
   const [deadline, setDeadline] = useState(posting?.application_deadline || '');
   const [contactEmail, setContactEmail] = useState(posting?.contact_email || '');
   const [status, setStatus] = useState(posting?.status || 'open');
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(posting?.image_url || null);
-  const fileRef = useRef<HTMLInputElement>(null);
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      setImagePreview(URL.createObjectURL(file));
-    }
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const payload: JobPostingPayload = {
-      post_mode: postMode,
+    onSubmit({
       title,
       company_name: companyName,
       location: location || null,
       type,
       description: description || null,
+      requirements: requirements || null,
+      benefits: benefits || null,
+      department: department || null,
+      positions,
+      start_date: startDate || null,
+      end_date: endDate || null,
+      application_deadline: deadline || null,
+      contact_email: contactEmail || null,
       status,
-    };
-
-    if (postMode === 'detail') {
-      payload.requirements = requirements || null;
-      payload.benefits = benefits || null;
-      payload.department = department || null;
-      payload.positions = positions;
-      payload.start_date = startDate || null;
-      payload.end_date = endDate || null;
-      payload.application_deadline = deadline || null;
-      payload.contact_email = contactEmail || null;
-    }
-
-    if (imageFile) {
-      payload.image = imageFile;
-    }
-
-    onSubmit(payload);
+    });
   };
 
   return (
     <Modal open={true} onClose={onClose} title={posting ? 'Edit Job Posting' : 'New Job Posting'} size="lg">
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Post Mode Selector */}
-        <Select label="Posting Type" value={postMode} onChange={(e) => setPostMode(e.target.value)} options={[
-          { value: 'detail', label: 'Detail Form — Fill in all job details' },
-          { value: 'image', label: 'Image Post — Upload a job posting image' },
-        ]} />
-
-        {/* Image upload (image mode) */}
-        {postMode === 'image' && (
-          <div>
-            <label className="block text-[0.85rem] font-medium text-[#374151] mb-1">Job Posting Image *</label>
-            <div
-              onClick={() => fileRef.current?.click()}
-              className="w-full border-2 border-dashed border-[#d1d5db] rounded-[5px] p-6 text-center cursor-pointer hover:border-[#48B6E8] transition-colors bg-[#fafafa]"
-            >
-              {imagePreview ? (
-                <img src={imagePreview} alt="Preview" className="max-h-[250px] mx-auto rounded-[5px] object-contain" />
-              ) : (
-                <div className="flex flex-col items-center gap-2 text-[#9ca3af]">
-                  <ImagePlus className="w-10 h-10" />
-                  <p className="text-[0.85rem] font-medium">Click to upload image</p>
-                  <p className="text-[0.75rem]">PNG, JPG, WEBP up to 5MB</p>
-                </div>
-              )}
-            </div>
-            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
-          </div>
-        )}
-
-        {/* Common fields */}
         <div className="grid grid-cols-2 gap-4">
           <Input label="Job Title *" value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="e.g. Frontend Developer Intern" />
           <Input label="Company Name *" value={companyName} onChange={(e) => setCompanyName(e.target.value)} required placeholder="e.g. Acme Corp" />
@@ -515,10 +404,7 @@ function JobPostingFormModal({ posting, onClose, onSubmit, isLoading }: {
           <p className="mt-1 text-[0.75rem] text-[#9ca3af]">You can type an address or paste a Google Maps link</p>
         </div>
 
-        {/* Detail-only fields */}
-        {postMode === 'detail' && (
-          <>
-            <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4">
               <Select label="Type" value={type} onChange={(e) => setType(e.target.value)} options={[
                 { value: 'internship', label: 'Internship' },
                 { value: 'full-time', label: 'Full Time' },
@@ -546,9 +432,7 @@ function JobPostingFormModal({ posting, onClose, onSubmit, isLoading }: {
               <DatePicker label="Start Date" value={startDate} onChange={setStartDate} placeholder="Choose start date" />
               <DatePicker label="End Date" value={endDate} onChange={setEndDate} placeholder="Choose end date" />
               <DatePicker label="Application Deadline" value={deadline} onChange={setDeadline} placeholder="Choose deadline" />
-            </div>
-          </>
-        )}
+        </div>
 
         <Select label="Status" value={status} onChange={(e) => setStatus(e.target.value)} options={[
           { value: 'open', label: 'Open' },
@@ -557,7 +441,7 @@ function JobPostingFormModal({ posting, onClose, onSubmit, isLoading }: {
 
         <div className="flex justify-end gap-3 pt-2">
           <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
-          <Button type="submit" disabled={isLoading || !title || !companyName || (postMode === 'image' && !imageFile && !posting?.image_url)}>
+          <Button type="submit" disabled={isLoading || !title || !companyName}>
             {isLoading ? 'Saving...' : posting ? 'Update' : 'Create'}
           </Button>
         </div>
