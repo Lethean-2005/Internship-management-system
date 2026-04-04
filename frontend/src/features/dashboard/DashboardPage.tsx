@@ -85,7 +85,7 @@ export function DashboardPage() {
     <div>
       <div className="mb-8">
         <h1 className="text-[1.35rem] font-bold text-[#1e1b4b]">
-          Welcome, {user?.name || 'User'}
+          Welcome, {user?.name || 'Users'}
         </h1>
         <p className="mt-1 text-[0.88rem] text-[#6b7280]">
           {greetingMap[roleSlug] || 'Overview of the Internship Management System.'}
