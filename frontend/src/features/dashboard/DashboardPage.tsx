@@ -84,7 +84,7 @@ export function DashboardPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-[1.35rem] font-bold text-[#1e1b4b]">
+        <h1 className="text-[1.1rem] sm:text-[1.35rem] font-bold text-[#1e1b4b]">
           Welcome, {user?.name || 'User'}
         </h1>
         <p className="mt-1 text-[0.88rem] text-[#6b7280]">

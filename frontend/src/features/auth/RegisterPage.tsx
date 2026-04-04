@@ -93,11 +93,11 @@ export function RegisterPage() {
   );
 
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: '#f5f7fa' }}>
+    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: '#f5f7fa' }}>
 
       {/* Step 1: Role Selection */}
       {step === 1 && (
-        <div className="bg-white rounded-[5px] w-full max-w-[760px] px-12 py-14" style={{ boxShadow: '0 2px 20px rgba(0,0,0,0.06)' }}>
+        <div className="bg-white rounded-[5px] w-full max-w-[760px] px-5 py-8 sm:px-12 sm:py-14" style={{ boxShadow: '0 2px 20px rgba(0,0,0,0.06)' }}>
           <div className="text-center mb-12">
             <h1 className="text-[1.55rem] font-bold text-[#1e1e2d]">Select your role</h1>
             <p className="mt-2 text-[0.88rem] text-[#a0a3b1]">
@@ -105,7 +105,7 @@ export function RegisterPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-6 mb-10">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
             {roleCards.map((role) => {
               const isSelected = roleSlug === role.slug;
               return (
@@ -154,7 +154,7 @@ export function RegisterPage() {
 
       {/* Step 2: Personal Information */}
       {step === 2 && (
-        <div className="bg-white rounded-[5px] w-full max-w-[480px] px-10 py-10" style={{ boxShadow: '0 2px 20px rgba(0,0,0,0.06)' }}>
+        <div className="bg-white rounded-[5px] w-full max-w-[480px] px-5 py-8 sm:px-10 sm:py-10" style={{ boxShadow: '0 2px 20px rgba(0,0,0,0.06)' }}>
           <div className="text-center mb-8">
             <h1 className="text-[1.55rem] font-bold text-[#1e1e2d]">Personal Information</h1>
             <p className="mt-2 text-[0.88rem] text-[#a0a3b1]">
@@ -172,7 +172,7 @@ export function RegisterPage() {
           <div className="space-y-4">
             <Input label="Full Name" type="text" value={name} onChange={(e) => setName(e.target.value)} error={errors.name} required autoFocus />
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} required />
               <Input label="Phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} error={errors.phone} placeholder="Optional" />
             </div>
@@ -243,7 +243,7 @@ export function RegisterPage() {
 
       {/* Step 3: Internship Details + Security (Intern only) */}
       {step === 3 && isIntern && (
-        <div className="bg-white rounded-[5px] w-full max-w-[480px] px-10 py-10" style={{ boxShadow: '0 2px 20px rgba(0,0,0,0.06)' }}>
+        <div className="bg-white rounded-[5px] w-full max-w-[480px] px-5 py-8 sm:px-10 sm:py-10" style={{ boxShadow: '0 2px 20px rgba(0,0,0,0.06)' }}>
           <div className="text-center mb-8">
             <h1 className="text-[1.55rem] font-bold text-[#1e1e2d]">Security</h1>
             <p className="mt-2 text-[0.88rem] text-[#a0a3b1]">

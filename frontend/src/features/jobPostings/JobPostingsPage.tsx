@@ -108,7 +108,7 @@ export default function JobPostingsPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-[1.35rem] font-bold text-[#1e1b4b]">Job Postings</h1>
+        <h1 className="text-[1.1rem] sm:text-[1.35rem] font-bold text-[#1e1b4b]">Job Postings</h1>
         <p className="mt-1 text-[0.88rem] text-[#6b7280]">
           {isAdmin ? 'Manage internship job postings.' : 'Browse available internship opportunities.'}
         </p>
@@ -133,7 +133,7 @@ export default function JobPostingsPage() {
         <EmptyState icon={<Briefcase className="w-10 h-10" />} title="No job postings found" description="No job postings match your search criteria." />
       ) : (
         <>
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
             {data.data.map((posting) => (
               <DetailCard key={posting.id} posting={posting} isAdmin={isAdmin} onView={setViewPosting} onEdit={setEditPosting} onDelete={handleDelete} />
             ))}
@@ -200,7 +200,7 @@ export default function JobPostingsPage() {
                 )}
               </div>
 
-              <div className="grid grid-cols-2 gap-x-6 gap-y-3 bg-[#f9fafb] rounded-[5px] p-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 bg-[#f9fafb] rounded-[5px] p-4">
                 <div className="flex items-center gap-2 text-[0.82rem]">
                   <Users className="w-4 h-4 text-[#6b7280]" />
                   <span className="text-[#6b7280]">Positions:</span>
@@ -388,7 +388,7 @@ function JobPostingFormModal({ posting, onClose, onSubmit, isLoading }: {
   return (
     <Modal open={true} onClose={onClose} title={posting ? 'Edit Job Posting' : 'New Job Posting'} size="lg">
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input label="Job Title *" value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="e.g. Frontend Developer Intern" />
           <Input label="Company Name *" value={companyName} onChange={(e) => setCompanyName(e.target.value)} required placeholder="e.g. Acme Corp" />
         </div>
@@ -404,7 +404,7 @@ function JobPostingFormModal({ posting, onClose, onSubmit, isLoading }: {
           <p className="mt-1 text-[0.75rem] text-[#9ca3af]">You can type an address or paste a Google Maps link</p>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Select label="Type" value={type} onChange={(e) => setType(e.target.value)} options={[
                 { value: 'internship', label: 'Internship' },
                 { value: 'full-time', label: 'Full Time' },
@@ -423,12 +423,12 @@ function JobPostingFormModal({ posting, onClose, onSubmit, isLoading }: {
               <textarea value={benefits} onChange={(e) => setBenefits(e.target.value)} rows={2} className="w-full rounded-[5px] border border-[#e0e0e0] px-[14px] py-[11px] text-[0.88rem] transition-all focus:outline-none focus:border-[#48B6E8] focus:ring-[3px] focus:ring-[rgba(72,182,232,0.08)]" placeholder="Benefits offered..." />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input label="Positions" type="number" min={1} value={positions} onChange={(e) => setPositions(parseInt(e.target.value) || 1)} />
               <Input label="Contact Email" type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} placeholder="hr@company.com" />
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <DatePicker label="Start Date" value={startDate} onChange={setStartDate} placeholder="Choose start date" />
               <DatePicker label="End Date" value={endDate} onChange={setEndDate} placeholder="Choose end date" />
               <DatePicker label="Application Deadline" value={deadline} onChange={setDeadline} placeholder="Choose deadline" />

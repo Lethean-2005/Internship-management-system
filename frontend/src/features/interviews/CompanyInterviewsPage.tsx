@@ -198,19 +198,19 @@ export function CompanyInterviewsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-[1.35rem] font-bold text-[#1e1b4b]">Company Interviews</h1>
+          <h1 className="text-[1.1rem] sm:text-[1.35rem] font-bold text-[#1e1b4b]">Company Interviews</h1>
           <p className="mt-1 text-[0.85rem] text-[#6b7280]">Manage interview schedules with companies.</p>
         </div>
-        <Button onClick={handleCreate}>
+        <Button onClick={handleCreate} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           {isIntern ? 'Schedule Interview' : 'Assign Interview'}
         </Button>
       </div>
 
       <div className="bg-white border border-[#f0f0f0] rounded-[5px]">
-        <div className="p-4 border-b border-[#f5f5f5] flex items-center gap-3">
+        <div className="p-4 border-b border-[#f5f5f5] flex flex-wrap items-center gap-3">
           <FilterDropdown options={statusOptions} value={status} onChange={(v) => { setStatus(v); setPage(1); }} />
           {!isIntern && (
             <FilterDropdown options={generationOptions} value={generation} onChange={(v) => { setGeneration(v); setPage(1); }} maxVisible={5} />
@@ -222,7 +222,7 @@ export function CompanyInterviewsPage() {
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full min-w-[900px]">
                 <thead>
                   <tr className="bg-[#fafafa]">
                     <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Company</th>
@@ -373,7 +373,7 @@ export function CompanyInterviewsPage() {
 
             <div>
               <p className="text-[0.72rem] font-semibold text-[#9ca3af] uppercase mb-3">Interview Information</p>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="bg-[#f9fafb] rounded-[5px] p-3">
                   <p className="text-[0.72rem] text-[#9ca3af] mb-1">Company</p>
                   <p className="text-[0.82rem] font-medium text-[#374151]">{(viewInterview as any).company_name || viewInterview.company?.name || '-'}</p>

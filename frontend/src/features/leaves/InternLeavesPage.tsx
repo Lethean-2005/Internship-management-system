@@ -82,7 +82,7 @@ export default function InternLeavesPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-[1.35rem] font-bold text-[#1e1b4b]">Take Leave</h1>
+        <h1 className="text-[1.1rem] sm:text-[1.35rem] font-bold text-[#1e1b4b]">Take Leave</h1>
         <p className="mt-1 text-[0.88rem] text-[#6b7280]">
           {isIntern ? 'Request leave during your internship.' : 'Review intern leave requests.'}
         </p>
@@ -106,7 +106,7 @@ export default function InternLeavesPage() {
       ) : (
         <>
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[700px]">
               <thead>
                 <tr className="bg-[#fafafa]">
                   {!isIntern && <th className="text-left px-4 py-3 text-[0.78rem] font-semibold text-[#6b7280]">Intern</th>}
@@ -256,7 +256,7 @@ function LeaveFormModal({ onClose, onSubmit, isLoading }: {
           { value: 'other', label: 'Other' },
         ]} />
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <DatePicker label="Start Date" value={startDate} onChange={setStartDate} required placeholder="Choose start date" />
           <DatePicker label="End Date" value={endDate} onChange={setEndDate} required placeholder="Choose end date" />
         </div>

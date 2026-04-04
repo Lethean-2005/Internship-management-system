@@ -101,13 +101,13 @@ export function FinalSlidesPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-[1.35rem] font-bold text-[#1e1b4b]">Final Slides</h1>
+          <h1 className="text-[1.1rem] sm:text-[1.35rem] font-bold text-[#1e1b4b]">Final Slides</h1>
           <p className="mt-1 text-[0.85rem] text-[#6b7280]">Manage internship presentation slides.</p>
         </div>
         {isTutor ? (
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             {deadlineDate && (
               <div className="flex items-center gap-2 px-3 py-[9px] rounded-[5px] border bg-[#eff6ff] border-[#bfdbfe] text-[#2563eb] text-[0.82rem] font-medium">
                 <CalendarClock className="w-4 h-4" />
@@ -120,7 +120,7 @@ export function FinalSlidesPage() {
             </Button>
           </div>
         ) : (
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             {isIntern && deadlineDate && (
               <div className={`flex items-center gap-2 px-3 py-[9px] rounded-[5px] border text-[0.82rem] font-medium ${
                 new Date(deadlineDate) < new Date()
@@ -131,7 +131,7 @@ export function FinalSlidesPage() {
                 {new Date(deadlineDate) < new Date() ? 'Expired' : 'Deadline'}: {formatDate(deadlineDate)}
               </div>
             )}
-            <Button onClick={() => setFormOpen(true)}>
+            <Button onClick={() => setFormOpen(true)} className="w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-2" />
               New Slide
             </Button>
@@ -187,7 +187,7 @@ export function FinalSlidesPage() {
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full min-w-[700px]">
                 <thead>
                   <tr className="bg-[#fafafa]">
                     <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Title</th>

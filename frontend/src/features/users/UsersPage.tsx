@@ -62,19 +62,19 @@ export function UsersPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-[1.35rem] font-bold text-[#1e1b4b]">Users</h1>
+          <h1 className="text-[1.1rem] sm:text-[1.35rem] font-bold text-[#1e1b4b]">Users</h1>
           <p className="mt-1 text-[0.85rem] text-[#6b7280]">Manage system users and their roles.</p>
         </div>
-        <Button onClick={handleCreate}>
+        <Button onClick={handleCreate} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Add User
         </Button>
       </div>
 
       <div className="bg-white border border-[#f0f0f0] rounded-[5px]">
-        <div className="p-4 border-b border-[#f5f5f5] flex items-center gap-3">
+        <div className="p-4 border-b border-[#f5f5f5] flex flex-wrap items-center gap-3">
           <SearchInput value={search} onChange={setSearch} placeholder="Search users..." className="max-w-xs" />
           <FilterDropdown options={roleOptions} value={roleFilter} onChange={(v) => { setRoleFilter(v); setPage(1); }} />
         </div>
@@ -84,7 +84,7 @@ export function UsersPage() {
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full min-w-[800px]">
                 <thead>
                   <tr className="bg-[#fafafa]">
                     <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Name</th>
@@ -194,7 +194,7 @@ export function UsersPage() {
 
             <div>
               <p className="text-[0.72rem] font-semibold text-[#9ca3af] uppercase mb-3">Personal Information</p>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="bg-[#f9fafb] rounded-[5px] p-3">
                   <p className="text-[0.72rem] text-[#9ca3af] mb-1">Phone</p>
                   <p className="text-[0.82rem] font-medium text-[#374151]">{viewUser.phone || '-'}</p>
@@ -216,7 +216,7 @@ export function UsersPage() {
 
             <div>
               <p className="text-[0.72rem] font-semibold text-[#9ca3af] uppercase mb-3">Internship Details</p>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="bg-[#f9fafb] rounded-[5px] p-3">
                   <p className="text-[0.72rem] text-[#9ca3af] mb-1">Company</p>
                   <p className="text-[0.82rem] font-medium text-[#374151]">{(viewUser as any).company_name || '-'}</p>

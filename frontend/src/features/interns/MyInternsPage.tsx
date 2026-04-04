@@ -33,7 +33,7 @@ export function MyInternsPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-[1.35rem] font-bold text-[#1e1b4b]">My Interns</h1>
+        <h1 className="text-[1.1rem] sm:text-[1.35rem] font-bold text-[#1e1b4b]">My Interns</h1>
         <p className="mt-1 text-[0.85rem] text-[#6b7280]">Interns assigned to you as their tutor.</p>
       </div>
 
@@ -55,7 +55,7 @@ export function MyInternsPage() {
           <LoadingSpinner className="py-12" />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[800px]">
               <thead>
                 <tr className="bg-[#fafafa]">
                   <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Name</th>
@@ -135,7 +135,7 @@ export function MyInternsPage() {
             {/* Personal Info */}
             <div>
               <p className="text-[0.72rem] font-semibold text-[#9ca3af] uppercase mb-3">Personal Information</p>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="bg-[#f9fafb] rounded-[5px] p-3">
                   <p className="text-[0.72rem] text-[#9ca3af] mb-1">Phone</p>
                   <p className="text-[0.82rem] font-medium text-[#374151]">{viewIntern.phone || '-'}</p>
@@ -150,7 +150,7 @@ export function MyInternsPage() {
             {/* Internship Info */}
             <div>
               <p className="text-[0.72rem] font-semibold text-[#9ca3af] uppercase mb-3">Internship Details</p>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="bg-[#f9fafb] rounded-[5px] p-3">
                   <p className="text-[0.72rem] text-[#9ca3af] mb-1">Company</p>
                   <p className="text-[0.82rem] font-medium text-[#374151]">{viewIntern.company_name || '-'}</p>
@@ -180,8 +180,8 @@ export function MyInternsPage() {
               {interviewsLoading ? (
                 <LoadingSpinner className="py-6" />
               ) : interviews && interviews.length > 0 ? (
-                <div className="border border-[#f0f0f0] rounded-[5px] overflow-hidden">
-                  <table className="w-full">
+                <div className="border border-[#f0f0f0] rounded-[5px] overflow-x-auto">
+                  <table className="w-full min-w-[600px]">
                     <thead>
                       <tr className="bg-[#fafafa]">
                         <th className="text-left px-4 py-2 text-[0.68rem] font-semibold text-[#9ca3af] uppercase">Company</th>

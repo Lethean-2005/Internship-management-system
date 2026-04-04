@@ -42,12 +42,12 @@ export function RolesPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-[1.35rem] font-bold text-[#1e1b4b]">Roles</h1>
+          <h1 className="text-[1.1rem] sm:text-[1.35rem] font-bold text-[#1e1b4b]">Roles</h1>
           <p className="mt-1 text-[0.85rem] text-[#6b7280]">Manage user roles and permissions.</p>
         </div>
-        <Button onClick={handleCreate}>
+        <Button onClick={handleCreate} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Add Role
         </Button>
@@ -58,7 +58,7 @@ export function RolesPage() {
           <LoadingSpinner className="py-12" />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[500px]">
               <thead>
                 <tr className="bg-[#fafafa]">
                   <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Name</th>

@@ -45,7 +45,7 @@ export function LoginPage() {
 
       {/* Content */}
       <div className="flex-1 flex items-center justify-center px-4">
-        <div className="bg-white rounded-[5px] border border-[#f0f0f0] p-10 w-full max-w-[420px]" style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
+        <div className="bg-white rounded-[5px] border border-[#f0f0f0] p-6 sm:p-10 w-full max-w-[420px]" style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
           <div className="text-center mb-8">
             <h1 className="text-[1.7rem] font-bold text-[#1e1b4b]">Sign in</h1>
             <p className="mt-2 text-[0.92rem] text-[#9ca3af]">Sign in to your account</p>
