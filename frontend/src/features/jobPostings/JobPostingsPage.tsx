@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Briefcase, Plus, Pencil, Trash2, MapPin, Calendar, Users, Mail, Clock, List, CheckCircle, XCircle, Building2, Laptop } from 'lucide-react';
+import { Briefcase, Plus, Pencil, Trash2, MapPin, Calendar, Users, Mail, Clock, List, CheckCircle, XCircle, Building2, Laptop, ExternalLink } from 'lucide-react';
 import { useJobPostings, useCreateJobPosting, useUpdateJobPosting, useDeleteJobPosting } from '../../hooks/useJobPostings';
 import { useAuthStore } from '../../stores/authStore';
 import { SearchInput } from '../../components/ui/SearchInput';
@@ -142,9 +142,15 @@ export default function JobPostingsPage() {
                     </span>
                   )}
                   {posting.location && (
-                    <span className="inline-flex items-center rounded-[5px] border border-[#e5e7eb] px-3 py-1 text-[0.73rem] font-medium text-[#374151] bg-white">
-                      {posting.location}
-                    </span>
+                    posting.location_link ? (
+                      <a href={posting.location_link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-[5px] border border-[#e5e7eb] px-3 py-1 text-[0.73rem] font-medium text-[#6366f1] bg-white hover:bg-[#f5f3ff] transition-colors">
+                        <MapPin className="w-3 h-3" /> {posting.location} <ExternalLink className="w-3 h-3" />
+                      </a>
+                    ) : (
+                      <span className="inline-flex items-center rounded-[5px] border border-[#e5e7eb] px-3 py-1 text-[0.73rem] font-medium text-[#374151] bg-white">
+                        {posting.location}
+                      </span>
+                    )
                   )}
                 </div>
 
@@ -165,12 +171,17 @@ export default function JobPostingsPage() {
 
                 {/* Footer */}
                 <div className="flex items-center justify-between pt-4 border-t border-[#f0f0f0]">
-                  {posting.location && (
-                    <span className="text-[0.78rem] text-[#6b7280] flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5" /> {posting.location}
-                    </span>
-                  )}
-                  {!posting.location && <span />}
+                  {posting.location ? (
+                    posting.location_link ? (
+                      <a href={posting.location_link} target="_blank" rel="noopener noreferrer" className="text-[0.78rem] text-[#6366f1] flex items-center gap-1 hover:text-[#4f46e5] transition-colors">
+                        <MapPin className="w-3.5 h-3.5" /> {posting.location} <ExternalLink className="w-3 h-3" />
+                      </a>
+                    ) : (
+                      <span className="text-[0.78rem] text-[#6b7280] flex items-center gap-1">
+                        <MapPin className="w-3.5 h-3.5" /> {posting.location}
+                      </span>
+                    )
+                  ) : <span />}
 
                   <div className="flex items-center gap-2">
                     {isAdmin && (
@@ -252,9 +263,15 @@ export default function JobPostingsPage() {
                 </span>
               )}
               {viewPosting.location && (
-                <span className="inline-flex items-center rounded-[5px] border border-[#e5e7eb] px-3 py-1 text-[0.76rem] font-medium text-[#374151]">
-                  <MapPin className="w-3 h-3 mr-1" /> {viewPosting.location}
-                </span>
+                viewPosting.location_link ? (
+                  <a href={viewPosting.location_link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-[5px] border border-[#e5e7eb] px-3 py-1 text-[0.76rem] font-medium text-[#6366f1] hover:bg-[#f5f3ff] transition-colors">
+                    <MapPin className="w-3 h-3" /> {viewPosting.location} <ExternalLink className="w-3 h-3" />
+                  </a>
+                ) : (
+                  <span className="inline-flex items-center rounded-[5px] border border-[#e5e7eb] px-3 py-1 text-[0.76rem] font-medium text-[#374151]">
+                    <MapPin className="w-3 h-3 mr-1" /> {viewPosting.location}
+                  </span>
+                )
               )}
             </div>
 
@@ -339,6 +356,7 @@ function JobPostingFormModal({ posting, onClose, onSubmit, isLoading }: {
   const [title, setTitle] = useState(posting?.title || '');
   const [companyName, setCompanyName] = useState(posting?.company_name || '');
   const [location, setLocation] = useState(posting?.location || '');
+  const [locationLink, setLocationLink] = useState(posting?.location_link || '');
   const [type, setType] = useState(posting?.type || 'internship');
   const [description, setDescription] = useState(posting?.description || '');
   const [requirements, setRequirements] = useState(posting?.requirements || '');
@@ -357,6 +375,7 @@ function JobPostingFormModal({ posting, onClose, onSubmit, isLoading }: {
       title,
       company_name: companyName,
       location: location || null,
+      location_link: locationLink || null,
       type,
       description: description || null,
       requirements: requirements || null,
@@ -379,8 +398,12 @@ function JobPostingFormModal({ posting, onClose, onSubmit, isLoading }: {
           <Input label="Company Name *" value={companyName} onChange={(e) => setCompanyName(e.target.value)} required placeholder="e.g. Acme Corp" />
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <Input label="Location" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. Phnom Penh" />
+          <Input label="Location Link" value={locationLink} onChange={(e) => setLocationLink(e.target.value)} placeholder="e.g. https://maps.google.com/..." />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
           <Select label="Type" value={type} onChange={(e) => setType(e.target.value)} options={[
             { value: 'internship', label: 'Internship' },
             { value: 'full-time', label: 'Full Time' },

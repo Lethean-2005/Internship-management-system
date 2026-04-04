@@ -17,6 +17,7 @@ class StoreJobPostingRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'company_name' => ['required', 'string', 'max:255'],
             'location' => ['nullable', 'string', 'max:255'],
+            'location_link' => ['nullable', 'url', 'max:500'],
             'type' => ['nullable', 'string', 'in:internship,full-time,part-time'],
             'description' => ['nullable', 'string'],
             'requirements' => ['nullable', 'string'],

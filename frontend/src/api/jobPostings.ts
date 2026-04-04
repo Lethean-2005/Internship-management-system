@@ -13,6 +13,7 @@ export interface JobPostingPayload {
   title: string;
   company_name: string;
   location?: string | null;
+  location_link?: string | null;
   type?: string;
   description?: string | null;
   requirements?: string | null;
