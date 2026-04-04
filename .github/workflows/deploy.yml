@@ -25,7 +25,7 @@ jobs:
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
             --document-name "AWS-RunPowerShellScript" \
-            --parameters 'commands=["Set-Location C:\\inetpub\\wwwroot\\ims2; & C:\\MinGit\\cmd\\git.exe pull origin main; iisreset"]' \
+            --parameters 'commands=["Set-Location C:\\inetpub\\wwwroot\\ims2; & C:\\MinGit\\cmd\\git.exe pull origin main; Set-Location C:\\inetpub\\wwwroot\\ims2\\backend; C:\\php\\php.exe artisan migrate --force; C:\\php\\php.exe artisan route:clear; C:\\php\\php.exe artisan config:clear; iisreset"]' \
             --region us-east-1 \
             --query "Command.CommandId" \
             --output text)
