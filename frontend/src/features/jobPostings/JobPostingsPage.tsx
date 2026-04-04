@@ -376,8 +376,8 @@ function ImageCard({ posting, isAdmin, onView, onEdit, onDelete }: {
   return (
     <div className="bg-white rounded-[5px] border border-[#e5e7eb] p-4 hover:shadow-lg transition-all duration-200 flex flex-col">
       {posting.image_url && (
-        <div className="w-full overflow-hidden rounded-[5px] bg-[#f3f4f6] mb-3 cursor-pointer" onClick={() => onView(posting)}>
-          <img src={posting.image_url} alt={posting.title} className="w-full object-contain rounded-[5px]" />
+        <div className="w-full h-[200px] overflow-hidden rounded-[5px] bg-[#f3f4f6] mb-3 cursor-pointer" onClick={() => onView(posting)}>
+          <img src={posting.image_url} alt={posting.title} className="w-full h-full object-cover rounded-[5px]" />
         </div>
       )}
 
