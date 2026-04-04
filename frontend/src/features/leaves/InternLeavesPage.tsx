@@ -105,7 +105,46 @@ export default function InternLeavesPage() {
         <EmptyState icon={<CalendarOff className="w-10 h-10" />} title="No leave requests" description={isIntern ? 'You haven\'t requested any leave yet.' : 'No leave requests to review.'} />
       ) : (
         <>
-          <div className="overflow-x-auto">
+          {/* Mobile card view */}
+          <div className="md:hidden space-y-3 p-4">
+            {data.data.map((leave) => {
+              const TypeIcon = TYPE_ICONS[leave.type] || CalendarOff;
+              return (
+                <div key={leave.id} className="bg-white rounded-[5px] border border-[#e5e7eb] p-4 space-y-2 relative">
+                  <div className="flex items-start justify-between">
+                    <span className="inline-flex items-center gap-1.5 text-[0.82rem] font-medium text-[#374151]">
+                      <TypeIcon className="w-3.5 h-3.5 text-[#6b7280]" />
+                      {TYPE_LABELS[leave.type] || leave.type}
+                    </span>
+                    <div className="flex items-center gap-1">
+                      {canReview && leave.status === 'pending' && (
+                        <>
+                          <button onClick={() => { setReviewLeave(leave); setReviewStatus('approved'); setReviewNote(''); }} className="p-1.5 rounded-[5px] hover:bg-green-50 text-[#9ca3af] hover:text-green-600 transition-colors" title="Approve"><CheckCircle className="w-4 h-4" /></button>
+                          <button onClick={() => { setReviewLeave(leave); setReviewStatus('rejected'); setReviewNote(''); }} className="p-1.5 rounded-[5px] hover:bg-red-50 text-[#9ca3af] hover:text-red-500 transition-colors" title="Reject"><XCircle className="w-4 h-4" /></button>
+                        </>
+                      )}
+                      {isIntern && leave.status === 'pending' && (
+                        <button onClick={() => handleDelete(leave.id)} className="p-1.5 rounded-[5px] hover:bg-red-50 text-[#9ca3af] hover:text-red-500 transition-colors" title="Delete"><Trash2 className="w-4 h-4" /></button>
+                      )}
+                    </div>
+                  </div>
+                  {!isIntern && (
+                    <div className="flex items-start"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Intern</span><div><p className="text-[0.82rem] text-[#374151] font-medium">{leave.user?.name}</p>{leave.user?.company_name && <p className="text-[0.75rem] text-[#9ca3af]">{leave.user.company_name}</p>}</div></div>
+                  )}
+                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Period</span><span className="text-[0.82rem] text-[#374151] font-medium">{formatDate(leave.start_date)} — {formatDate(leave.end_date)}</span></div>
+                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Days</span><span className="text-[0.82rem] text-[#374151] font-medium">{dayCount(leave.start_date, leave.end_date)}</span></div>
+                  <div className="flex items-start"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Reason</span><div><p className="text-[0.82rem] text-[#374151] font-medium">{leave.reason}</p>{leave.review_note && <p className="text-[0.75rem] text-[#9ca3af] mt-0.5">Note: {leave.review_note}</p>}</div></div>
+                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Status</span><Badge color={STATUS_COLOR[leave.status] || 'gray'}>{leave.status.charAt(0).toUpperCase() + leave.status.slice(1)}</Badge></div>
+                  {leave.reviewer && (
+                    <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Reviewed by</span><span className="text-[0.82rem] text-[#374151] font-medium">{leave.reviewer.name}</span></div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop table view */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full min-w-[700px]">
               <thead>
                 <tr className="bg-[#fafafa]">

@@ -57,7 +57,29 @@ export function RolesPage() {
         {isLoading ? (
           <LoadingSpinner className="py-12" />
         ) : (
-          <div className="overflow-x-auto">
+          <>
+          {/* Mobile card view */}
+          <div className="md:hidden space-y-3 p-4">
+            {roles?.map((role) => (
+              <div key={role.id} className="bg-white rounded-[5px] border border-[#e5e7eb] p-4 space-y-2 relative">
+                <div className="flex items-start justify-between">
+                  <span className="text-[0.82rem] font-medium text-[#374151]">{role.name}</span>
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => handleEdit(role)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors"><Pencil className="h-4 w-4" /></button>
+                    <button onClick={() => handleDelete(role.id)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#dc2626] hover:bg-[#fef2f2] transition-colors"><Trash2 className="h-4 w-4" /></button>
+                  </div>
+                </div>
+                <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Slug</span><span className="text-[0.82rem] text-[#374151] font-medium font-mono">{role.slug}</span></div>
+                <div className="flex items-start"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Description</span><span className="text-[0.82rem] text-[#374151] font-medium">{role.description || '-'}</span></div>
+              </div>
+            ))}
+            {roles?.length === 0 && (
+              <div className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">No roles found.</div>
+            )}
+          </div>
+
+          {/* Desktop table view */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full min-w-[500px]">
               <thead>
                 <tr className="bg-[#fafafa]">
@@ -101,6 +123,7 @@ export function RolesPage() {
               </tbody>
             </table>
           </div>
+          </>
         )}
       </div>
 

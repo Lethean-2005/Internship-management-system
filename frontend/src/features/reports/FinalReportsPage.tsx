@@ -183,7 +183,39 @@ export function FinalReportsPage() {
           <LoadingSpinner className="py-12" />
         ) : (
           <>
-            <div className="overflow-x-auto">
+            {/* Mobile card view */}
+            <div className="md:hidden space-y-3 p-4">
+              {data?.data.map((report) => (
+                <div key={report.id} className="bg-white rounded-[5px] border border-[#e5e7eb] p-4 space-y-2 relative">
+                  <div className="flex items-start justify-between">
+                    <span className="text-[0.82rem] font-medium text-[#374151]">{report.title}</span>
+                    <div className="flex items-center gap-1">
+                      <button onClick={() => setViewReport(report)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors" title="View"><Eye className="h-4 w-4" /></button>
+                      {isTutor && (
+                        <button onClick={() => { setDeadlineReport(report); setDeadlineValue(deadlineDate || ''); setDeadlineOpen(true); }} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors" title="Set Deadline"><CalendarClock className="h-4 w-4" /></button>
+                      )}
+                      {report.status === 'draft' && !isTutor && (
+                        <>
+                          <button onClick={() => handleOpenEdit(report)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors" title="Edit"><Pencil className="h-4 w-4" /></button>
+                          <button onClick={() => submitMutation.mutate(report.id)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#059669] hover:bg-[#f0fdf4] transition-colors" title="Submit"><Send className="h-4 w-4" /></button>
+                          <button onClick={() => { if (confirm('Delete this report?')) deleteMutation.mutate(report.id); }} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#dc2626] hover:bg-[#fef2f2] transition-colors" title="Delete"><Trash2 className="h-4 w-4" /></button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Intern</span><span className="text-[0.82rem] text-[#374151] font-medium">{report.user?.name || '-'}</span></div>
+                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">File</span>{report.file_path ? <a href={report.file_path} target="_blank" rel="noreferrer" className="inline-flex items-center rounded-[5px] px-[10px] py-[3px] text-[0.7rem] font-semibold bg-[#f0fdf4] border border-[#bbf7d0] text-[#22c55e] hover:bg-[#dcfce7] transition-colors">Download</a> : <span className="text-[0.82rem] text-[#9ca3af]">-</span>}</div>
+                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Deadline</span>{deadlineDate ? <Badge color={new Date(deadlineDate) < new Date() ? 'red' : 'blue'}>{formatDate(deadlineDate)}</Badge> : <span className="text-[0.82rem] text-[#9ca3af]">-</span>}</div>
+                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Status</span><Badge color={STATUS_COLORS[report.status] || 'gray'}>{STATUS_LABELS[report.status] || report.status}</Badge></div>
+                </div>
+              ))}
+              {data?.data.length === 0 && (
+                <div className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">No reports found.</div>
+              )}
+            </div>
+
+            {/* Desktop table view */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full min-w-[700px]">
                 <thead>
                   <tr className="bg-[#fafafa]">

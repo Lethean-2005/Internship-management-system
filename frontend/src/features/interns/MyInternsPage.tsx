@@ -54,7 +54,35 @@ export function MyInternsPage() {
         {isLoading ? (
           <LoadingSpinner className="py-12" />
         ) : (
-          <div className="overflow-x-auto">
+          <>
+          {/* Mobile card view */}
+          <div className="md:hidden space-y-3 p-4">
+            {filteredData?.map((intern: any) => (
+              <div key={intern.id} className="bg-white rounded-[5px] border border-[#e5e7eb] p-4 space-y-2 relative">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#48B6E8] to-[#3a9fd4] flex items-center justify-center text-white text-[0.7rem] font-semibold shrink-0">
+                      {intern.name.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="text-[0.82rem] font-medium text-[#374151]">{intern.name}</span>
+                  </div>
+                  <button onClick={() => setViewIntern(intern)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors"><Eye className="h-4 w-4" /></button>
+                </div>
+                <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Email</span><span className="text-[0.82rem] text-[#374151] font-medium">{intern.email}</span></div>
+                <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Company</span><span className="text-[0.82rem] text-[#374151] font-medium">{intern.company_name || '-'}</span></div>
+                <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Position</span><span className="text-[0.82rem] text-[#374151] font-medium">{intern.position || '-'}</span></div>
+                <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Supervisor</span><span className="text-[0.82rem] text-[#374151] font-medium">{intern.supervisor_name || '-'}</span></div>
+                <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Allowance</span><span className="text-[0.82rem] text-[#374151] font-medium">{intern.allowance ? `$${intern.allowance}` : '-'}</span></div>
+                <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Status</span><Badge color={intern.is_active ? 'green' : 'gray'}>{intern.is_active ? 'Active' : 'Inactive'}</Badge></div>
+              </div>
+            ))}
+            {filteredData?.length === 0 && (
+              <div className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">{search ? 'No interns match your search.' : 'No interns assigned to you yet.'}</div>
+            )}
+          </div>
+
+          {/* Desktop table view */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full min-w-[800px]">
               <thead>
                 <tr className="bg-[#fafafa]">
@@ -109,6 +137,7 @@ export function MyInternsPage() {
               </tbody>
             </table>
           </div>
+          </>
         )}
       </div>
 

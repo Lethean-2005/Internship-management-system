@@ -71,7 +71,27 @@ export function WeeklyWorklogsPage() {
           <LoadingSpinner className="py-12" />
         ) : (
           <>
-            <div className="overflow-x-auto">
+            {/* Mobile card view */}
+            <div className="md:hidden space-y-3 p-4">
+              {data?.data.map((wl) => (
+                <div key={wl.id} className="bg-white rounded-[5px] border border-[#e5e7eb] p-4 space-y-2 relative">
+                  <div className="flex items-start justify-between">
+                    <span className="text-[0.82rem] font-medium text-[#374151]">Week {wl.week_number}</span>
+                    <button onClick={() => navigate(`/weekly-worklogs/${wl.id}`)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors"><Eye className="h-4 w-4" /></button>
+                  </div>
+                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Date Range</span><span className="text-[0.82rem] text-[#374151] font-medium">{formatDate(wl.start_date)} - {formatDate(wl.end_date)}</span></div>
+                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Intern</span><span className="text-[0.82rem] text-[#374151] font-medium">{wl.user?.name || '-'}</span></div>
+                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Hours</span><span className="text-[0.82rem] text-[#374151] font-medium">{wl.hours_worked}h</span></div>
+                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Status</span><Badge color={STATUS_COLORS[wl.status] || 'gray'}>{STATUS_LABELS[wl.status] || wl.status}</Badge></div>
+                </div>
+              ))}
+              {data?.data.length === 0 && (
+                <div className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">No worklogs found.</div>
+              )}
+            </div>
+
+            {/* Desktop table view */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full min-w-[700px]">
                 <thead>
                   <tr className="bg-[#fafafa]">

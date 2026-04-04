@@ -83,7 +83,38 @@ export function UsersPage() {
           <LoadingSpinner className="py-12" />
         ) : (
           <>
-            <div className="overflow-x-auto">
+            {/* Mobile card view */}
+            <div className="md:hidden space-y-3 p-4">
+              {data?.data.map((user) => (
+                <div key={user.id} className="bg-white rounded-[5px] border border-[#e5e7eb] p-4 space-y-2 relative">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#48B6E8] to-[#3a9fd4] flex items-center justify-center text-white text-[0.7rem] font-semibold shrink-0">
+                        {user.name.charAt(0).toUpperCase()}
+                      </div>
+                      <span className="text-[0.82rem] font-medium text-[#374151]">{user.name}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button onClick={() => setViewUser(user)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors" title="View"><Eye className="h-4 w-4" /></button>
+                      <button onClick={() => handleEdit(user)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors" title="Edit"><Pencil className="h-4 w-4" /></button>
+                      <button onClick={() => toggleMutation.mutate(user.id)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors" title={user.is_active ? 'Deactivate' : 'Activate'}>{user.is_active ? <ToggleRight className="h-4 w-4" /> : <ToggleLeft className="h-4 w-4" />}</button>
+                      <button onClick={() => handleDelete(user.id)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#dc2626] hover:bg-[#fef2f2] transition-colors" title="Delete"><Trash2 className="h-4 w-4" /></button>
+                    </div>
+                  </div>
+                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Email</span><span className="text-[0.82rem] text-[#374151] font-medium">{user.email}</span></div>
+                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Role</span><span className="text-[0.82rem] text-[#374151] font-medium">{user.role?.name || '-'}</span></div>
+                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Department</span><span className="text-[0.82rem] text-[#374151] font-medium">{user.department || '-'}</span></div>
+                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Generation</span><span className="text-[0.82rem] text-[#374151] font-medium">{(user as any).generation || '-'}</span></div>
+                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Status</span><Badge color={user.is_active ? 'green' : 'gray'}>{user.is_active ? 'Active' : 'Inactive'}</Badge></div>
+                </div>
+              ))}
+              {data?.data.length === 0 && (
+                <div className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">No users found.</div>
+              )}
+            </div>
+
+            {/* Desktop table view */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full min-w-[800px]">
                 <thead>
                   <tr className="bg-[#fafafa]">

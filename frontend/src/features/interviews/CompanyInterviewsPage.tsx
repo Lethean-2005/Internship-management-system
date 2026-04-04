@@ -221,7 +221,47 @@ export function CompanyInterviewsPage() {
           <LoadingSpinner className="py-12" />
         ) : (
           <>
-            <div className="overflow-x-auto">
+            {/* Mobile card view */}
+            <div className="md:hidden space-y-3 p-4">
+              {data?.data.map((interview) => {
+                const m = String(interview.interview_date).match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/);
+                const isPast = m ? new Date(+m[1], +m[2]-1, +m[3], +m[4], +m[5]) <= new Date() : false;
+                const locked = isIntern && (interview.result === 'passed' || interview.result === 'failed');
+                return (
+                  <div key={interview.id} className="bg-white rounded-[5px] border border-[#e5e7eb] p-4 space-y-2 relative">
+                    <div className="flex items-start justify-between">
+                      <span className="text-[0.82rem] font-medium text-[#374151]">{(interview as any).company_name || interview.company?.name || '-'}</span>
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => setViewInterview(interview)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors" title="View"><Eye className="h-4 w-4" /></button>
+                        <button onClick={() => handleEdit(interview)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors" title="Edit"><Pencil className="h-4 w-4" /></button>
+                        {isPast && (
+                          <button onClick={() => !locked && handleOpenResult(interview)} className={`p-1.5 rounded-[5px] transition-colors ${locked ? 'text-[#d1d5db] cursor-not-allowed' : 'text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd]'}`} title={locked ? 'Result is final' : 'Update Result'} disabled={locked}><ClipboardCheck className="h-4 w-4" /></button>
+                        )}
+                        {interview.result === 'passed' && isIntern && (
+                          <button onClick={() => handleOpenDetails(interview)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#10b981] hover:bg-[#ecfdf5] transition-colors" title="Complete Internship Details"><FileCheck className="h-4 w-4" /></button>
+                        )}
+                        {!isIntern && (
+                          <button onClick={() => handleDelete(interview.id)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#dc2626] hover:bg-[#fef2f2] transition-colors" title="Delete"><Trash2 className="h-4 w-4" /></button>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Intern</span><span className="text-[0.82rem] text-[#374151] font-medium">{interview.user?.name || '-'}</span></div>
+                    <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Date</span><span className="text-[0.82rem] text-[#374151] font-medium">{formatDateTime(interview.interview_date)}</span></div>
+                    <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Location</span>{interview.location && (interview.location.startsWith('http://') || interview.location.startsWith('https://')) ? <a href={interview.location.startsWith('http') ? interview.location : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(interview.location)}`} target="_blank" rel="noreferrer" className="inline-flex items-center rounded-[5px] px-[10px] py-[3px] text-[0.7rem] font-semibold bg-[#eef8fd] border border-[#48B6E8] text-[#48B6E8] hover:bg-[#d9eff9] transition-colors">View Map</a> : <span className="text-[0.82rem] text-[#374151] font-medium">{interview.location || '-'}</span>}</div>
+                    <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Type</span><Badge color={STATUS_COLORS[interview.type] || 'gray'}>{STATUS_LABELS[interview.type] || interview.type}</Badge></div>
+                    <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Employment</span>{(interview as any).employment ? <Badge color={STATUS_COLORS[(interview as any).employment] || 'gray'}>{STATUS_LABELS[(interview as any).employment] || (interview as any).employment}</Badge> : <span className="text-[0.82rem] text-[#9ca3af]">-</span>}</div>
+                    <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Status</span>{isPast ? <Badge color="green">Interviewed</Badge> : <Badge color="blue">Scheduled</Badge>}</div>
+                    <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Result</span>{interview.result ? <Badge color={STATUS_COLORS[interview.result] || 'gray'}>{STATUS_LABELS[interview.result] || interview.result}</Badge> : <span className="text-[0.82rem] text-[#9ca3af]">-</span>}</div>
+                  </div>
+                );
+              })}
+              {data?.data.length === 0 && (
+                <div className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">No interviews found.</div>
+              )}
+            </div>
+
+            {/* Desktop table view */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full min-w-[900px]">
                 <thead>
                   <tr className="bg-[#fafafa]">
