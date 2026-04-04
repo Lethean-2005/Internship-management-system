@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\Roles\RoleController;
 use App\Http\Controllers\Api\Slides\FinalSlideController;
 use App\Http\Controllers\Api\Users\UserController;
 use App\Http\Controllers\Api\JobPostings\JobPostingController;
+use App\Http\Controllers\Api\Leaves\InternLeaveController;
 use App\Http\Controllers\Api\Worklogs\WeeklyWorklogController;
 use Illuminate\Support\Facades\Route;
 
@@ -48,6 +49,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
         $data = $request->validate([
             'company_name' => ['sometimes', 'string', 'max:255'],
             'position' => ['sometimes', 'string', 'max:255'],
+            'allowance' => ['sometimes', 'nullable', 'numeric', 'min:0'],
             'supervisor_name' => ['sometimes', 'nullable', 'string', 'max:255'],
             'tutor_id' => ['sometimes', 'nullable', 'exists:users,id'],
             'department' => ['sometimes', 'nullable', 'string', 'max:255'],
@@ -239,5 +241,16 @@ Route::middleware('auth:sanctum')->group(function (): void {
         Route::post('/job-postings', [JobPostingController::class, 'store']);
         Route::put('/job-postings/{jobPosting}', [JobPostingController::class, 'update']);
         Route::delete('/job-postings/{jobPosting}', [JobPostingController::class, 'destroy']);
+    });
+
+    // Intern Leaves — intern can create/view own, tutor/admin/supervisor can review
+    Route::get('/intern-leaves', [InternLeaveController::class, 'index']);
+    Route::get('/intern-leaves/{leave}', [InternLeaveController::class, 'show']);
+    Route::middleware('role:intern')->group(function (): void {
+        Route::post('/intern-leaves', [InternLeaveController::class, 'store']);
+        Route::delete('/intern-leaves/{leave}', [InternLeaveController::class, 'destroy']);
+    });
+    Route::middleware('role:admin,tutor,supervisor')->group(function (): void {
+        Route::patch('/intern-leaves/{leave}/review', [InternLeaveController::class, 'review']);
     });
 });

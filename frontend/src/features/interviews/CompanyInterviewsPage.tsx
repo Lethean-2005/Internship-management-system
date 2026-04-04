@@ -68,6 +68,7 @@ export function CompanyInterviewsPage() {
   const [detailsSupervisor, setDetailsSupervisor] = useState('');
   const [detailsTutor, setDetailsTutor] = useState('');
   const [detailsEmployment, setDetailsEmployment] = useState('internship');
+  const [detailsAllowance, setDetailsAllowance] = useState('');
 
   const { data: usersData } = useQuery({
     queryKey: ['users'],
@@ -164,6 +165,7 @@ export function CompanyInterviewsPage() {
     await client.put('/me', {
       company_name: detailsCompany,
       position: detailsPosition,
+      allowance: detailsAllowance ? Number(detailsAllowance) : null,
       supervisor_name: detailsSupervisor,
       ...(detailsTutor ? { tutor_id: Number(detailsTutor) } : {}),
     });
@@ -480,6 +482,14 @@ export function CompanyInterviewsPage() {
               onChange={(e) => setDetailsPosition(e.target.value)}
               placeholder="e.g. Software Engineer Intern"
               required
+            />
+
+            <Input
+              label="Allowance ($/month)"
+              type="number"
+              value={detailsAllowance}
+              onChange={(e) => setDetailsAllowance(e.target.value)}
+              placeholder="e.g. 200"
             />
 
             <Input

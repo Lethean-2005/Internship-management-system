@@ -11,6 +11,7 @@ import {
   MessageSquare,
   CalendarCheck,
   Briefcase,
+  CalendarOff,
   ChevronUp,
   ChevronDown,
   LogOut,
@@ -36,6 +37,7 @@ const navItems: NavItem[] = [
   { to: '/contact-supervisor', label: 'Contact Supervisor', icon: MessageSquare, roles: ['admin', 'tutor', 'supervisor', 'intern'] },
   { to: '/company-interviews', label: 'Company Interviews', icon: CalendarCheck, roles: ['admin', 'supervisor', 'intern'] },
   { to: '/job-postings', label: 'Job Postings', icon: Briefcase, roles: ['admin', 'intern'] },
+  { to: '/take-leave', label: 'Take Leave', icon: CalendarOff, roles: ['admin', 'tutor', 'supervisor', 'intern'] },
 ];
 
 export function Sidebar() {

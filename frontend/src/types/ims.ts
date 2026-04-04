@@ -186,6 +186,22 @@ export interface JobPosting {
   updated_at: string;
 }
 
+export interface InternLeave {
+  id: number;
+  user_id: number;
+  user?: { id: number; name: string; email: string; company_name: string | null };
+  type: string;
+  start_date: string;
+  end_date: string;
+  reason: string;
+  status: string;
+  reviewed_by: number | null;
+  reviewer?: { id: number; name: string } | null;
+  reviewed_at: string | null;
+  review_note: string | null;
+  created_at: string;
+}
+
 export interface DashboardStats {
   total_users: number;
   total_interns: number;

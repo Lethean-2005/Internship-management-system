@@ -15,6 +15,7 @@ import { FinalSlidesPage } from './features/slides/FinalSlidesPage';
 import { ContactSupervisorPage } from './features/contacts/ContactSupervisorPage';
 import { CompanyInterviewsPage } from './features/interviews/CompanyInterviewsPage';
 import JobPostingsPage from './features/jobPostings/JobPostingsPage';
+import InternLeavesPage from './features/leaves/InternLeavesPage';
 import { MyInternsPage } from './features/interns/MyInternsPage';
 import { useAuthStore } from './stores/authStore';
 import { getMe } from './api/auth';
@@ -64,6 +65,7 @@ function App() {
           <Route path="contact-supervisor" element={<ContactSupervisorPage />} />
           <Route path="company-interviews" element={<CompanyInterviewsPage />} />
           <Route path="job-postings" element={<JobPostingsPage />} />
+          <Route path="take-leave" element={<InternLeavesPage />} />
         </Route>
       </Route>
 

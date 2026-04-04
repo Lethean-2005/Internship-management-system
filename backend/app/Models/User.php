@@ -26,6 +26,7 @@ class User extends Authenticatable
         'is_active',
         'company_name',
         'position',
+        'allowance',
         'tutor_id',
         'supervisor_name',
         'generation',
