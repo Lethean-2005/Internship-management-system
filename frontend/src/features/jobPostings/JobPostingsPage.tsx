@@ -398,10 +398,11 @@ function JobPostingFormModal({ posting, onClose, onSubmit, isLoading }: {
           <Input label="Company Name *" value={companyName} onChange={(e) => setCompanyName(e.target.value)} required placeholder="e.g. Acme Corp" />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <Input label="Location" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. Phnom Penh" />
-          <Input label="Location Link" value={locationLink} onChange={(e) => setLocationLink(e.target.value)} placeholder="e.g. https://maps.google.com/..." />
+        <div>
+          <label className="block text-[0.85rem] font-medium text-[#374151] mb-1">Location</label>
+          <textarea value={location} onChange={(e) => setLocation(e.target.value)} rows={2} className="w-full rounded-[5px] border border-[#e0e0e0] px-[14px] py-[11px] text-[0.88rem] transition-all focus:outline-none focus:border-[#48B6E8] focus:ring-[3px] focus:ring-[rgba(72,182,232,0.08)]" placeholder="e.g. #123, Street 456, Phnom Penh, Cambodia" />
         </div>
+        <Input label="Location Link (Google Maps URL)" value={locationLink} onChange={(e) => setLocationLink(e.target.value)} placeholder="e.g. https://maps.google.com/..." />
 
         <div className="grid grid-cols-2 gap-4">
           <Select label="Type" value={type} onChange={(e) => setType(e.target.value)} options={[

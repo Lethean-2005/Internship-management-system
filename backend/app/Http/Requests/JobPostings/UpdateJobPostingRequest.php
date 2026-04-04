@@ -16,8 +16,8 @@ class UpdateJobPostingRequest extends FormRequest
         return [
             'title' => ['sometimes', 'string', 'max:255'],
             'company_name' => ['sometimes', 'string', 'max:255'],
-            'location' => ['nullable', 'string', 'max:255'],
-            'location_link' => ['nullable', 'url', 'max:500'],
+            'location' => ['nullable', 'string'],
+            'location_link' => ['nullable', 'string', 'max:500'],
             'type' => ['nullable', 'string', 'in:internship,full-time,part-time'],
             'description' => ['nullable', 'string'],
             'requirements' => ['nullable', 'string'],
