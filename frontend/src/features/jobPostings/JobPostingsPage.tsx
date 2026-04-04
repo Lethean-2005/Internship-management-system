@@ -374,14 +374,14 @@ function ImageCard({ posting, isAdmin, onView, onEdit, onDelete }: {
   onView: (p: JobPosting) => void; onEdit: (p: JobPosting) => void; onDelete: (id: number) => void;
 }) {
   return (
-    <div className="bg-white rounded-[5px] border border-[#e5e7eb] overflow-hidden hover:shadow-lg transition-all duration-200 flex flex-col">
+    <div className="bg-white rounded-[5px] border border-[#e5e7eb] p-4 hover:shadow-lg transition-all duration-200 flex flex-col">
       {posting.image_url && (
-        <div className="w-full overflow-hidden bg-[#f3f4f6] cursor-pointer" onClick={() => onView(posting)}>
-          <img src={posting.image_url} alt={posting.title} className="w-full object-contain" />
+        <div className="w-full overflow-hidden rounded-[5px] bg-[#f3f4f6] mb-3 cursor-pointer" onClick={() => onView(posting)}>
+          <img src={posting.image_url} alt={posting.title} className="w-full object-contain rounded-[5px]" />
         </div>
       )}
 
-      <div className="flex items-center justify-between px-4 py-3">
+      <div className="flex items-center justify-between">
         {isAdmin && (
           <div className="flex items-center gap-1">
             <button onClick={() => onEdit(posting)} className="p-1.5 rounded-[5px] hover:bg-[#f5f5f7] text-[#9ca3af] hover:text-[#f59e0b] transition-colors" title="Edit">
