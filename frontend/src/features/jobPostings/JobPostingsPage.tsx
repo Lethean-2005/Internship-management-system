@@ -34,6 +34,19 @@ const TYPE_LABELS: Record<string, string> = {
   'part-time': 'Part-time',
 };
 
+function isLink(str: string | null): boolean {
+  return !!str && (str.startsWith('http://') || str.startsWith('https://'));
+}
+
+function locationLabel(str: string): string {
+  try {
+    const url = new URL(str);
+    return url.hostname.replace('www.', '');
+  } catch {
+    return str;
+  }
+}
+
 function timeAgo(dateStr: string): string {
   const now = new Date();
   const date = new Date(dateStr);
@@ -142,9 +155,9 @@ export default function JobPostingsPage() {
                     </span>
                   )}
                   {posting.location && (
-                    posting.location_link ? (
-                      <a href={posting.location_link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-[5px] border border-[#e5e7eb] px-3 py-1 text-[0.73rem] font-medium text-[#6366f1] bg-white hover:bg-[#f5f3ff] transition-colors">
-                        <MapPin className="w-3 h-3" /> {posting.location} <ExternalLink className="w-3 h-3" />
+                    isLink(posting.location) ? (
+                      <a href={posting.location} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-[5px] border border-[#e5e7eb] px-3 py-1 text-[0.73rem] font-medium text-[#6366f1] bg-white hover:bg-[#f5f3ff] transition-colors">
+                        <MapPin className="w-3 h-3" /> {locationLabel(posting.location)} <ExternalLink className="w-3 h-3" />
                       </a>
                     ) : (
                       <span className="inline-flex items-center rounded-[5px] border border-[#e5e7eb] px-3 py-1 text-[0.73rem] font-medium text-[#374151] bg-white">
@@ -172,9 +185,9 @@ export default function JobPostingsPage() {
                 {/* Footer */}
                 <div className="flex items-center justify-between pt-4 border-t border-[#f0f0f0]">
                   {posting.location ? (
-                    posting.location_link ? (
-                      <a href={posting.location_link} target="_blank" rel="noopener noreferrer" className="text-[0.78rem] text-[#6366f1] flex items-center gap-1 hover:text-[#4f46e5] transition-colors">
-                        <MapPin className="w-3.5 h-3.5" /> {posting.location} <ExternalLink className="w-3 h-3" />
+                    isLink(posting.location) ? (
+                      <a href={posting.location} target="_blank" rel="noopener noreferrer" className="text-[0.78rem] text-[#6366f1] flex items-center gap-1 hover:text-[#4f46e5] transition-colors">
+                        <MapPin className="w-3.5 h-3.5" /> {locationLabel(posting.location)} <ExternalLink className="w-3 h-3" />
                       </a>
                     ) : (
                       <span className="text-[0.78rem] text-[#6b7280] flex items-center gap-1">
@@ -263,9 +276,9 @@ export default function JobPostingsPage() {
                 </span>
               )}
               {viewPosting.location && (
-                viewPosting.location_link ? (
-                  <a href={viewPosting.location_link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-[5px] border border-[#e5e7eb] px-3 py-1 text-[0.76rem] font-medium text-[#6366f1] hover:bg-[#f5f3ff] transition-colors">
-                    <MapPin className="w-3 h-3" /> {viewPosting.location} <ExternalLink className="w-3 h-3" />
+                isLink(viewPosting.location) ? (
+                  <a href={viewPosting.location} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-[5px] border border-[#e5e7eb] px-3 py-1 text-[0.76rem] font-medium text-[#6366f1] hover:bg-[#f5f3ff] transition-colors">
+                    <MapPin className="w-3 h-3" /> {locationLabel(viewPosting.location)} <ExternalLink className="w-3 h-3" />
                   </a>
                 ) : (
                   <span className="inline-flex items-center rounded-[5px] border border-[#e5e7eb] px-3 py-1 text-[0.76rem] font-medium text-[#374151]">
@@ -356,7 +369,6 @@ function JobPostingFormModal({ posting, onClose, onSubmit, isLoading }: {
   const [title, setTitle] = useState(posting?.title || '');
   const [companyName, setCompanyName] = useState(posting?.company_name || '');
   const [location, setLocation] = useState(posting?.location || '');
-  const [locationLink, setLocationLink] = useState(posting?.location_link || '');
   const [type, setType] = useState(posting?.type || 'internship');
   const [description, setDescription] = useState(posting?.description || '');
   const [requirements, setRequirements] = useState(posting?.requirements || '');
@@ -375,7 +387,6 @@ function JobPostingFormModal({ posting, onClose, onSubmit, isLoading }: {
       title,
       company_name: companyName,
       location: location || null,
-      location_link: locationLink || null,
       type,
       description: description || null,
       requirements: requirements || null,
@@ -400,9 +411,9 @@ function JobPostingFormModal({ posting, onClose, onSubmit, isLoading }: {
 
         <div>
           <label className="block text-[0.85rem] font-medium text-[#374151] mb-1">Location</label>
-          <textarea value={location} onChange={(e) => setLocation(e.target.value)} rows={2} className="w-full rounded-[5px] border border-[#e0e0e0] px-[14px] py-[11px] text-[0.88rem] transition-all focus:outline-none focus:border-[#48B6E8] focus:ring-[3px] focus:ring-[rgba(72,182,232,0.08)]" placeholder="e.g. #123, Street 456, Phnom Penh, Cambodia" />
+          <textarea value={location} onChange={(e) => setLocation(e.target.value)} rows={2} className="w-full rounded-[5px] border border-[#e0e0e0] px-[14px] py-[11px] text-[0.88rem] transition-all focus:outline-none focus:border-[#48B6E8] focus:ring-[3px] focus:ring-[rgba(72,182,232,0.08)]" placeholder="Enter address or paste a link (e.g. https://maps.google.com/...)" />
+          <p className="mt-1 text-[0.75rem] text-[#9ca3af]">You can type an address or paste a Google Maps link</p>
         </div>
-        <Input label="Location Link (Google Maps URL)" value={locationLink} onChange={(e) => setLocationLink(e.target.value)} placeholder="e.g. https://maps.google.com/..." />
 
         <div className="grid grid-cols-2 gap-4">
           <Select label="Type" value={type} onChange={(e) => setType(e.target.value)} options={[
