@@ -14,7 +14,7 @@ import { FinalReportsPage } from './features/reports/FinalReportsPage';
 import { FinalSlidesPage } from './features/slides/FinalSlidesPage';
 import { ContactSupervisorPage } from './features/contacts/ContactSupervisorPage';
 import { CompanyInterviewsPage } from './features/interviews/CompanyInterviewsPage';
-import { CompanyInternshipPage } from './features/companies/CompanyInternshipPage';
+
 import { MyInternsPage } from './features/interns/MyInternsPage';
 import { useAuthStore } from './stores/authStore';
 import { getMe } from './api/auth';

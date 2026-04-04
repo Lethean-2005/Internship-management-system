@@ -1,27 +1,19 @@
-import { useState, useEffect, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { register } from '../../api/auth';
 import { useAuthStore } from '../../stores/authStore';
 import { Input } from '../../components/ui/Input';
-import { Select } from '../../components/ui/Select';
+
 import { Button } from '../../components/ui/Button';
 import { FilterDropdown } from '../../components/ui/FilterDropdown';
 import type { ApiError } from '../../types/api';
 import { GraduationCap, List } from 'lucide-react';
-import client from '../../api/client';
 
 const roleCards = [
   { slug: 'tutor', label: 'Tutor', image: '/tutor.png' },
   { slug: 'supervisor', label: 'Supervisor', image: '/supervisor.jpg' },
   { slug: 'intern', label: 'Intern', image: '/Intern.webp' },
 ];
-
-interface SimpleUser {
-  id: number;
-  name: string;
-  email: string;
-  department: string | null;
-}
 
 export function RegisterPage() {
   const navigate = useNavigate();
@@ -36,24 +28,13 @@ export function RegisterPage() {
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
   const [companyName, setCompanyName] = useState('');
-  const [position, setPosition] = useState('');
   const [department, setDepartment] = useState('');
   const [generation, setGeneration] = useState('');
-  const [tutorId, setTutorId] = useState('');
-  const [supervisorName, setSupervisorName] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const [tutors, setTutors] = useState<SimpleUser[]>([]);
-
   const isIntern = roleSlug === 'intern';
   const totalSteps = isIntern ? 3 : 2;
-
-  useEffect(() => {
-    if (isIntern) {
-      client.get<{ data: SimpleUser[] }>('/public/tutors').then((r) => setTutors(r.data.data)).catch(() => {});
-    }
-  }, [isIntern]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -97,11 +78,6 @@ export function RegisterPage() {
   const handleBack = () => {
     if (step > 1) setStep(step - 1);
   };
-
-  const tutorOptions = [
-    { value: '', label: 'Select a Tutor' },
-    ...tutors.map((t) => ({ value: t.id, label: `${t.name}${t.department ? ` — ${t.department}` : ''}` })),
-  ];
 
   const dots = (
     <div className="flex items-center justify-center gap-[6px]">

@@ -35,7 +35,7 @@ export function FinalSlidesPage() {
   const [editDesc, setEditDesc] = useState('');
   const [editDate, setEditDate] = useState('');
   const [deadlineOpen, setDeadlineOpen] = useState(false);
-  const [deadlineSlide, setDeadlineSlide] = useState<FinalSlide | null>(null);
+  const [_deadlineSlide, setDeadlineSlide] = useState<FinalSlide | null>(null);
   const [deadlineValue, setDeadlineValue] = useState('');
 
   const qc = useQueryClient();
@@ -66,10 +66,6 @@ export function FinalSlidesPage() {
     } catch (err: any) {
       console.error('Slide create error:', err.response?.data);
     }
-  };
-
-  const handleFileUpload = async (slideId: number, file: File) => {
-    await uploadMutation.mutateAsync({ id: slideId, file });
   };
 
   const handleOpenEdit = (slide: FinalSlide) => {

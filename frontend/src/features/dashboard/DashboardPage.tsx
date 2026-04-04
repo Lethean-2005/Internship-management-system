@@ -8,7 +8,6 @@ import {
   Presentation,
   CalendarCheck,
   CheckCircle,
-  Clock,
   Send,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -98,7 +97,7 @@ export function DashboardPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {cards.map((card) => {
-            const value = stats ? (stats as Record<string, number>)[card.key] ?? 0 : 0;
+            const value = stats ? (stats as unknown as Record<string, number>)[card.key] ?? 0 : 0;
             return (
               <div
                 key={card.key}

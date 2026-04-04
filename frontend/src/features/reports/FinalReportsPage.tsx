@@ -34,7 +34,7 @@ export function FinalReportsPage() {
   const [editTitle, setEditTitle] = useState('');
   const [editContent, setEditContent] = useState('');
   const [deadlineOpen, setDeadlineOpen] = useState(false);
-  const [deadlineReport, setDeadlineReport] = useState<FinalReport | null>(null);
+  const [_deadlineReport, setDeadlineReport] = useState<FinalReport | null>(null);
   const [deadlineValue, setDeadlineValue] = useState('');
 
   const qc = useQueryClient();
@@ -54,7 +54,7 @@ export function FinalReportsPage() {
   const handleFormSubmit = async (formData: any) => {
     try {
       const file = formData.file instanceof File ? formData.file : null;
-      const rest = { title: formData.title, content: formData.content };
+      const rest = { title: formData.title, content: formData.content, internship_id: formData.internship_id };
       const report = await createMutation.mutateAsync(rest);
       if (file && report?.id) {
         try {

@@ -392,9 +392,9 @@ export function CompanyInterviewsPage() {
                   <p className="text-[0.72rem] text-[#9ca3af] mb-1">Location</p>
                   <a
                     href={
-                      viewInterview.location.startsWith('http')
+                      viewInterview.location?.startsWith('http')
                         ? viewInterview.location
-                        : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(viewInterview.location)}`
+                        : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(viewInterview.location ?? '')}`
                     }
                     target="_blank"
                     rel="noreferrer"
