@@ -159,6 +159,29 @@ export interface CompanyInterview {
   created_at: string;
 }
 
+export interface JobPosting {
+  id: number;
+  title: string;
+  company_name: string;
+  location: string | null;
+  type: string;
+  description: string | null;
+  requirements: string | null;
+  benefits: string | null;
+  department: string | null;
+  positions: number;
+  start_date: string | null;
+  end_date: string | null;
+  application_deadline: string | null;
+  contact_email: string | null;
+  status: string;
+  is_active: boolean;
+  created_by: number;
+  creator?: { id: number; name: string };
+  created_at: string;
+  updated_at: string;
+}
+
 export interface DashboardStats {
   total_users: number;
   total_interns: number;

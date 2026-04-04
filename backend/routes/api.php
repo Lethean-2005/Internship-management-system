@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Reports\FinalReportController;
 use App\Http\Controllers\Api\Roles\RoleController;
 use App\Http\Controllers\Api\Slides\FinalSlideController;
 use App\Http\Controllers\Api\Users\UserController;
+use App\Http\Controllers\Api\JobPostings\JobPostingController;
 use App\Http\Controllers\Api\Worklogs\WeeklyWorklogController;
 use Illuminate\Support\Facades\Route;
 
@@ -229,5 +230,14 @@ Route::middleware('auth:sanctum')->group(function (): void {
     });
     Route::middleware('role:admin,supervisor')->group(function (): void {
         Route::delete('/company-interviews/{interview}', [CompanyInterviewController::class, 'destroy']);
+    });
+
+    // Job Postings — all roles can view, admin can manage
+    Route::get('/job-postings', [JobPostingController::class, 'index']);
+    Route::get('/job-postings/{jobPosting}', [JobPostingController::class, 'show']);
+    Route::middleware('role:admin')->group(function (): void {
+        Route::post('/job-postings', [JobPostingController::class, 'store']);
+        Route::put('/job-postings/{jobPosting}', [JobPostingController::class, 'update']);
+        Route::delete('/job-postings/{jobPosting}', [JobPostingController::class, 'destroy']);
     });
 });
