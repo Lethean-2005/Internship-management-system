@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Briefcase, Plus, Pencil, Trash2, MapPin, Calendar, Users, Mail, Clock } from 'lucide-react';
+import { Briefcase, Plus, Pencil, Trash2, MapPin, Calendar, Users, Mail, Clock, List, CheckCircle, XCircle, Building2, Laptop } from 'lucide-react';
 import { useJobPostings, useCreateJobPosting, useUpdateJobPosting, useDeleteJobPosting } from '../../hooks/useJobPostings';
 import { useAuthStore } from '../../stores/authStore';
 import { SearchInput } from '../../components/ui/SearchInput';
@@ -7,11 +7,26 @@ import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
+import { FilterDropdown } from '../../components/ui/FilterDropdown';
+import { DatePicker } from '../../components/ui/DatePicker';
 import { Pagination } from '../../components/ui/Pagination';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { EmptyState } from '../../components/ui/EmptyState';
 import type { JobPosting } from '../../types/ims';
 import type { JobPostingPayload } from '../../api/jobPostings';
+
+const statusFilterOptions = [
+  { value: '', label: 'All Status', icon: List },
+  { value: 'open', label: 'Open', icon: CheckCircle },
+  { value: 'closed', label: 'Closed', icon: XCircle },
+];
+
+const typeFilterOptions = [
+  { value: '', label: 'All Types', icon: List },
+  { value: 'internship', label: 'Internship', icon: Building2 },
+  { value: 'full-time', label: 'Full Time', icon: Briefcase },
+  { value: 'part-time', label: 'Part Time', icon: Laptop },
+];
 
 const TYPE_LABELS: Record<string, string> = {
   internship: 'Internship',
@@ -78,17 +93,8 @@ export default function JobPostingsPage() {
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3 mb-6">
         <SearchInput value={search} onChange={(v) => { setSearch(v); setPage(1); }} placeholder="Search jobs..." />
-        <Select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} options={[
-          { value: '', label: 'All Status' },
-          { value: 'open', label: 'Open' },
-          { value: 'closed', label: 'Closed' },
-        ]} />
-        <Select value={typeFilter} onChange={(e) => { setTypeFilter(e.target.value); setPage(1); }} options={[
-          { value: '', label: 'All Types' },
-          { value: 'internship', label: 'Internship' },
-          { value: 'full-time', label: 'Full Time' },
-          { value: 'part-time', label: 'Part Time' },
-        ]} />
+        <FilterDropdown options={statusFilterOptions} value={statusFilter} onChange={(v) => { setStatusFilter(v); setPage(1); }} />
+        <FilterDropdown options={typeFilterOptions} value={typeFilter} onChange={(v) => { setTypeFilter(v); setPage(1); }} />
         {isAdmin && (
           <Button onClick={() => setShowForm(true)} className="ml-auto">
             <Plus className="w-4 h-4 mr-1.5" /> New Job Posting
@@ -404,9 +410,9 @@ function JobPostingFormModal({ posting, onClose, onSubmit, isLoading }: {
         </div>
 
         <div className="grid grid-cols-3 gap-4">
-          <Input label="Start Date" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-          <Input label="End Date" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-          <Input label="Application Deadline" type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
+          <DatePicker label="Start Date" value={startDate} onChange={setStartDate} placeholder="Choose start date" />
+          <DatePicker label="End Date" value={endDate} onChange={setEndDate} placeholder="Choose end date" />
+          <DatePicker label="Application Deadline" value={deadline} onChange={setDeadline} placeholder="Choose deadline" />
         </div>
 
         <Select label="Status" value={status} onChange={(e) => setStatus(e.target.value)} options={[
