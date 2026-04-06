@@ -11,6 +11,7 @@ import { FilterDropdown } from '../../components/ui/FilterDropdown';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { Pagination } from '../../components/ui/Pagination';
 import { Modal } from '../../components/ui/Modal';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { DatePicker } from '../../components/ui/DatePicker';
 import { SlideForm } from './SlideForm';
 import { STATUS_COLORS, STATUS_LABELS } from '../../lib/constants';
@@ -37,6 +38,7 @@ export function FinalSlidesPage() {
   const [deadlineOpen, setDeadlineOpen] = useState(false);
   const [_deadlineSlide, setDeadlineSlide] = useState<FinalSlide | null>(null);
   const [deadlineValue, setDeadlineValue] = useState('');
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const qc = useQueryClient();
   const { data, isLoading } = useSlides({ status: status || undefined, page });
@@ -201,7 +203,7 @@ export function FinalSlidesPage() {
                         <>
                           <button onClick={() => handleOpenEdit(slide)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors" title="Edit"><Pencil className="h-4 w-4" /></button>
                           <button onClick={() => submitMutation.mutate(slide.id)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#059669] hover:bg-[#f0fdf4] transition-colors" title="Submit"><Send className="h-4 w-4" /></button>
-                          <button onClick={() => { if (confirm('Delete this slide?')) deleteMutation.mutate(slide.id); }} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#dc2626] hover:bg-[#fef2f2] transition-colors" title="Delete"><Trash2 className="h-4 w-4" /></button>
+                          <button onClick={() => setDeleteId(slide.id)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#dc2626] hover:bg-[#fef2f2] transition-colors" title="Delete"><Trash2 className="h-4 w-4" /></button>
                         </>
                       )}
                     </div>
@@ -270,7 +272,7 @@ export function FinalSlidesPage() {
                               <button onClick={() => submitMutation.mutate(slide.id)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#059669] hover:bg-[#f0fdf4] transition-colors" title="Submit">
                                 <Send className="h-4 w-4" />
                               </button>
-                              <button onClick={() => { if (confirm('Delete this slide?')) deleteMutation.mutate(slide.id); }} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#dc2626] hover:bg-[#fef2f2] transition-colors" title="Delete">
+                              <button onClick={() => setDeleteId(slide.id)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#dc2626] hover:bg-[#fef2f2] transition-colors" title="Delete">
                                 <Trash2 className="h-4 w-4" />
                               </button>
                             </>
@@ -418,6 +420,13 @@ export function FinalSlidesPage() {
           loading={createMutation.isPending}
         />
       )}
+
+      <ConfirmDialog
+        open={deleteId !== null}
+        message="Are you sure you want to delete this slide? This action cannot be undone."
+        onConfirm={() => { if (deleteId !== null) { deleteMutation.mutate(deleteId); setDeleteId(null); } }}
+        onCancel={() => setDeleteId(null)}
+      />
     </div>
   );
 }

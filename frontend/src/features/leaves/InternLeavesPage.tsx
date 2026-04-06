@@ -4,6 +4,7 @@ import { useInternLeaves, useCreateLeave, useReviewLeave, useDeleteLeave } from 
 import { useAuthStore } from '../../stores/authStore';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { Select } from '../../components/ui/Select';
 import { FilterDropdown } from '../../components/ui/FilterDropdown';
 import { DatePicker } from '../../components/ui/DatePicker';
@@ -59,15 +60,19 @@ export default function InternLeavesPage() {
   const [reviewLeave, setReviewLeave] = useState<InternLeave | null>(null);
   const [reviewStatus, setReviewStatus] = useState<'approved' | 'rejected'>('approved');
   const [reviewNote, setReviewNote] = useState('');
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const { data, isLoading } = useInternLeaves({ status: statusFilter || undefined, page });
   const createMutation = useCreateLeave();
   const reviewMutation = useReviewLeave();
   const deleteMutation = useDeleteLeave();
 
-  const handleDelete = (id: number) => {
-    if (confirm('Delete this leave request?')) {
-      deleteMutation.mutate(id);
+  const handleDelete = (id: number) => setDeleteId(id);
+
+  const confirmDelete = () => {
+    if (deleteId !== null) {
+      deleteMutation.mutate(deleteId);
+      setDeleteId(null);
     }
   };
 
@@ -265,6 +270,13 @@ export default function InternLeavesPage() {
           </div>
         </Modal>
       )}
+
+      <ConfirmDialog
+        open={deleteId !== null}
+        message="Are you sure you want to delete this leave request? This action cannot be undone."
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteId(null)}
+      />
     </div>
   );
 }

@@ -11,6 +11,7 @@ import { FilterDropdown } from '../../components/ui/FilterDropdown';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { Pagination } from '../../components/ui/Pagination';
 import { Modal } from '../../components/ui/Modal';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { DatePicker } from '../../components/ui/DatePicker';
 import { ReportForm } from './ReportForm';
 import { STATUS_COLORS, STATUS_LABELS } from '../../lib/constants';
@@ -36,6 +37,7 @@ export function FinalReportsPage() {
   const [deadlineOpen, setDeadlineOpen] = useState(false);
   const [_deadlineReport, setDeadlineReport] = useState<FinalReport | null>(null);
   const [deadlineValue, setDeadlineValue] = useState('');
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const qc = useQueryClient();
   const { data, isLoading } = useReports({ status: status || undefined, page });
@@ -198,7 +200,7 @@ export function FinalReportsPage() {
                         <>
                           <button onClick={() => handleOpenEdit(report)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors" title="Edit"><Pencil className="h-4 w-4" /></button>
                           <button onClick={() => submitMutation.mutate(report.id)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#059669] hover:bg-[#f0fdf4] transition-colors" title="Submit"><Send className="h-4 w-4" /></button>
-                          <button onClick={() => { if (confirm('Delete this report?')) deleteMutation.mutate(report.id); }} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#dc2626] hover:bg-[#fef2f2] transition-colors" title="Delete"><Trash2 className="h-4 w-4" /></button>
+                          <button onClick={() => setDeleteId(report.id)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#dc2626] hover:bg-[#fef2f2] transition-colors" title="Delete"><Trash2 className="h-4 w-4" /></button>
                         </>
                       )}
                     </div>
@@ -267,7 +269,7 @@ export function FinalReportsPage() {
                               <button onClick={() => submitMutation.mutate(report.id)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#059669] hover:bg-[#f0fdf4] transition-colors" title="Submit">
                                 <Send className="h-4 w-4" />
                               </button>
-                              <button onClick={() => { if (confirm('Delete this report?')) deleteMutation.mutate(report.id); }} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#dc2626] hover:bg-[#fef2f2] transition-colors" title="Delete">
+                              <button onClick={() => setDeleteId(report.id)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#dc2626] hover:bg-[#fef2f2] transition-colors" title="Delete">
                                 <Trash2 className="h-4 w-4" />
                               </button>
                             </>
@@ -405,6 +407,13 @@ export function FinalReportsPage() {
           loading={createMutation.isPending}
         />
       )}
+
+      <ConfirmDialog
+        open={deleteId !== null}
+        message="Are you sure you want to delete this report? This action cannot be undone."
+        onConfirm={() => { if (deleteId !== null) { deleteMutation.mutate(deleteId); setDeleteId(null); } }}
+        onCancel={() => setDeleteId(null)}
+      />
     </div>
   );
 }

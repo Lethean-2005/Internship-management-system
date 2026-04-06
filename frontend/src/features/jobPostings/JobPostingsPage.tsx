@@ -5,6 +5,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { SearchInput } from '../../components/ui/SearchInput';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { FilterDropdown } from '../../components/ui/FilterDropdown';
@@ -81,6 +82,7 @@ export default function JobPostingsPage() {
   const [showForm, setShowForm] = useState(false);
   const [editPosting, setEditPosting] = useState<JobPosting | null>(null);
   const [viewPosting, setViewPosting] = useState<JobPosting | null>(null);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const { data, isLoading } = useJobPostings({
     search, page,
@@ -99,9 +101,12 @@ export default function JobPostingsPage() {
     updateMutation.mutate({ id, payload }, { onSuccess: () => setEditPosting(null) });
   };
 
-  const handleDelete = (id: number) => {
-    if (confirm('Are you sure you want to delete this job posting?')) {
-      deleteMutation.mutate(id);
+  const handleDelete = (id: number) => setDeleteId(id);
+
+  const confirmDelete = () => {
+    if (deleteId !== null) {
+      deleteMutation.mutate(deleteId);
+      setDeleteId(null);
     }
   };
 
@@ -259,6 +264,13 @@ export default function JobPostingsPage() {
             </div>
         </Modal>
       )}
+
+      <ConfirmDialog
+        open={deleteId !== null}
+        message="Are you sure you want to delete this job posting? This action cannot be undone."
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteId(null)}
+      />
     </div>
   );
 }

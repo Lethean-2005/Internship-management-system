@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getUsers, getUser, createUser, updateUser, deleteUser, toggleActive } from '../api/users';
 import type { UserFilters, UserPayload } from '../api/users';
+import { toast } from '../stores/toastStore';
 
 export function useUsers(filters?: UserFilters) {
   return useQuery({
@@ -21,7 +22,8 @@ export function useCreateUser() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload: UserPayload) => createUser(payload),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['users'] }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['users'] }); toast.success('User created successfully!'); },
+    onError: () => toast.error('Failed to create user.'),
   });
 }
 
@@ -29,7 +31,8 @@ export function useUpdateUser() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, payload }: { id: number; payload: Partial<UserPayload> }) => updateUser(id, payload),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['users'] }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['users'] }); toast.success('User updated successfully!'); },
+    onError: () => toast.error('Failed to update user.'),
   });
 }
 
@@ -37,7 +40,8 @@ export function useDeleteUser() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => deleteUser(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['users'] }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['users'] }); toast.success('User deleted successfully!'); },
+    onError: () => toast.error('Failed to delete user.'),
   });
 }
 
@@ -45,6 +49,7 @@ export function useToggleActive() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => toggleActive(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['users'] }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['users'] }); toast.success('User status updated!'); },
+    onError: () => toast.error('Failed to update user status.'),
   });
 }

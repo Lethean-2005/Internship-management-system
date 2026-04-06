@@ -7,6 +7,7 @@ import { Badge } from '../../components/ui/Badge';
 import { SearchInput } from '../../components/ui/SearchInput';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { Pagination } from '../../components/ui/Pagination';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { CompanyForm } from './CompanyForm';
 import { InternshipForm } from './InternshipForm';
 import { STATUS_COLORS, STATUS_LABELS } from '../../lib/constants';
@@ -19,6 +20,7 @@ export function CompanyInternshipPage() {
   const [companyFormOpen, setCompanyFormOpen] = useState(false);
   const [editCompany, setEditCompany] = useState<Company | null>(null);
   const [internshipFormOpen, setInternshipFormOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ type: 'company' | 'internship'; id: number } | null>(null);
 
   const { data: companiesData, isLoading: companiesLoading } = useCompanies({ search });
   const { data: internshipsData, isLoading: internshipsLoading } = useInternships({ page: intPage });
@@ -62,16 +64,17 @@ export function CompanyInternshipPage() {
     setInternshipFormOpen(false);
   };
 
-  const handleDeleteCompany = async (id: number) => {
-    if (confirm('Are you sure you want to delete this company?')) {
-      await deleteCompanyMutation.mutateAsync(id);
-    }
-  };
+  const handleDeleteCompany = (id: number) => setDeleteTarget({ type: 'company', id });
+  const handleDeleteInternship = (id: number) => setDeleteTarget({ type: 'internship', id });
 
-  const handleDeleteInternship = async (id: number) => {
-    if (confirm('Are you sure you want to delete this internship?')) {
-      await deleteInternshipMutation.mutateAsync(id);
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    if (deleteTarget.type === 'company') {
+      await deleteCompanyMutation.mutateAsync(deleteTarget.id);
+    } else {
+      await deleteInternshipMutation.mutateAsync(deleteTarget.id);
     }
+    setDeleteTarget(null);
   };
 
   return (
@@ -224,6 +227,13 @@ export function CompanyInternshipPage() {
         onSubmit={handleInternshipSubmit}
         companies={companiesData?.data || []}
         loading={createInternshipMutation.isPending}
+      />
+
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        message={`Are you sure you want to delete this ${deleteTarget?.type || 'item'}? This action cannot be undone.`}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTarget(null)}
       />
     </div>
   );

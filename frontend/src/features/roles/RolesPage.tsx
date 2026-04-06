@@ -3,12 +3,14 @@ import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { useRoles, useCreateRole, useUpdateRole, useDeleteRole } from '../../hooks/useRoles';
 import { Button } from '../../components/ui/Button';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { RoleForm } from './RoleForm';
 import type { Role } from '../../types/ims';
 
 export function RolesPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [editRole, setEditRole] = useState<Role | null>(null);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const { data: roles, isLoading } = useRoles();
   const createMutation = useCreateRole();
@@ -34,9 +36,12 @@ export function RolesPage() {
     setFormOpen(false);
   };
 
-  const handleDelete = async (id: number) => {
-    if (confirm('Are you sure you want to delete this role?')) {
-      await deleteMutation.mutateAsync(id);
+  const handleDelete = (id: number) => setDeleteId(id);
+
+  const confirmDelete = async () => {
+    if (deleteId !== null) {
+      await deleteMutation.mutateAsync(deleteId);
+      setDeleteId(null);
     }
   };
 
@@ -133,6 +138,13 @@ export function RolesPage() {
         onSubmit={handleFormSubmit}
         role={editRole}
         loading={createMutation.isPending || updateMutation.isPending}
+      />
+
+      <ConfirmDialog
+        open={deleteId !== null}
+        message="Are you sure you want to delete this role? This action cannot be undone."
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteId(null)}
       />
     </div>
   );

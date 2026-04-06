@@ -9,6 +9,7 @@ import { FilterDropdown } from '../../components/ui/FilterDropdown';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { Pagination } from '../../components/ui/Pagination';
 import { Modal } from '../../components/ui/Modal';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { UserForm } from './UserForm';
 import type { User } from '../../types/ims';
 
@@ -27,6 +28,7 @@ export function UsersPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [editUser, setEditUser] = useState<User | null>(null);
   const [viewUser, setViewUser] = useState<User | null>(null);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const { data, isLoading } = useUsers({ search, role: roleFilter || undefined, page });
   const { data: roles } = useRoles();
@@ -54,9 +56,12 @@ export function UsersPage() {
     setFormOpen(false);
   };
 
-  const handleDelete = async (id: number) => {
-    if (confirm('Are you sure you want to delete this user?')) {
-      await deleteMutation.mutateAsync(id);
+  const handleDelete = (id: number) => setDeleteId(id);
+
+  const confirmDelete = async () => {
+    if (deleteId !== null) {
+      await deleteMutation.mutateAsync(deleteId);
+      setDeleteId(null);
     }
   };
 
@@ -278,6 +283,13 @@ export function UsersPage() {
         user={editUser}
         roles={roles || []}
         loading={createMutation.isPending || updateMutation.isPending}
+      />
+
+      <ConfirmDialog
+        open={deleteId !== null}
+        message="Are you sure you want to delete this user? This action cannot be undone."
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteId(null)}
       />
     </div>
   );

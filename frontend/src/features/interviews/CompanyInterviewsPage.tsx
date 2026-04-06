@@ -10,6 +10,7 @@ import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { Pagination } from '../../components/ui/Pagination';
 import { InterviewForm } from './InterviewForm';
 import { Modal } from '../../components/ui/Modal';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { Select } from '../../components/ui/Select';
 import { Input } from '../../components/ui/Input';
 import { STATUS_COLORS, STATUS_LABELS } from '../../lib/constants';
@@ -69,6 +70,7 @@ export function CompanyInterviewsPage() {
   const [detailsTutor, setDetailsTutor] = useState('');
   const [detailsEmployment, setDetailsEmployment] = useState('internship');
   const [detailsAllowance, setDetailsAllowance] = useState('');
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const { data: usersData } = useQuery({
     queryKey: ['users'],
@@ -128,9 +130,12 @@ export function CompanyInterviewsPage() {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (confirm('Are you sure you want to delete this interview?')) {
-      await deleteMutation.mutateAsync(id);
+  const handleDelete = (id: number) => setDeleteId(id);
+
+  const confirmDelete = async () => {
+    if (deleteId !== null) {
+      await deleteMutation.mutateAsync(deleteId);
+      setDeleteId(null);
     }
   };
 
@@ -577,6 +582,13 @@ export function CompanyInterviewsPage() {
         users={!isIntern ? (usersData?.data?.filter((u: any) => u.role?.slug === 'intern') || []) : undefined}
         interview={editInterview}
         loading={createMutation.isPending || updateMutation.isPending}
+      />
+
+      <ConfirmDialog
+        open={deleteId !== null}
+        message="Are you sure you want to delete this interview? This action cannot be undone."
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteId(null)}
       />
     </div>
   );

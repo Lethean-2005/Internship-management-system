@@ -3,6 +3,7 @@ import {
   getWorklogs, getWorklog, createWorklog, updateWorklog, deleteWorklog, submitWorklog, reviewWorklog,
 } from '../api/worklogs';
 import type { WorklogFilters, WorklogPayload, ReviewPayload } from '../api/worklogs';
+import { toast } from '../stores/toastStore';
 
 export function useWorklogs(filters?: WorklogFilters) {
   return useQuery({
@@ -23,7 +24,8 @@ export function useCreateWorklog() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload: WorklogPayload) => createWorklog(payload),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['worklogs'] }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['worklogs'] }); toast.success('Worklog created successfully!'); },
+    onError: () => toast.error('Failed to create worklog.'),
   });
 }
 
@@ -31,7 +33,8 @@ export function useUpdateWorklog() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, payload }: { id: number; payload: Partial<WorklogPayload> }) => updateWorklog(id, payload),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['worklogs'] }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['worklogs'] }); toast.success('Worklog updated successfully!'); },
+    onError: () => toast.error('Failed to update worklog.'),
   });
 }
 
@@ -39,7 +42,8 @@ export function useDeleteWorklog() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => deleteWorklog(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['worklogs'] }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['worklogs'] }); toast.success('Worklog deleted successfully!'); },
+    onError: () => toast.error('Failed to delete worklog.'),
   });
 }
 
@@ -47,7 +51,8 @@ export function useSubmitWorklog() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => submitWorklog(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['worklogs'] }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['worklogs'] }); toast.success('Worklog submitted successfully!'); },
+    onError: () => toast.error('Failed to submit worklog.'),
   });
 }
 
@@ -55,6 +60,7 @@ export function useReviewWorklog() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, payload }: { id: number; payload: ReviewPayload }) => reviewWorklog(id, payload),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['worklogs'] }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['worklogs'] }); toast.success('Worklog reviewed successfully!'); },
+    onError: () => toast.error('Failed to review worklog.'),
   });
 }

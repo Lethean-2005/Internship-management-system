@@ -19,6 +19,7 @@ import InternLeavesPage from './features/leaves/InternLeavesPage';
 import { MyInternsPage } from './features/interns/MyInternsPage';
 import { useAuthStore } from './stores/authStore';
 import { getMe } from './api/auth';
+import { ToastContainer } from './components/ui/ToastContainer';
 
 function App() {
   const token = useAuthStore((s) => s.token);
@@ -34,6 +35,8 @@ function App() {
   }, [token, setUser, clearAuth]);
 
   return (
+    <>
+    <ToastContainer />
     <Routes>
       {/* Public routes */}
       <Route path="/login" element={<LoginPage />} />
@@ -72,6 +75,7 @@ function App() {
       {/* Catch-all */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </>
   );
 }
 
