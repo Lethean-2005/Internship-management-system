@@ -24,14 +24,6 @@ function fmtDay(d: string) {
   return new Date(d).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' });
 }
 
-function initDates(start: string, count = 5): string[] {
-  if (!start) return [];
-  const out: string[] = [];
-  const s = new Date(start);
-  for (let i = 0; i < count; i++) { const d = new Date(s); d.setDate(s.getDate() + i); out.push(d.toISOString().split('T')[0]); }
-  return out;
-}
-
 function dateRange(start: string, end?: string): string[] {
   if (!start) return [];
   const out: string[] = [];

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Plus, Eye, Pencil, Send, List, FilePen, CheckCircle, XCircle } from 'lucide-react';
 import { useWorklogs, useCreateWorklog, useUpdateWorklog, useDeleteWorklog, useSubmitWorklog, useReviewWorklog } from '../../hooks/useWorklogs';
 import { useInternships } from '../../hooks/useInternships';
@@ -27,7 +26,6 @@ const statusOptions = [
 ];
 
 export function WeeklyWorklogsPage() {
-  const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const isIntern = user?.role?.slug === 'intern';
   const isTutor = user?.role?.slug === 'tutor';
