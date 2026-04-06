@@ -25,14 +25,23 @@ RUN composer install --no-interaction --no-progress --no-dev --optimize-autoload
 # Copy built frontend into Laravel public directory
 COPY --from=frontend-build /app/frontend/dist/ /app/public/
 
+# Generate .env from example and create APP_KEY
+RUN cp .env.example .env \
+    && php artisan key:generate --force
+
 # Create SQLite database and run migrations
 RUN mkdir -p /app/database \
     && touch /app/database/database.sqlite \
     && php artisan migrate --seed --force
 
+# Cache config and routes for performance
+RUN php artisan config:cache \
+    && php artisan route:cache \
+    && php artisan view:cache
+
 # Create storage link and set permissions
 RUN php artisan storage:link 2>/dev/null || true \
-    && chmod -R 775 /app/storage /app/bootstrap/cache
+    && chmod -R 775 /app/storage /app/bootstrap/cache /app/database
 
 EXPOSE 8000
 
