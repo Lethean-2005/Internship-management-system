@@ -24,7 +24,7 @@ export const Modal: React.FC<ModalProps> = ({ open, onClose, title, children, si
 
       {/* Modal card */}
       <div
-        className={`relative bg-white rounded-[5px] w-full mx-4 max-h-[90vh] overflow-y-auto ${size === 'lg' ? 'max-w-[700px]' : size === 'sm' ? 'max-w-[400px]' : 'max-w-[520px]'}`}
+        className={`relative bg-white rounded-[5px] w-full mx-4 max-h-[90vh] overflow-y-auto ${size === 'lg' ? 'max-w-[900px]' : size === 'sm' ? 'max-w-[400px]' : 'max-w-[520px]'}`}
         style={{
           boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
           animation: 'slideUp 0.2s ease-out',

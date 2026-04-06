@@ -10,6 +10,12 @@ export interface User {
   department: string | null;
   avatar: string | null;
   is_active: boolean;
+  company_name: string | null;
+  position: string | null;
+  allowance: number | null;
+  tutor_id: number | null;
+  supervisor_name: string | null;
+  generation: string | null;
   created_at: string;
 }
 

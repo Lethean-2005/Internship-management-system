@@ -159,7 +159,7 @@ export function CompanyInterviewsPage() {
     setDetailsCompany((interview as any).company_name || '');
     setDetailsPosition('');
     setDetailsSupervisor('');
-    setDetailsTutor('');
+    setDetailsTutor((user as any)?.tutor_id?.toString() || '');
     setDetailsEmployment((interview as any).employment || 'internship');
     setDetailsOpen(true);
   };
@@ -179,6 +179,11 @@ export function CompanyInterviewsPage() {
       id: detailsInterview.id,
       payload: { employment: detailsEmployment },
     });
+    // Refresh auth user so button disappears
+    try {
+      const res = await client.get('/me');
+      useAuthStore.getState().setUser(res.data.data || res.data);
+    } catch {}
     setDetailsOpen(false);
     setDetailsInterview(null);
   };
@@ -238,11 +243,11 @@ export function CompanyInterviewsPage() {
                       <span className="text-[0.82rem] font-medium text-[#374151]">{(interview as any).company_name || interview.company?.name || '-'}</span>
                       <div className="flex items-center gap-1">
                         <button onClick={() => setViewInterview(interview)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors" title="View"><Eye className="h-4 w-4" /></button>
-                        <button onClick={() => handleEdit(interview)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors" title="Edit"><Pencil className="h-4 w-4" /></button>
+                        {!isPastDate(interview) && <button onClick={() => handleEdit(interview)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors" title="Edit"><Pencil className="h-4 w-4" /></button>}
                         {isPast && (
                           <button onClick={() => !locked && handleOpenResult(interview)} className={`p-1.5 rounded-[5px] transition-colors ${locked ? 'text-[#d1d5db] cursor-not-allowed' : 'text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd]'}`} title={locked ? 'Result is final' : 'Update Result'} disabled={locked}><ClipboardCheck className="h-4 w-4" /></button>
                         )}
-                        {interview.result === 'passed' && isIntern && (
+                        {interview.result === 'passed' && isIntern && !user?.company_name && (
                           <button onClick={() => handleOpenDetails(interview)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#10b981] hover:bg-[#ecfdf5] transition-colors" title="Complete Internship Details"><FileCheck className="h-4 w-4" /></button>
                         )}
                         {!isIntern && (
@@ -333,16 +338,14 @@ export function CompanyInterviewsPage() {
                           >
                             <Eye className="h-4 w-4" />
                           </button>
-                          <button
-                            onClick={() => handleEdit(interview)}
-                            className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors"
-                            title="Edit"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </button>
                           {(() => {
                             const m = String(interview.interview_date).match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/);
                             const isPast = m ? new Date(+m[1], +m[2]-1, +m[3], +m[4], +m[5]) <= new Date() : false;
+                            if (!isPast) return (
+                              <button onClick={() => handleEdit(interview)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors" title="Edit">
+                                <Pencil className="h-4 w-4" />
+                              </button>
+                            );
                             if (!isPast) return null;
                             const locked = isIntern && (interview.result === 'passed' || interview.result === 'failed');
                             return (
@@ -360,7 +363,7 @@ export function CompanyInterviewsPage() {
                               </button>
                             );
                           })()}
-                          {interview.result === 'passed' && isIntern && (
+                          {interview.result === 'passed' && isIntern && !user?.company_name && (
                             <button
                               onClick={() => handleOpenDetails(interview)}
                               className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#10b981] hover:bg-[#ecfdf5] transition-colors"
@@ -545,15 +548,24 @@ export function CompanyInterviewsPage() {
               placeholder="e.g. Mr. John Doe"
             />
 
-            <Select
-              label="Tutor"
-              options={[
-                { value: '', label: 'Select a Tutor' },
-                ...tutors.map((t) => ({ value: t.id, label: `${t.name}${t.department ? ` — ${t.department}` : ''}` })),
-              ]}
-              value={detailsTutor}
-              onChange={(e) => setDetailsTutor(e.target.value)}
-            />
+            {(user as any)?.tutor_id ? (
+              <div>
+                <label className="block text-[0.85rem] font-medium text-[#374151] mb-1">Tutor</label>
+                <div className="rounded-[5px] border border-[#e0e0e0] px-[14px] py-[11px] text-[0.88rem] text-[#374151] bg-[#f9fafb]">
+                  {tutors.find((t) => t.id === (user as any).tutor_id)?.name || 'Assigned'}
+                </div>
+              </div>
+            ) : (
+              <Select
+                label="Tutor"
+                options={[
+                  { value: '', label: 'Select a Tutor' },
+                  ...tutors.map((t) => ({ value: t.id, label: `${t.name}${t.department ? ` — ${t.department}` : ''}` })),
+                ]}
+                value={detailsTutor}
+                onChange={(e) => setDetailsTutor(e.target.value)}
+              />
+            )}
 
             <Select
               label="Employment Agreement"

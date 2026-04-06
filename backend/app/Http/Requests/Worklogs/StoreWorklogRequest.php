@@ -21,7 +21,16 @@ class StoreWorklogRequest extends FormRequest
             'tasks_completed' => ['required', 'string'],
             'challenges' => ['nullable', 'string'],
             'plans_next_week' => ['nullable', 'string'],
+            'tutor_topics' => ['nullable', 'string'],
+            'reflections' => ['nullable', 'string'],
             'hours_worked' => ['nullable', 'numeric', 'min:0', 'max:99999'],
+            'entries' => ['nullable', 'array'],
+            'entries.*.entry_date' => ['required_with:entries', 'date'],
+            'entries.*.time_slot' => ['required_with:entries', 'in:morning,afternoon'],
+            'entries.*.activities' => ['nullable', 'string'],
+            'entries.*.difficulties' => ['nullable', 'string'],
+            'entries.*.solutions' => ['nullable', 'string'],
+            'entries.*.comment' => ['nullable', 'string'],
         ];
     }
 }

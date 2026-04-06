@@ -8,6 +8,7 @@ use App\Http\Requests\Worklogs\UpdateWorklogRequest;
 use App\Http\Requests\Worklogs\ReviewWorklogRequest;
 use App\Http\Resources\WeeklyWorklogResource;
 use App\Models\WeeklyWorklog;
+use App\Models\WorklogEntry;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -15,7 +16,7 @@ class WeeklyWorklogController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $query = WeeklyWorklog::with(['user', 'internship', 'reviewer']);
+        $query = WeeklyWorklog::with(['user', 'internship', 'reviewer', 'entries']);
 
         $user = $request->user();
         $roleSlug = $user->role?->slug;
@@ -23,7 +24,8 @@ class WeeklyWorklogController extends Controller
         if ($roleSlug === 'intern') {
             $query->where('user_id', $user->id);
         } elseif ($roleSlug === 'tutor') {
-            $query->whereHas('user', fn ($q) => $q->where('tutor_id', $user->id));
+            $query->whereHas('user', fn ($q) => $q->where('tutor_id', $user->id))
+                  ->whereNotIn('status', ['draft']);
         }
 
         if ($request->filled('user_id')) {
@@ -59,9 +61,16 @@ class WeeklyWorklogController extends Controller
     {
         $data = $request->validated();
         $data['user_id'] = $request->user()->id;
+        $entries = $data['entries'] ?? [];
+        unset($data['entries']);
 
         $worklog = WeeklyWorklog::create($data);
-        $worklog->load(['user', 'internship']);
+
+        foreach ($entries as $entry) {
+            $worklog->entries()->create($entry);
+        }
+
+        $worklog->load(['user', 'internship', 'entries']);
 
         return response()->json([
             'message' => 'Worklog created successfully.',
@@ -71,7 +80,7 @@ class WeeklyWorklogController extends Controller
 
     public function show(WeeklyWorklog $worklog): JsonResponse
     {
-        $worklog->load(['user', 'internship', 'reviewer']);
+        $worklog->load(['user', 'internship', 'reviewer', 'entries']);
 
         return response()->json([
             'data' => new WeeklyWorklogResource($worklog),
@@ -80,14 +89,26 @@ class WeeklyWorklogController extends Controller
 
     public function update(UpdateWorklogRequest $request, WeeklyWorklog $worklog): JsonResponse
     {
-        if ($worklog->status !== 'draft') {
+        if (!in_array($worklog->status, ['draft', 'rejected'])) {
             return response()->json([
-                'message' => 'Only draft worklogs can be updated.',
+                'message' => 'Only draft or rejected worklogs can be updated.',
             ], 422);
         }
 
-        $worklog->update($request->validated());
-        $worklog->load(['user', 'internship', 'reviewer']);
+        $data = $request->validated();
+        $entries = $data['entries'] ?? null;
+        unset($data['entries']);
+
+        $worklog->update($data);
+
+        if ($entries !== null) {
+            $worklog->entries()->delete();
+            foreach ($entries as $entry) {
+                $worklog->entries()->create($entry);
+            }
+        }
+
+        $worklog->load(['user', 'internship', 'reviewer', 'entries']);
 
         return response()->json([
             'message' => 'Worklog updated successfully.',
@@ -97,9 +118,18 @@ class WeeklyWorklogController extends Controller
 
     public function destroy(WeeklyWorklog $worklog): JsonResponse
     {
-        if ($worklog->status !== 'draft') {
+        $user = request()->user();
+        $roleSlug = $user->role?->slug;
+
+        if ($roleSlug === 'intern') {
             return response()->json([
-                'message' => 'Only draft worklogs can be deleted.',
+                'message' => 'Interns cannot delete worklogs.',
+            ], 403);
+        }
+
+        if (!in_array($worklog->status, ['draft', 'rejected'])) {
+            return response()->json([
+                'message' => 'Only draft or rejected worklogs can be deleted.',
             ], 422);
         }
 
@@ -112,28 +142,30 @@ class WeeklyWorklogController extends Controller
 
     public function submit(WeeklyWorklog $worklog): JsonResponse
     {
-        if ($worklog->status !== 'draft') {
+        if (!in_array($worklog->status, ['draft', 'rejected'])) {
             return response()->json([
-                'message' => 'Only draft worklogs can be submitted.',
+                'message' => 'Only draft or rejected worklogs can be submitted.',
             ], 422);
         }
 
+        $newStatus = $worklog->status === 'rejected' ? 'resubmitted' : 'submitted';
+
         $worklog->update([
-            'status' => 'submitted',
+            'status' => $newStatus,
             'submitted_at' => now(),
         ]);
 
         $worklog->load(['user', 'internship']);
 
         return response()->json([
-            'message' => 'Worklog submitted successfully.',
+            'message' => 'Worklog ' . $newStatus . ' successfully.',
             'data' => new WeeklyWorklogResource($worklog),
         ]);
     }
 
     public function review(ReviewWorklogRequest $request, WeeklyWorklog $worklog): JsonResponse
     {
-        if ($worklog->status !== 'submitted') {
+        if (!in_array($worklog->status, ['submitted', 'resubmitted'])) {
             return response()->json([
                 'message' => 'Only submitted worklogs can be reviewed.',
             ], 422);

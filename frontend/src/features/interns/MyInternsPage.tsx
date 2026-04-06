@@ -1,18 +1,25 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Eye, Search } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Eye, Search, UserPlus, X } from 'lucide-react';
 import { Badge } from '../../components/ui/Badge';
+import { Button } from '../../components/ui/Button';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { Modal } from '../../components/ui/Modal';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import client from '../../api/client';
 import { STATUS_COLORS, STATUS_LABELS } from '../../lib/constants';
 import { formatDateTime } from '../../lib/formatDate';
+import { toast } from '../../stores/toastStore';
 import type { User } from '../../types/auth';
 import type { PaginatedResponse } from '../../types/api';
 
 export function MyInternsPage() {
+  const qc = useQueryClient();
   const [viewIntern, setViewIntern] = useState<any | null>(null);
   const [search, setSearch] = useState('');
+  const [chooseSearch, setChooseSearch] = useState('');
+  const [chooseDropdownOpen, setChooseDropdownOpen] = useState(false);
+  const [removeId, setRemoveId] = useState<number | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ['my-interns'],
@@ -25,16 +32,44 @@ export function MyInternsPage() {
     enabled: !!viewIntern,
   });
 
+  // Fetch all interns for choose
+  const { data: allInterns } = useQuery({
+    queryKey: ['all-interns'],
+    queryFn: () => client.get('/interns-list').then((r: any) => r.data),
+  });
+
+  const chooseMutation = useMutation({
+    mutationFn: (userId: number) => client.post('/my-interns/choose', { user_id: userId }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['my-interns'] }); qc.invalidateQueries({ queryKey: ['all-interns'] }); toast.success('Intern assigned successfully!'); setChooseDropdownOpen(false); setChooseSearch(''); },
+    onError: (err: any) => toast.error(err.response?.data?.message || 'Failed to assign intern.'),
+  });
+
+  const removeMutation = useMutation({
+    mutationFn: (id: number) => client.delete(`/my-interns/${id}`),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['my-interns'] }); toast.success('Intern removed.'); setRemoveId(null); },
+    onError: () => toast.error('Failed to remove intern.'),
+  });
+
   const filteredData = data?.data.filter((intern: any) =>
     intern.name.toLowerCase().includes(search.toLowerCase()) ||
     intern.email.toLowerCase().includes(search.toLowerCase())
   );
 
+  // Show max 3 results, filter when searching
+  const availableInterns = (allInterns?.data || []).filter((i: any) =>
+    !chooseSearch.trim() || i.name.toLowerCase().includes(chooseSearch.toLowerCase()) || i.email.toLowerCase().includes(chooseSearch.toLowerCase())
+  ).slice(0, 3);
+
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-[1.1rem] sm:text-[1.35rem] font-bold text-[#1e1b4b]">My Interns</h1>
-        <p className="mt-1 text-[0.85rem] text-[#6b7280]">Interns assigned to you as their tutor.</p>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <div>
+          <h1 className="text-[1.1rem] sm:text-[1.35rem] font-bold text-[#1e1b4b]">My Interns</h1>
+          <p className="mt-1 text-[0.85rem] text-[#6b7280]">Interns assigned to you as their tutor.</p>
+        </div>
+        <Button onClick={() => setChooseDropdownOpen(true)} className="w-full sm:w-auto">
+          <UserPlus className="h-4 w-4 mr-2" /> Choose Intern
+        </Button>
       </div>
 
       <div className="bg-white border border-[#f0f0f0] rounded-[5px]">
@@ -66,14 +101,15 @@ export function MyInternsPage() {
                     </div>
                     <span className="text-[0.82rem] font-medium text-[#374151]">{intern.name}</span>
                   </div>
-                  <button onClick={() => setViewIntern(intern)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors"><Eye className="h-4 w-4" /></button>
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => setViewIntern(intern)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors"><Eye className="h-4 w-4" /></button>
+                    <button onClick={() => setRemoveId(intern.id)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#dc2626] hover:bg-[#fef2f2] transition-colors" title="Remove"><X className="h-4 w-4" /></button>
+                  </div>
                 </div>
                 <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Email</span><span className="text-[0.82rem] text-[#374151] font-medium">{intern.email}</span></div>
                 <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Company</span><span className="text-[0.82rem] text-[#374151] font-medium">{intern.company_name || '-'}</span></div>
                 <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Position</span><span className="text-[0.82rem] text-[#374151] font-medium">{intern.position || '-'}</span></div>
-                <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Supervisor</span><span className="text-[0.82rem] text-[#374151] font-medium">{intern.supervisor_name || '-'}</span></div>
-                <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Allowance</span><span className="text-[0.82rem] text-[#374151] font-medium">{intern.allowance ? `$${intern.allowance}` : '-'}</span></div>
-                <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Status</span><Badge color={intern.is_active ? 'green' : 'gray'}>{intern.is_active ? 'Active' : 'Inactive'}</Badge></div>
+                <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Generation</span><span className="text-[0.82rem] text-[#374151] font-medium">{intern.generation || '-'}</span></div>
               </div>
             ))}
             {filteredData?.length === 0 && (
@@ -90,8 +126,7 @@ export function MyInternsPage() {
                   <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Email</th>
                   <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Company</th>
                   <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Position</th>
-                  <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Supervisor</th>
-                  <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Allowance</th>
+                  <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Generation</th>
                   <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Status</th>
                   <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Actions</th>
                 </tr>
@@ -110,26 +145,27 @@ export function MyInternsPage() {
                     <td className="px-5 py-3 text-[0.82rem] text-[#374151]">{intern.email}</td>
                     <td className="px-5 py-3 text-[0.82rem] text-[#374151]">{intern.company_name || '-'}</td>
                     <td className="px-5 py-3 text-[0.82rem] text-[#374151]">{intern.position || '-'}</td>
-                    <td className="px-5 py-3 text-[0.82rem] text-[#374151]">{intern.supervisor_name || '-'}</td>
-                    <td className="px-5 py-3 text-[0.82rem] text-[#374151]">{intern.allowance ? `$${intern.allowance}` : '-'}</td>
+                    <td className="px-5 py-3 text-[0.82rem] text-[#374151]">{intern.generation || '-'}</td>
                     <td className="px-5 py-3">
                       <Badge color={intern.is_active ? 'green' : 'gray'}>
                         {intern.is_active ? 'Active' : 'Inactive'}
                       </Badge>
                     </td>
                     <td className="px-5 py-3">
-                      <button
-                        onClick={() => setViewIntern(intern)}
-                        className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </button>
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => setViewIntern(intern)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors" title="View">
+                          <Eye className="h-4 w-4" />
+                        </button>
+                        <button onClick={() => setRemoveId(intern.id)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#dc2626] hover:bg-[#fef2f2] transition-colors" title="Remove">
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
                 {filteredData?.length === 0 && (
                   <tr>
-                    <td colSpan={8} className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">
+                    <td colSpan={7} className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">
                       {search ? 'No interns match your search.' : 'No interns assigned to you yet.'}
                     </td>
                   </tr>
@@ -141,11 +177,54 @@ export function MyInternsPage() {
         )}
       </div>
 
+      {/* Choose Intern Modal */}
+      <Modal open={chooseDropdownOpen} onClose={() => { setChooseDropdownOpen(false); setChooseSearch(''); }} title="Choose Intern">
+        <div className="space-y-4">
+          <div className="relative">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9ca3af]" />
+            <input
+              type="text"
+              value={chooseSearch}
+              onChange={(e) => setChooseSearch(e.target.value)}
+              placeholder="Search intern by name..."
+              autoFocus
+              className="block w-full rounded-[5px] border border-[#e0e0e0] pl-10 pr-[14px] py-[9px] text-[0.82rem] transition-all focus:outline-none focus:border-[#48B6E8] focus:ring-[3px] focus:ring-[rgba(72,182,232,0.08)]"
+            />
+          </div>
+          <div className="max-h-[350px] overflow-y-auto">
+            {availableInterns.length > 0 ? availableInterns.map((intern: any) => (
+              <button
+                key={intern.id}
+                type="button"
+                onClick={() => { chooseMutation.mutate(intern.id); setChooseSearch(''); setChooseDropdownOpen(false); }}
+                disabled={chooseMutation.isPending}
+                className="flex items-center gap-3 w-full px-3 py-3 rounded-[5px] hover:bg-[#f5f5f7] transition-colors text-left"
+              >
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#48B6E8] to-[#3a9fd4] flex items-center justify-center text-white text-[0.72rem] font-semibold shrink-0">
+                  {intern.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[0.82rem] font-medium text-[#374151]">{intern.name}</p>
+                  <p className="text-[0.72rem] text-[#9ca3af]">{intern.email}</p>
+                </div>
+                <div className="text-right shrink-0">
+                  {intern.company_name && <p className="text-[0.72rem] text-[#6b7280]">{intern.company_name}</p>}
+                  {intern.generation && <p className="text-[0.65rem] text-[#9ca3af]">Gen {intern.generation}</p>}
+                </div>
+              </button>
+            )) : (
+              <div className="py-8 text-center text-[0.85rem] text-[#9ca3af]">
+No interns found
+              </div>
+            )}
+          </div>
+        </div>
+      </Modal>
+
       {/* View Intern Modal */}
       <Modal open={!!viewIntern} onClose={() => setViewIntern(null)} title="Intern Details" size="lg">
         {viewIntern && (
           <div className="space-y-5">
-            {/* Header */}
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#48B6E8] to-[#3a9fd4] flex items-center justify-center text-white text-[1.2rem] font-bold shrink-0">
                 {viewIntern.name.charAt(0).toUpperCase()}
@@ -161,22 +240,6 @@ export function MyInternsPage() {
               </div>
             </div>
 
-            {/* Personal Info */}
-            <div>
-              <p className="text-[0.72rem] font-semibold text-[#9ca3af] uppercase mb-3">Personal Information</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="bg-[#f9fafb] rounded-[5px] p-3">
-                  <p className="text-[0.72rem] text-[#9ca3af] mb-1">Phone</p>
-                  <p className="text-[0.82rem] font-medium text-[#374151]">{viewIntern.phone || '-'}</p>
-                </div>
-                <div className="bg-[#f9fafb] rounded-[5px] p-3">
-                  <p className="text-[0.72rem] text-[#9ca3af] mb-1">Department</p>
-                  <p className="text-[0.82rem] font-medium text-[#374151]">{viewIntern.department || '-'}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Internship Info */}
             <div>
               <p className="text-[0.72rem] font-semibold text-[#9ca3af] uppercase mb-3">Internship Details</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -193,12 +256,16 @@ export function MyInternsPage() {
                   <p className="text-[0.82rem] font-medium text-[#374151]">{viewIntern.supervisor_name || '-'}</p>
                 </div>
                 <div className="bg-[#f9fafb] rounded-[5px] p-3">
-                  <p className="text-[0.72rem] text-[#9ca3af] mb-1">Allowance</p>
-                  <p className="text-[0.82rem] font-medium text-[#374151]">{viewIntern.allowance ? `$${viewIntern.allowance}/month` : '-'}</p>
+                  <p className="text-[0.72rem] text-[#9ca3af] mb-1">Generation</p>
+                  <p className="text-[0.82rem] font-medium text-[#374151]">{viewIntern.generation || '-'}</p>
                 </div>
                 <div className="bg-[#f9fafb] rounded-[5px] p-3">
-                  <p className="text-[0.72rem] text-[#9ca3af] mb-1">Registered</p>
-                  <p className="text-[0.82rem] font-medium text-[#374151]">{viewIntern.created_at ? new Date(viewIntern.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '-'}</p>
+                  <p className="text-[0.72rem] text-[#9ca3af] mb-1">Phone</p>
+                  <p className="text-[0.82rem] font-medium text-[#374151]">{viewIntern.phone || '-'}</p>
+                </div>
+                <div className="bg-[#f9fafb] rounded-[5px] p-3">
+                  <p className="text-[0.72rem] text-[#9ca3af] mb-1">Allowance</p>
+                  <p className="text-[0.82rem] font-medium text-[#374151]">{viewIntern.allowance ? `$${viewIntern.allowance}/month` : '-'}</p>
                 </div>
               </div>
             </div>
@@ -216,53 +283,40 @@ export function MyInternsPage() {
                         <th className="text-left px-4 py-2 text-[0.68rem] font-semibold text-[#9ca3af] uppercase">Company</th>
                         <th className="text-left px-4 py-2 text-[0.68rem] font-semibold text-[#9ca3af] uppercase">Date</th>
                         <th className="text-left px-4 py-2 text-[0.68rem] font-semibold text-[#9ca3af] uppercase">Type</th>
-                        <th className="text-left px-4 py-2 text-[0.68rem] font-semibold text-[#9ca3af] uppercase">Status</th>
                         <th className="text-left px-4 py-2 text-[0.68rem] font-semibold text-[#9ca3af] uppercase">Result</th>
-                        <th className="text-left px-4 py-2 text-[0.68rem] font-semibold text-[#9ca3af] uppercase">Employment</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {interviews.map((iv: any) => {
-                        const m = String(iv.interview_date).match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/);
-                        const isPast = m ? new Date(+m[1], +m[2]-1, +m[3], +m[4], +m[5]) <= new Date() : false;
-                        return (
-                          <tr key={iv.id} className="border-t border-[#f5f5f5]">
-                            <td className="px-4 py-2 text-[0.78rem] font-medium text-[#374151]">{iv.company_name || iv.company?.name || '-'}</td>
-                            <td className="px-4 py-2 text-[0.78rem] text-[#374151]">{formatDateTime(iv.interview_date)}</td>
-                            <td className="px-4 py-2"><Badge color={STATUS_COLORS[iv.type] || 'gray'}>{STATUS_LABELS[iv.type] || iv.type}</Badge></td>
-                            <td className="px-4 py-2">
-                              {isPast && iv.status === 'scheduled'
-                                ? <Badge color="green">Interviewed</Badge>
-                                : <Badge color={STATUS_COLORS[iv.status] || 'gray'}>{STATUS_LABELS[iv.status] || iv.status}</Badge>
-                              }
-                            </td>
-                            <td className="px-4 py-2">
-                              {iv.result
-                                ? <Badge color={STATUS_COLORS[iv.result] || 'gray'}>{STATUS_LABELS[iv.result] || iv.result}</Badge>
-                                : <span className="text-[0.78rem] text-[#9ca3af]">-</span>
-                              }
-                            </td>
-                            <td className="px-4 py-2">
-                              {iv.employment
-                                ? <Badge color={STATUS_COLORS[iv.employment] || 'gray'}>{STATUS_LABELS[iv.employment] || iv.employment}</Badge>
-                                : <span className="text-[0.78rem] text-[#9ca3af]">-</span>
-                              }
-                            </td>
-                          </tr>
-                        );
-                      })}
+                      {interviews.map((iv: any) => (
+                        <tr key={iv.id} className="border-t border-[#f5f5f5]">
+                          <td className="px-4 py-2 text-[0.78rem] font-medium text-[#374151]">{iv.company_name || iv.company?.name || '-'}</td>
+                          <td className="px-4 py-2 text-[0.78rem] text-[#374151]">{formatDateTime(iv.interview_date)}</td>
+                          <td className="px-4 py-2"><Badge color={STATUS_COLORS[iv.type] || 'gray'}>{STATUS_LABELS[iv.type] || iv.type}</Badge></td>
+                          <td className="px-4 py-2">
+                            {iv.result ? <Badge color={STATUS_COLORS[iv.result] || 'gray'}>{STATUS_LABELS[iv.result] || iv.result}</Badge> : <span className="text-[0.78rem] text-[#9ca3af]">-</span>}
+                          </td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>
               ) : (
-                <div className="text-center py-6 text-[0.82rem] text-[#9ca3af] bg-[#f9fafb] rounded-[5px]">
-                  No interviews yet.
-                </div>
+                <div className="text-center py-6 text-[0.82rem] text-[#9ca3af] bg-[#f9fafb] rounded-[5px]">No interviews yet.</div>
               )}
             </div>
           </div>
         )}
       </Modal>
+
+      {/* Remove Confirm */}
+      <ConfirmDialog
+        open={removeId !== null}
+        title="Remove Intern"
+        message="Are you sure you want to remove this intern from your list?"
+        confirmLabel="Remove"
+        onConfirm={() => { if (removeId) removeMutation.mutate(removeId); }}
+        onCancel={() => setRemoveId(null)}
+      />
     </div>
   );
 }

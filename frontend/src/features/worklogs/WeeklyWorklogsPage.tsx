@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Eye, List, FilePen, Send, CheckCircle, XCircle } from 'lucide-react';
-import { useWorklogs, useCreateWorklog } from '../../hooks/useWorklogs';
+import { Plus, Eye, Pencil, Send, List, FilePen, CheckCircle, XCircle } from 'lucide-react';
+import { useWorklogs, useCreateWorklog, useUpdateWorklog, useDeleteWorklog, useSubmitWorklog, useReviewWorklog } from '../../hooks/useWorklogs';
 import { useInternships } from '../../hooks/useInternships';
 import { useAuthStore } from '../../stores/authStore';
 import { Button } from '../../components/ui/Button';
@@ -10,42 +10,74 @@ import { FilterDropdown } from '../../components/ui/FilterDropdown';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { Pagination } from '../../components/ui/Pagination';
 import { WorklogForm } from './WorklogForm';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { STATUS_COLORS, STATUS_LABELS } from '../../lib/constants';
 import { formatDate } from '../../lib/formatDate';
+import type { WeeklyWorklog } from '../../types/ims';
+
+import { RefreshCw } from 'lucide-react';
 
 const statusOptions = [
   { value: '', label: 'All Statuses', icon: List },
   { value: 'draft', label: 'Draft', icon: FilePen },
   { value: 'submitted', label: 'Submitted', icon: Send },
-  { value: 'approved', label: 'Approved', icon: CheckCircle },
+  { value: 'resubmitted', label: 'Resubmitted', icon: RefreshCw },
+  { value: 'reviewed', label: 'Reviewed', icon: CheckCircle },
   { value: 'rejected', label: 'Rejected', icon: XCircle },
 ];
 
 export function WeeklyWorklogsPage() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
+  const isIntern = user?.role?.slug === 'intern';
   const isTutor = user?.role?.slug === 'tutor';
   const [status, setStatus] = useState('');
   const [page, setPage] = useState(1);
   const [formOpen, setFormOpen] = useState(false);
+  const [formMode, setFormMode] = useState<'create' | 'edit' | 'view' | 'review'>('create');
+  const [selected, setSelected] = useState<WeeklyWorklog | null>(null);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const { data, isLoading } = useWorklogs({ status: status || undefined, page });
   const { data: internshipsData } = useInternships();
   const createMutation = useCreateWorklog();
+  const updateMutation = useUpdateWorklog();
+  const deleteMutation = useDeleteWorklog();
+  const submitMutation = useSubmitWorklog();
+  const reviewMutation = useReviewWorklog();
 
-  const handleFormSubmit = async (formData: {
-    internship_id: number;
-    week_number: number;
-    start_date: string;
-    end_date: string;
-    tasks_completed: string;
-    challenges?: string | null;
-    plans_next_week?: string | null;
-    hours_worked: number;
-  }) => {
-    await createMutation.mutateAsync(formData);
+  const openCreate = () => { setSelected(null); setFormMode('create'); setFormOpen(true); };
+  const openView = (wl: WeeklyWorklog) => { setSelected(wl); setFormMode('view'); setFormOpen(true); };
+  const openEdit = (wl: WeeklyWorklog) => { setSelected(wl); setFormMode('edit'); setFormOpen(true); };
+  const openReview = (wl: WeeklyWorklog) => { setSelected(wl); setFormMode('review'); setFormOpen(true); };
+
+  const handleReview = async (status: string, feedback: string | null) => {
+    if (!selected) return;
+    await reviewMutation.mutateAsync({ id: selected.id, payload: { status, feedback } });
     setFormOpen(false);
   };
+
+  const handleSubmitForm = async (data: any) => {
+    const shouldSubmit = data._submit;
+    delete data._submit;
+    if (formMode === 'edit' && selected) {
+      await updateMutation.mutateAsync({ id: selected.id, payload: data });
+      if (shouldSubmit) await submitMutation.mutateAsync(selected.id);
+    } else {
+      await createMutation.mutateAsync(data);
+    }
+    setFormOpen(false);
+  };
+
+  const confirmDelete = () => { if (deleteId !== null) { deleteMutation.mutate(deleteId); setDeleteId(null); } };
+
+  // Check if intern's latest worklog end_date hasn't passed yet
+  const today = new Date().toISOString().split('T')[0];
+  const hasActiveWeek = isIntern && data?.data.some(wl => wl.end_date >= today);
+
+  // Calculate next week number from highest existing week
+  const maxWeek = isIntern && data?.data.length ? Math.max(...data.data.map(wl => wl.week_number)) : 0;
+  const nextWeekNumber = maxWeek + 1;
 
   return (
     <div>
@@ -55,10 +87,11 @@ export function WeeklyWorklogsPage() {
           <p className="mt-1 text-[0.85rem] text-[#6b7280]">Track weekly internship progress and tasks.</p>
         </div>
         {!isTutor && (
-          <Button onClick={() => setFormOpen(true)} className="w-full sm:w-auto">
-            <Plus className="h-4 w-4 mr-2" />
-            New Worklog
-          </Button>
+          <div className="w-full sm:w-auto" title={hasActiveWeek ? 'You can create a new worklog after your current week ends' : ''}>
+            <Button onClick={openCreate} className="w-full sm:w-auto" disabled={hasActiveWeek}>
+              <Plus className="h-4 w-4 mr-2" /> New Worklog
+            </Button>
+          </div>
         )}
       </div>
 
@@ -71,13 +104,22 @@ export function WeeklyWorklogsPage() {
           <LoadingSpinner className="py-12" />
         ) : (
           <>
-            {/* Mobile card view */}
+            {/* Mobile */}
             <div className="md:hidden space-y-3 p-4">
               {data?.data.map((wl) => (
-                <div key={wl.id} className="bg-white rounded-[5px] border border-[#e5e7eb] p-4 space-y-2 relative">
+                <div key={wl.id} className="bg-white rounded-[5px] border border-[#e5e7eb] p-4 space-y-2">
                   <div className="flex items-start justify-between">
                     <span className="text-[0.82rem] font-medium text-[#374151]">Week {wl.week_number}</span>
-                    <button onClick={() => navigate(`/weekly-worklogs/${wl.id}`)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors"><Eye className="h-4 w-4" /></button>
+                    <div className="flex items-center gap-1">
+                      <button onClick={() => openView(wl)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors"><Eye className="h-4 w-4" /></button>
+                      {isIntern && (wl.status === 'draft' || wl.status === 'rejected') && <>
+                        <button onClick={() => openEdit(wl)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors"><Pencil className="h-4 w-4" /></button>
+                        <button onClick={() => submitMutation.mutate(wl.id)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#059669] hover:bg-[#f0fdf4] transition-colors"><Send className="h-4 w-4" /></button>
+                      </>}
+                      {isTutor && (wl.status === 'submitted' || wl.status === 'resubmitted') && (
+                        <button onClick={() => openReview(wl)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#059669] hover:bg-[#f0fdf4] transition-colors"><CheckCircle className="h-4 w-4" /></button>
+                      )}
+                    </div>
                   </div>
                   <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Date Range</span><span className="text-[0.82rem] text-[#374151] font-medium">{formatDate(wl.start_date)} - {formatDate(wl.end_date)}</span></div>
                   <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Intern</span><span className="text-[0.82rem] text-[#374151] font-medium">{wl.user?.name || '-'}</span></div>
@@ -85,12 +127,10 @@ export function WeeklyWorklogsPage() {
                   <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Status</span><Badge color={STATUS_COLORS[wl.status] || 'gray'}>{STATUS_LABELS[wl.status] || wl.status}</Badge></div>
                 </div>
               ))}
-              {data?.data.length === 0 && (
-                <div className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">No worklogs found.</div>
-              )}
+              {data?.data.length === 0 && <div className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">No worklogs found.</div>}
             </div>
 
-            {/* Desktop table view */}
+            {/* Desktop */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full min-w-[700px]">
                 <thead>
@@ -110,26 +150,22 @@ export function WeeklyWorklogsPage() {
                       <td className="px-5 py-3 text-[0.82rem] text-[#374151]">{formatDate(wl.start_date)} - {formatDate(wl.end_date)}</td>
                       <td className="px-5 py-3 text-[0.82rem] text-[#374151]">{wl.user?.name || '-'}</td>
                       <td className="px-5 py-3 text-[0.82rem] text-[#374151]">{wl.hours_worked}h</td>
+                      <td className="px-5 py-3"><Badge color={STATUS_COLORS[wl.status] || 'gray'}>{STATUS_LABELS[wl.status] || wl.status}</Badge></td>
                       <td className="px-5 py-3">
-                        <Badge color={STATUS_COLORS[wl.status] || 'gray'}>{STATUS_LABELS[wl.status] || wl.status}</Badge>
-                      </td>
-                      <td className="px-5 py-3">
-                        <div className="flex items-center justify-end">
-                          <button
-                            onClick={() => navigate(`/weekly-worklogs/${wl.id}`)}
-                            className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </button>
+                        <div className="flex items-center justify-end gap-1">
+                          <button onClick={() => openView(wl)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors" title="View"><Eye className="h-4 w-4" /></button>
+                          {isIntern && (wl.status === 'draft' || wl.status === 'rejected') && <>
+                            <button onClick={() => openEdit(wl)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors" title="Edit"><Pencil className="h-4 w-4" /></button>
+                            <button onClick={() => submitMutation.mutate(wl.id)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#059669] hover:bg-[#f0fdf4] transition-colors" title="Submit"><Send className="h-4 w-4" /></button>
+                          </>}
+                          {isTutor && (wl.status === 'submitted' || wl.status === 'resubmitted') && (
+                            <button onClick={() => openReview(wl)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#059669] hover:bg-[#f0fdf4] transition-colors" title="Review"><CheckCircle className="h-4 w-4" /></button>
+                          )}
                         </div>
                       </td>
                     </tr>
                   ))}
-                  {data?.data.length === 0 && (
-                    <tr>
-                      <td colSpan={6} className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">No worklogs found.</td>
-                    </tr>
-                  )}
+                  {data?.data.length === 0 && <tr><td colSpan={6} className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">No worklogs found.</td></tr>}
                 </tbody>
               </table>
             </div>
@@ -143,13 +179,8 @@ export function WeeklyWorklogsPage() {
         )}
       </div>
 
-      <WorklogForm
-        open={formOpen}
-        onClose={() => setFormOpen(false)}
-        onSubmit={handleFormSubmit}
-        internships={internshipsData?.data || []}
-        loading={createMutation.isPending}
-      />
+      <WorklogForm open={formOpen} onClose={() => setFormOpen(false)} onSubmit={handleSubmitForm} internships={internshipsData?.data || []} loading={createMutation.isPending || updateMutation.isPending} mode={formMode} worklog={selected} onReview={handleReview} reviewLoading={reviewMutation.isPending} nextWeekNumber={nextWeekNumber} />
+      <ConfirmDialog open={deleteId !== null} message="Are you sure you want to delete this worklog? This action cannot be undone." onConfirm={confirmDelete} onCancel={() => setDeleteId(null)} />
     </div>
   );
 }

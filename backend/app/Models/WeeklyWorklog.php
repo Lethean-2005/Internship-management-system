@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class WeeklyWorklog extends Model
@@ -25,6 +26,8 @@ class WeeklyWorklog extends Model
         'reviewed_by',
         'reviewed_at',
         'feedback',
+        'tutor_topics',
+        'reflections',
     ];
 
     protected function casts(): array
@@ -51,5 +54,10 @@ class WeeklyWorklog extends Model
     public function reviewer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    public function entries(): HasMany
+    {
+        return $this->hasMany(WorklogEntry::class)->orderBy('entry_date')->orderByRaw("CASE WHEN time_slot = 'morning' THEN 0 ELSE 1 END");
     }
 }

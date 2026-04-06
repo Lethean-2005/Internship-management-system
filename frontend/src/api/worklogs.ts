@@ -9,6 +9,15 @@ export interface WorklogFilters {
   page?: number;
 }
 
+export interface WorklogEntryPayload {
+  entry_date: string;
+  time_slot: 'morning' | 'afternoon';
+  activities?: string | null;
+  difficulties?: string | null;
+  solutions?: string | null;
+  comment?: string | null;
+}
+
 export interface WorklogPayload {
   internship_id: number;
   week_number: number;
@@ -17,7 +26,10 @@ export interface WorklogPayload {
   tasks_completed: string;
   challenges?: string | null;
   plans_next_week?: string | null;
+  tutor_topics?: string | null;
+  reflections?: string | null;
   hours_worked: number;
+  entries?: WorklogEntryPayload[];
 }
 
 export interface ReviewPayload {

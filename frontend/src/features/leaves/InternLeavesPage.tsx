@@ -86,152 +86,156 @@ export default function InternLeavesPage() {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-[1.1rem] sm:text-[1.35rem] font-bold text-[#1e1b4b]">Take Leave</h1>
-        <p className="mt-1 text-[0.88rem] text-[#6b7280]">
-          {isIntern ? 'Request leave during your internship.' : 'Review intern leave requests.'}
-        </p>
-      </div>
-
-      {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3 mb-6">
-        <FilterDropdown options={statusFilterOptions} value={statusFilter} onChange={(v) => { setStatusFilter(v); setPage(1); }} />
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <div>
+          <h1 className="text-[1.1rem] sm:text-[1.35rem] font-bold text-[#1e1b4b]">Take Leave</h1>
+          <p className="mt-1 text-[0.85rem] text-[#6b7280]">
+            {isIntern ? 'Request leave during your internship.' : 'Review intern leave requests.'}
+          </p>
+        </div>
         {isIntern && (
-          <Button onClick={() => setShowForm(true)} className="ml-auto">
-            <Plus className="w-4 h-4 mr-1.5" /> Request Leave
+          <Button onClick={() => setShowForm(true)} className="w-full sm:w-auto">
+            <Plus className="w-4 h-4 mr-2" /> Request Leave
           </Button>
         )}
       </div>
 
-      {/* Table */}
-      {isLoading ? (
-        <LoadingSpinner />
-      ) : !data?.data?.length ? (
-        <EmptyState icon={<CalendarOff className="w-10 h-10" />} title="No leave requests" description={isIntern ? 'You haven\'t requested any leave yet.' : 'No leave requests to review.'} />
-      ) : (
-        <>
-          {/* Mobile card view */}
-          <div className="md:hidden space-y-3 p-4">
-            {data.data.map((leave) => {
-              const TypeIcon = TYPE_ICONS[leave.type] || CalendarOff;
-              return (
-                <div key={leave.id} className="bg-white rounded-[5px] border border-[#e5e7eb] p-4 space-y-2 relative">
-                  <div className="flex items-start justify-between">
-                    <span className="inline-flex items-center gap-1.5 text-[0.82rem] font-medium text-[#374151]">
-                      <TypeIcon className="w-3.5 h-3.5 text-[#6b7280]" />
-                      {TYPE_LABELS[leave.type] || leave.type}
-                    </span>
-                    <div className="flex items-center gap-1">
-                      {canReview && leave.status === 'pending' && (
-                        <>
-                          <button onClick={() => { setReviewLeave(leave); setReviewStatus('approved'); setReviewNote(''); }} className="p-1.5 rounded-[5px] hover:bg-green-50 text-[#9ca3af] hover:text-green-600 transition-colors" title="Approve"><CheckCircle className="w-4 h-4" /></button>
-                          <button onClick={() => { setReviewLeave(leave); setReviewStatus('rejected'); setReviewNote(''); }} className="p-1.5 rounded-[5px] hover:bg-red-50 text-[#9ca3af] hover:text-red-500 transition-colors" title="Reject"><XCircle className="w-4 h-4" /></button>
-                        </>
-                      )}
-                      {isIntern && leave.status === 'pending' && (
-                        <button onClick={() => handleDelete(leave.id)} className="p-1.5 rounded-[5px] hover:bg-red-50 text-[#9ca3af] hover:text-red-500 transition-colors" title="Delete"><Trash2 className="w-4 h-4" /></button>
-                      )}
-                    </div>
-                  </div>
-                  {!isIntern && (
-                    <div className="flex items-start"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Intern</span><div><p className="text-[0.82rem] text-[#374151] font-medium">{leave.user?.name}</p>{leave.user?.company_name && <p className="text-[0.75rem] text-[#9ca3af]">{leave.user.company_name}</p>}</div></div>
-                  )}
-                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Period</span><span className="text-[0.82rem] text-[#374151] font-medium">{formatDate(leave.start_date)} — {formatDate(leave.end_date)}</span></div>
-                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Days</span><span className="text-[0.82rem] text-[#374151] font-medium">{dayCount(leave.start_date, leave.end_date)}</span></div>
-                  <div className="flex items-start"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Reason</span><div><p className="text-[0.82rem] text-[#374151] font-medium">{leave.reason}</p>{leave.review_note && <p className="text-[0.75rem] text-[#9ca3af] mt-0.5">Note: {leave.review_note}</p>}</div></div>
-                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Status</span><Badge color={STATUS_COLOR[leave.status] || 'gray'}>{leave.status.charAt(0).toUpperCase() + leave.status.slice(1)}</Badge></div>
-                  {leave.reviewer && (
-                    <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Reviewed by</span><span className="text-[0.82rem] text-[#374151] font-medium">{leave.reviewer.name}</span></div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+      <div className="bg-white border border-[#f0f0f0] rounded-[5px]">
+        <div className="p-4 border-b border-[#f5f5f5] flex flex-wrap items-center gap-3">
+          <FilterDropdown options={statusFilterOptions} value={statusFilter} onChange={(v) => { setStatusFilter(v); setPage(1); }} />
+        </div>
 
-          {/* Desktop table view */}
-          <div className="hidden md:block overflow-x-auto">
-            <table className="w-full min-w-[700px]">
-              <thead>
-                <tr className="bg-[#fafafa]">
-                  {!isIntern && <th className="text-left px-4 py-3 text-[0.78rem] font-semibold text-[#6b7280]">Intern</th>}
-                  <th className="text-left px-4 py-3 text-[0.78rem] font-semibold text-[#6b7280]">Type</th>
-                  <th className="text-left px-4 py-3 text-[0.78rem] font-semibold text-[#6b7280]">Period</th>
-                  <th className="text-left px-4 py-3 text-[0.78rem] font-semibold text-[#6b7280]">Days</th>
-                  <th className="text-left px-4 py-3 text-[0.78rem] font-semibold text-[#6b7280]">Reason</th>
-                  <th className="text-left px-4 py-3 text-[0.78rem] font-semibold text-[#6b7280]">Status</th>
-                  <th className="text-left px-4 py-3 text-[0.78rem] font-semibold text-[#6b7280]">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.data.map((leave) => {
-                  const TypeIcon = TYPE_ICONS[leave.type] || CalendarOff;
-                  return (
-                    <tr key={leave.id} className="border-b border-[#f0f0f0] hover:bg-[#fafafa] transition-colors">
-                      {!isIntern && (
-                        <td className="px-4 py-3">
-                          <p className="text-[0.85rem] font-medium text-[#111827]">{leave.user?.name}</p>
-                          <p className="text-[0.75rem] text-[#9ca3af]">{leave.user?.company_name || ''}</p>
-                        </td>
-                      )}
-                      <td className="px-4 py-3">
-                        <span className="inline-flex items-center gap-1.5 text-[0.82rem] text-[#374151]">
-                          <TypeIcon className="w-3.5 h-3.5 text-[#6b7280]" />
-                          {TYPE_LABELS[leave.type] || leave.type}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-[0.82rem] text-[#374151]">
-                        {formatDate(leave.start_date)} — {formatDate(leave.end_date)}
-                      </td>
-                      <td className="px-4 py-3 text-[0.82rem] text-[#374151] font-medium">
-                        {dayCount(leave.start_date, leave.end_date)}
-                      </td>
-                      <td className="px-4 py-3 text-[0.82rem] text-[#374151] max-w-[200px]">
-                        <p className="truncate" title={leave.reason}>{leave.reason}</p>
-                        {leave.review_note && (
-                          <p className="text-[0.75rem] text-[#9ca3af] mt-0.5 truncate" title={leave.review_note}>Note: {leave.review_note}</p>
+        {isLoading ? (
+          <LoadingSpinner className="py-12" />
+        ) : !data?.data?.length ? (
+          <div className="py-12">
+            <EmptyState icon={<CalendarOff className="w-10 h-10" />} title="No leave requests" description={isIntern ? 'You haven\'t requested any leave yet.' : 'No leave requests to review.'} />
+          </div>
+        ) : (
+          <>
+            {/* Mobile card view */}
+            <div className="md:hidden space-y-3 p-4">
+              {data.data.map((leave) => {
+                const TypeIcon = TYPE_ICONS[leave.type] || CalendarOff;
+                return (
+                  <div key={leave.id} className="bg-white rounded-[5px] border border-[#e5e7eb] p-4 space-y-2 relative">
+                    <div className="flex items-start justify-between">
+                      <span className="inline-flex items-center gap-1.5 text-[0.82rem] font-medium text-[#374151]">
+                        <TypeIcon className="w-3.5 h-3.5 text-[#6b7280]" />
+                        {TYPE_LABELS[leave.type] || leave.type}
+                      </span>
+                      <div className="flex items-center gap-1">
+                        {canReview && leave.status === 'pending' && (
+                          <>
+                            <button onClick={() => { setReviewLeave(leave); setReviewStatus('approved'); setReviewNote(''); }} className="p-1.5 rounded-[5px] hover:bg-green-50 text-[#9ca3af] hover:text-green-600 transition-colors" title="Approve"><CheckCircle className="w-4 h-4" /></button>
+                            <button onClick={() => { setReviewLeave(leave); setReviewStatus('rejected'); setReviewNote(''); }} className="p-1.5 rounded-[5px] hover:bg-red-50 text-[#9ca3af] hover:text-red-500 transition-colors" title="Reject"><XCircle className="w-4 h-4" /></button>
+                          </>
                         )}
-                      </td>
-                      <td className="px-4 py-3">
-                        <Badge color={STATUS_COLOR[leave.status] || 'gray'}>
-                          {leave.status.charAt(0).toUpperCase() + leave.status.slice(1)}
-                        </Badge>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-1.5">
-                          {canReview && leave.status === 'pending' && (
-                            <>
-                              <button onClick={() => { setReviewLeave(leave); setReviewStatus('approved'); setReviewNote(''); }} className="p-1.5 rounded-[5px] hover:bg-green-50 text-[#9ca3af] hover:text-green-600 transition-colors" title="Approve">
-                                <CheckCircle className="w-4 h-4" />
-                              </button>
-                              <button onClick={() => { setReviewLeave(leave); setReviewStatus('rejected'); setReviewNote(''); }} className="p-1.5 rounded-[5px] hover:bg-red-50 text-[#9ca3af] hover:text-red-500 transition-colors" title="Reject">
-                                <XCircle className="w-4 h-4" />
-                              </button>
-                            </>
-                          )}
-                          {isIntern && leave.status === 'pending' && (
-                            <button onClick={() => handleDelete(leave.id)} className="p-1.5 rounded-[5px] hover:bg-red-50 text-[#9ca3af] hover:text-red-500 transition-colors" title="Delete">
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          )}
-                          {leave.reviewer && (
-                            <span className="text-[0.72rem] text-[#9ca3af]">by {leave.reviewer.name}</span>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          {data.meta && data.meta.last_page > 1 && (
-            <div className="mt-6">
-              <Pagination currentPage={data.meta.current_page} lastPage={data.meta.last_page} onPageChange={setPage} />
+                        {isIntern && leave.status === 'pending' && (
+                          <button onClick={() => handleDelete(leave.id)} className="p-1.5 rounded-[5px] hover:bg-red-50 text-[#9ca3af] hover:text-red-500 transition-colors" title="Delete"><Trash2 className="w-4 h-4" /></button>
+                        )}
+                      </div>
+                    </div>
+                    {!isIntern && (
+                      <div className="flex items-start"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Intern</span><div><p className="text-[0.82rem] text-[#374151] font-medium">{leave.user?.name}</p>{leave.user?.company_name && <p className="text-[0.75rem] text-[#9ca3af]">{leave.user.company_name}</p>}</div></div>
+                    )}
+                    <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Period</span><span className="text-[0.82rem] text-[#374151] font-medium">{formatDate(leave.start_date)} — {formatDate(leave.end_date)}</span></div>
+                    <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Days</span><span className="text-[0.82rem] text-[#374151] font-medium">{dayCount(leave.start_date, leave.end_date)}</span></div>
+                    <div className="flex items-start"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Reason</span><div><p className="text-[0.82rem] text-[#374151] font-medium">{leave.reason}</p>{leave.review_note && <p className="text-[0.75rem] text-[#9ca3af] mt-0.5">Note: {leave.review_note}</p>}</div></div>
+                    <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Status</span><Badge color={STATUS_COLOR[leave.status] || 'gray'}>{leave.status.charAt(0).toUpperCase() + leave.status.slice(1)}</Badge></div>
+                    {leave.reviewer && (
+                      <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Reviewed by</span><span className="text-[0.82rem] text-[#374151] font-medium">{leave.reviewer.name}</span></div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
-          )}
-        </>
-      )}
+
+            {/* Desktop table view */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full min-w-[800px]">
+                <thead>
+                  <tr className="bg-[#fafafa]">
+                    {!isIntern && <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Intern</th>}
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Type</th>
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Period</th>
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Days</th>
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Reason</th>
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Status</th>
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.data.map((leave) => {
+                    const TypeIcon = TYPE_ICONS[leave.type] || CalendarOff;
+                    return (
+                      <tr key={leave.id} className="border-b border-[#f5f5f5] hover:bg-[#fafafa] transition-colors">
+                        {!isIntern && (
+                          <td className="px-5 py-3">
+                            <p className="text-[0.82rem] font-medium text-[#374151]">{leave.user?.name}</p>
+                            {leave.user?.company_name && <p className="text-[0.75rem] text-[#9ca3af]">{leave.user.company_name}</p>}
+                          </td>
+                        )}
+                        <td className="px-5 py-3">
+                          <span className="inline-flex items-center gap-1.5 text-[0.82rem] text-[#374151]">
+                            <TypeIcon className="w-3.5 h-3.5 text-[#6b7280]" />
+                            {TYPE_LABELS[leave.type] || leave.type}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3 text-[0.82rem] text-[#374151]">
+                          {formatDate(leave.start_date)} — {formatDate(leave.end_date)}
+                        </td>
+                        <td className="px-5 py-3 text-[0.82rem] text-[#374151] font-medium">
+                          {dayCount(leave.start_date, leave.end_date)}
+                        </td>
+                        <td className="px-5 py-3 text-[0.82rem] text-[#374151] max-w-[200px]">
+                          <p className="truncate" title={leave.reason}>{leave.reason}</p>
+                          {leave.review_note && (
+                            <p className="text-[0.75rem] text-[#9ca3af] mt-0.5 truncate" title={leave.review_note}>Note: {leave.review_note}</p>
+                          )}
+                        </td>
+                        <td className="px-5 py-3">
+                          <Badge color={STATUS_COLOR[leave.status] || 'gray'}>
+                            {leave.status.charAt(0).toUpperCase() + leave.status.slice(1)}
+                          </Badge>
+                        </td>
+                        <td className="px-5 py-3">
+                          <div className="flex items-center gap-1">
+                            {canReview && leave.status === 'pending' && (
+                              <>
+                                <button onClick={() => { setReviewLeave(leave); setReviewStatus('approved'); setReviewNote(''); }} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-green-600 hover:bg-green-50 transition-colors" title="Approve">
+                                  <CheckCircle className="w-4 h-4" />
+                                </button>
+                                <button onClick={() => { setReviewLeave(leave); setReviewStatus('rejected'); setReviewNote(''); }} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-red-500 hover:bg-red-50 transition-colors" title="Reject">
+                                  <XCircle className="w-4 h-4" />
+                                </button>
+                              </>
+                            )}
+                            {isIntern && leave.status === 'pending' && (
+                              <button onClick={() => handleDelete(leave.id)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#dc2626] hover:bg-[#fef2f2] transition-colors" title="Delete">
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
+                            {leave.reviewer && (
+                              <span className="text-[0.72rem] text-[#9ca3af] ml-1">by {leave.reviewer.name}</span>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {data.meta && data.meta.last_page > 1 && (
+              <div className="p-4 border-t border-[#f5f5f5]">
+                <Pagination currentPage={data.meta.current_page} lastPage={data.meta.last_page} onPageChange={setPage} />
+              </div>
+            )}
+          </>
+        )}
+      </div>
 
       {/* Create Leave Modal */}
       {showForm && (

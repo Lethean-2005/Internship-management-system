@@ -14,7 +14,7 @@ class ReviewWorklogRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => ['required', 'in:approved,rejected'],
+            'status' => ['required', 'in:approved,reviewed,rejected'],
             'feedback' => ['nullable', 'string'],
         ];
     }

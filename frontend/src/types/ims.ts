@@ -15,6 +15,12 @@ export interface User {
   department: string | null;
   avatar: string | null;
   is_active: boolean;
+  company_name: string | null;
+  position: string | null;
+  allowance: number | null;
+  tutor_id: number | null;
+  supervisor_name: string | null;
+  generation: string | null;
   created_at: string;
 }
 
@@ -78,7 +84,10 @@ export interface WeeklyWorklog {
   tasks_completed: string;
   challenges: string | null;
   plans_next_week: string | null;
+  tutor_topics: string | null;
+  reflections: string | null;
   hours_worked: number;
+  entries?: WorklogEntry[];
   status: string;
   submitted_at: string | null;
   reviewed_by: number | null;
@@ -86,6 +95,16 @@ export interface WeeklyWorklog {
   reviewed_at: string | null;
   feedback: string | null;
   created_at: string;
+}
+
+export interface WorklogEntry {
+  id?: number;
+  entry_date: string;
+  time_slot: 'morning' | 'afternoon';
+  activities: string | null;
+  difficulties: string | null;
+  solutions: string | null;
+  comment: string | null;
 }
 
 export interface FinalReport {

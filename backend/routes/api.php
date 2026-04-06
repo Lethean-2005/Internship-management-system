@@ -96,6 +96,16 @@ Route::middleware('auth:sanctum')->group(function (): void {
 
     // My Interns — tutor only
     Route::middleware('role:tutor')->group(function (): void {
+        // List all interns for search/assign
+        Route::get('/interns-list', function (\Illuminate\Http\Request $request) {
+            $interns = \App\Models\User::with('role')
+                ->whereHas('role', fn ($q) => $q->where('slug', 'intern'))
+                ->when($request->filled('search'), fn ($q) => $q->where('name', 'like', '%' . $request->input('search') . '%'))
+                ->latest()
+                ->get();
+            return response()->json(['data' => \App\Http\Resources\UserResource::collection($interns)]);
+        });
+
         Route::get('/my-interns/{internId}/interviews', function (\Illuminate\Http\Request $request, int $internId) {
             $user = $request->user();
             // Verify this intern belongs to this tutor
@@ -110,6 +120,30 @@ Route::middleware('auth:sanctum')->group(function (): void {
             return response()->json([
                 'data' => \App\Http\Resources\CompanyInterviewResource::collection($interviews),
             ]);
+        });
+
+        // Choose intern — assign tutor_id
+        Route::post('/my-interns/choose', function (\Illuminate\Http\Request $request) {
+            $request->validate(['user_id' => 'required|exists:users,id']);
+            $intern = \App\Models\User::findOrFail($request->user_id);
+            if ($intern->role?->slug !== 'intern') {
+                return response()->json(['message' => 'User is not an intern.'], 422);
+            }
+            if ($intern->tutor_id && $intern->tutor_id !== $request->user()->id) {
+                return response()->json(['message' => 'This intern is already assigned to another tutor.'], 422);
+            }
+            $intern->update(['tutor_id' => $request->user()->id]);
+            return response()->json(['message' => 'Intern assigned successfully.', 'data' => new \App\Http\Resources\UserResource($intern)]);
+        });
+
+        // Remove intern from tutor
+        Route::delete('/my-interns/{internId}', function (\Illuminate\Http\Request $request, int $internId) {
+            $intern = \App\Models\User::where('id', $internId)->where('tutor_id', $request->user()->id)->first();
+            if (!$intern) {
+                return response()->json(['message' => 'Intern not found.'], 404);
+            }
+            $intern->update(['tutor_id' => null]);
+            return response()->json(['message' => 'Intern removed successfully.']);
         });
 
         Route::get('/my-interns', function (\Illuminate\Http\Request $request) {
