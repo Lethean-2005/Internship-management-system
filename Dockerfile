@@ -43,17 +43,16 @@ RUN php artisan storage:link 2>/dev/null || true \
 
 EXPOSE 8000
 
-# At runtime: inject env vars into .env, clear cache, then serve
-CMD set -e; \
-    # Write Render env vars into .env so Laravel picks them up
-    [ -n "$MAIL_MAILER" ] && sed -i "s|^MAIL_MAILER=.*|MAIL_MAILER=$MAIL_MAILER|" .env; \
-    [ -n "$MAIL_HOST" ] && sed -i "s|^MAIL_HOST=.*|MAIL_HOST=$MAIL_HOST|" .env; \
-    [ -n "$MAIL_PORT" ] && sed -i "s|^MAIL_PORT=.*|MAIL_PORT=$MAIL_PORT|" .env; \
-    [ -n "$MAIL_USERNAME" ] && sed -i "s|^MAIL_USERNAME=.*|MAIL_USERNAME=$MAIL_USERNAME|" .env; \
-    [ -n "$MAIL_PASSWORD" ] && sed -i "s|^MAIL_PASSWORD=.*|MAIL_PASSWORD=$MAIL_PASSWORD|" .env; \
-    [ -n "$MAIL_ENCRYPTION" ] && sed -i "s|^MAIL_ENCRYPTION=.*|MAIL_ENCRYPTION=$MAIL_ENCRYPTION|" .env || sed -i "s|^MAIL_SCHEME=.*|MAIL_ENCRYPTION=$MAIL_ENCRYPTION|" .env; \
-    [ -n "$MAIL_FROM_ADDRESS" ] && sed -i "s|^MAIL_FROM_ADDRESS=.*|MAIL_FROM_ADDRESS=$MAIL_FROM_ADDRESS|" .env; \
-    [ -n "$MAIL_FROM_NAME" ] && sed -i "s|^MAIL_FROM_NAME=.*|MAIL_FROM_NAME=\"$MAIL_FROM_NAME\"|" .env; \
+# At runtime: append env vars to .env, clear cache, then serve
+CMD echo "" >> .env && \
+    echo "MAIL_MAILER=${MAIL_MAILER:-log}" >> .env && \
+    echo "MAIL_HOST=${MAIL_HOST:-127.0.0.1}" >> .env && \
+    echo "MAIL_PORT=${MAIL_PORT:-587}" >> .env && \
+    echo "MAIL_USERNAME=${MAIL_USERNAME:-}" >> .env && \
+    echo "MAIL_PASSWORD=${MAIL_PASSWORD:-}" >> .env && \
+    echo "MAIL_ENCRYPTION=${MAIL_ENCRYPTION:-tls}" >> .env && \
+    echo "MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS:-noreply@example.com}" >> .env && \
+    echo "MAIL_FROM_NAME=\"${MAIL_FROM_NAME:-Laravel}\"" >> .env && \
     php artisan config:clear && \
     php artisan route:clear && \
     php artisan migrate --force 2>/dev/null; \
