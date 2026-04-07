@@ -25,9 +25,8 @@ class DemoSeeder extends Seeder
         $internRole = Role::where('slug', 'intern')->first();
 
         // Create demo users
-        $admin = User::create([
+        $admin = User::firstOrCreate(['email' => 'admin@ims.com'], [
             'name' => 'Admin User',
-            'email' => 'admin@ims.com',
             'password' => Hash::make('password'),
             'role_id' => $adminRole->id,
             'department' => 'Administration',
@@ -35,9 +34,8 @@ class DemoSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
 
-        $tutor = User::create([
+        $tutor = User::firstOrCreate(['email' => 'tutor@ims.com'], [
             'name' => 'Tutor User',
-            'email' => 'tutor@ims.com',
             'password' => Hash::make('password'),
             'role_id' => $tutorRole->id,
             'department' => 'Computer Science',
@@ -45,9 +43,8 @@ class DemoSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
 
-        $supervisor = User::create([
+        $supervisor = User::firstOrCreate(['email' => 'supervisor@ims.com'], [
             'name' => 'Supervisor User',
-            'email' => 'supervisor@ims.com',
             'password' => Hash::make('password'),
             'role_id' => $supervisorRole->id,
             'department' => 'Engineering',
@@ -55,9 +52,8 @@ class DemoSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
 
-        $intern = User::create([
+        $intern = User::firstOrCreate(['email' => 'intern@ims.com'], [
             'name' => 'Intern User',
-            'email' => 'intern@ims.com',
             'password' => Hash::make('password'),
             'role_id' => $internRole->id,
             'department' => 'Engineering',
@@ -69,6 +65,9 @@ class DemoSeeder extends Seeder
             'supervisor_name' => 'Jane Smith',
             'generation' => '2026',
         ]);
+
+        // Skip the rest if data already exists
+        if (Company::count() > 0) return;
 
         // Create companies
         $company1 = Company::create([

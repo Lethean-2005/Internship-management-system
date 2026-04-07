@@ -11,8 +11,9 @@ FROM php:8.3-cli
 
 RUN apt-get update && apt-get install -y \
     libsqlite3-dev \
+    libpq-dev \
     unzip \
-    && docker-php-ext-install pdo pdo_sqlite bcmath \
+    && docker-php-ext-install pdo pdo_sqlite pdo_pgsql bcmath \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -29,12 +30,12 @@ COPY --from=frontend-build /app/frontend/dist/ /app/public/
 RUN cp .env.example .env \
     && php artisan key:generate --force
 
-# Create SQLite database and run migrations
+# Create SQLite for build-time migrations only (production uses PostgreSQL)
 RUN mkdir -p /app/database \
     && touch /app/database/database.sqlite \
     && php artisan migrate --seed --force
 
-# Cache views only (config/route cache will use runtime env vars)
+# Cache views only
 RUN php artisan view:cache
 
 # Create storage link and set permissions
@@ -43,8 +44,14 @@ RUN php artisan storage:link 2>/dev/null || true \
 
 EXPOSE 8000
 
-# At runtime: append env vars to .env, clear cache, then serve
+# At runtime: write all env vars to .env, run migrations on PostgreSQL, then serve
 CMD echo "" >> .env && \
+    echo "DB_CONNECTION=${DB_CONNECTION:-sqlite}" >> .env && \
+    echo "DB_HOST=${DB_HOST:-127.0.0.1}" >> .env && \
+    echo "DB_PORT=${DB_PORT:-5432}" >> .env && \
+    echo "DB_DATABASE=${DB_DATABASE:-laravel}" >> .env && \
+    echo "DB_USERNAME=${DB_USERNAME:-}" >> .env && \
+    echo "DB_PASSWORD=${DB_PASSWORD:-}" >> .env && \
     echo "MAIL_MAILER=${MAIL_MAILER:-log}" >> .env && \
     echo "MAIL_HOST=${MAIL_HOST:-127.0.0.1}" >> .env && \
     echo "MAIL_PORT=${MAIL_PORT:-587}" >> .env && \
@@ -55,5 +62,5 @@ CMD echo "" >> .env && \
     echo "MAIL_FROM_NAME=\"${MAIL_FROM_NAME:-Laravel}\"" >> .env && \
     php artisan config:clear && \
     php artisan route:clear && \
-    php artisan migrate --force 2>/dev/null; \
+    php artisan migrate --seed --force 2>/dev/null; \
     php artisan serve --host=0.0.0.0 --port=8000
