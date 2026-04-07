@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\Slides\FinalSlideController;
 use App\Http\Controllers\Api\Users\UserController;
 use App\Http\Controllers\Api\JobPostings\JobPostingController;
 use App\Http\Controllers\Api\Leaves\InternLeaveController;
+use App\Http\Controllers\Api\Settings\SettingController;
 use App\Http\Controllers\Api\Worklogs\WeeklyWorklogController;
 use Illuminate\Support\Facades\Route;
 
@@ -42,18 +43,22 @@ Route::get('/public/supervisors', function () {
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+    Route::post('/verify-email', [AuthController::class, 'verifyEmail']);
+    Route::post('/resend-code', [AuthController::class, 'resendCode']);
 
     // Update own profile (internship details)
     Route::put('/me', function (\Illuminate\Http\Request $request) {
         $user = $request->user();
         $data = $request->validate([
-            'company_name' => ['sometimes', 'string', 'max:255'],
-            'position' => ['sometimes', 'string', 'max:255'],
+            'name' => ['sometimes', 'string', 'max:255'],
+            'email' => ['sometimes', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'phone' => ['sometimes', 'nullable', 'string', 'max:50'],
+            'department' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'company_name' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'position' => ['sometimes', 'nullable', 'string', 'max:255'],
             'allowance' => ['sometimes', 'nullable', 'numeric', 'min:0'],
             'supervisor_name' => ['sometimes', 'nullable', 'string', 'max:255'],
             'tutor_id' => ['sometimes', 'nullable', 'exists:users,id'],
-            'department' => ['sometimes', 'nullable', 'string', 'max:255'],
-            'phone' => ['sometimes', 'nullable', 'string', 'max:50'],
             'generation' => ['sometimes', 'nullable', 'string', 'max:10'],
         ]);
         $user->update($data);
@@ -62,6 +67,80 @@ Route::middleware('auth:sanctum')->group(function (): void {
             'message' => 'Profile updated successfully.',
             'data' => new \App\Http\Resources\UserResource($user),
         ]);
+    });
+
+    Route::post('/me/avatar', function (\Illuminate\Http\Request $request) {
+        $request->validate([
+            'avatar' => ['required', 'image', 'max:2048'],
+        ]);
+        $file = $request->file('avatar');
+        $data = base64_encode(file_get_contents($file->getRealPath()));
+        $mime = $file->getMimeType();
+        $dataUri = "data:{$mime};base64,{$data}";
+
+        $user = $request->user();
+        $user->update(['avatar' => $dataUri]);
+        $user->load('role');
+
+        return response()->json([
+            'message' => 'Avatar updated successfully.',
+            'data' => new \App\Http\Resources\UserResource($user),
+        ]);
+    });
+
+    Route::put('/me/password', function (\Illuminate\Http\Request $request) {
+        $data = $request->validate([
+            'current_password' => ['required', 'string'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+        $user = $request->user();
+        if (!\Illuminate\Support\Facades\Hash::check($data['current_password'], $user->password)) {
+            return response()->json(['message' => 'Current password is incorrect.'], 422);
+        }
+        $user->update(['password' => \Illuminate\Support\Facades\Hash::make($data['password'])]);
+        return response()->json(['message' => 'Password updated successfully.']);
+    });
+
+    // Recent passed interviews not yet seen by current user
+    Route::get('/passed-interviews', function (\Illuminate\Http\Request $request) {
+        $userId = $request->user()->id;
+        $seenIds = DB::table('seen_congrats')->where('user_id', $userId)->pluck('interview_id');
+
+        $passed = \App\Models\CompanyInterview::with(['user:id,name,avatar,company_name,position,generation', 'user.role:id,name,slug'])
+            ->where('result', 'passed')
+            ->whereDate('updated_at', today())
+            ->whereNotIn('id', $seenIds)
+            ->orderByDesc('updated_at')
+            ->limit(5)
+            ->get()
+            ->map(function ($iv) {
+                return [
+                    'id' => $iv->id,
+                    'company_name' => $iv->company_name,
+                    'employment_type' => $iv->employment_type,
+                    'updated_at' => $iv->updated_at,
+                    'user' => $iv->user ? [
+                        'id' => $iv->user->id,
+                        'name' => $iv->user->name,
+                        'avatar' => $iv->user->avatar,
+                        'company_name' => $iv->user->company_name,
+                        'position' => $iv->user->position,
+                        'generation' => $iv->user->generation,
+                        'role' => $iv->user->role?->name,
+                    ] : null,
+                ];
+            });
+        return response()->json(['data' => $passed]);
+    });
+
+    // Mark congrats as seen
+    Route::post('/passed-interviews/{id}/seen', function (\Illuminate\Http\Request $request, int $id) {
+        DB::table('seen_congrats')->insertOrIgnore([
+            'user_id' => $request->user()->id,
+            'interview_id' => $id,
+            'created_at' => now(),
+        ]);
+        return response()->json(['message' => 'Marked as seen.']);
     });
 
     // Dashboard — all roles
@@ -181,6 +260,12 @@ Route::middleware('auth:sanctum')->group(function (): void {
         Route::post('/roles', [RoleController::class, 'store']);
         Route::put('/roles/{role}', [RoleController::class, 'update']);
         Route::delete('/roles/{role}', [RoleController::class, 'destroy']);
+    });
+
+    // Settings — admin only
+    Route::middleware('role:admin')->group(function (): void {
+        Route::get('/settings', [SettingController::class, 'index']);
+        Route::put('/settings', [SettingController::class, 'update']);
     });
 
     // Companies — admin, supervisor

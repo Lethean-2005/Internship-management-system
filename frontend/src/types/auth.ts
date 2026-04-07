@@ -16,6 +16,7 @@ export interface User {
   tutor_id: number | null;
   supervisor_name: string | null;
   generation: string | null;
+  email_verified_at: string | null;
   created_at: string;
 }
 

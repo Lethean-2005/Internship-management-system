@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Eye, Search, UserPlus, X } from 'lucide-react';
 import { Badge } from '../../components/ui/Badge';
@@ -6,6 +7,7 @@ import { Button } from '../../components/ui/Button';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { Modal } from '../../components/ui/Modal';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { UserAvatar } from '../../components/ui/UserAvatar';
 import client from '../../api/client';
 import { STATUS_COLORS, STATUS_LABELS } from '../../lib/constants';
 import { formatDateTime } from '../../lib/formatDate';
@@ -14,6 +16,7 @@ import type { User } from '../../types/auth';
 import type { PaginatedResponse } from '../../types/api';
 
 export function MyInternsPage() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const [viewIntern, setViewIntern] = useState<any | null>(null);
   const [search, setSearch] = useState('');
@@ -64,11 +67,11 @@ export function MyInternsPage() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-[1.1rem] sm:text-[1.35rem] font-bold text-[#1e1b4b]">My Interns</h1>
-          <p className="mt-1 text-[0.85rem] text-[#6b7280]">Interns assigned to you as their tutor.</p>
+          <h1 className="text-[1.1rem] sm:text-[1.35rem] font-bold text-[#1e1b4b]">{t('myInterns.title')}</h1>
+          <p className="mt-1 text-[0.85rem] text-[#6b7280]">{t('myInterns.subtitle')}</p>
         </div>
         <Button onClick={() => setChooseDropdownOpen(true)} className="w-full sm:w-auto">
-          <UserPlus className="h-4 w-4 mr-2" /> Choose Intern
+          <UserPlus className="h-4 w-4 mr-2" /> {t('myInterns.chooseIntern')}
         </Button>
       </div>
 
@@ -80,7 +83,7 @@ export function MyInternsPage() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search intern by name or email..."
+              placeholder={t('myInterns.searchIntern')}
               className="block w-full rounded-[5px] border border-[#e0e0e0] pl-10 pr-[14px] py-[9px] text-[0.82rem] transition-all focus:outline-none focus:border-[#48B6E8] focus:ring-[3px] focus:ring-[rgba(72,182,232,0.08)]"
             />
           </div>
@@ -96,9 +99,7 @@ export function MyInternsPage() {
               <div key={intern.id} className="bg-white rounded-[5px] border border-[#e5e7eb] p-4 space-y-2 relative">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#48B6E8] to-[#3a9fd4] flex items-center justify-center text-white text-[0.7rem] font-semibold shrink-0">
-                      {intern.name.charAt(0).toUpperCase()}
-                    </div>
+                    <UserAvatar name={intern.name} avatar={(intern as any).avatar} size="sm" />
                     <span className="text-[0.82rem] font-medium text-[#374151]">{intern.name}</span>
                   </div>
                   <div className="flex items-center gap-1">
@@ -136,9 +137,7 @@ export function MyInternsPage() {
                   <tr key={intern.id} className="border-b border-[#f5f5f5] hover:bg-[#fafafa] transition-colors">
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#48B6E8] to-[#3a9fd4] flex items-center justify-center text-white text-[0.7rem] font-semibold shrink-0">
-                          {intern.name.charAt(0).toUpperCase()}
-                        </div>
+                        <UserAvatar name={intern.name} avatar={(intern as any).avatar} size="sm" />
                         <span className="text-[0.82rem] font-medium text-[#374151]">{intern.name}</span>
                       </div>
                     </td>
@@ -200,9 +199,7 @@ export function MyInternsPage() {
                 disabled={chooseMutation.isPending}
                 className="flex items-center gap-3 w-full px-3 py-3 rounded-[5px] hover:bg-[#f5f5f7] transition-colors text-left"
               >
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#48B6E8] to-[#3a9fd4] flex items-center justify-center text-white text-[0.72rem] font-semibold shrink-0">
-                  {intern.name.charAt(0).toUpperCase()}
-                </div>
+                <UserAvatar name={intern.name} avatar={(intern as any).avatar} size="sm" />
                 <div className="flex-1 min-w-0">
                   <p className="text-[0.82rem] font-medium text-[#374151]">{intern.name}</p>
                   <p className="text-[0.72rem] text-[#9ca3af]">{intern.email}</p>
@@ -226,9 +223,7 @@ No interns found
         {viewIntern && (
           <div className="space-y-5">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#48B6E8] to-[#3a9fd4] flex items-center justify-center text-white text-[1.2rem] font-bold shrink-0">
-                {viewIntern.name.charAt(0).toUpperCase()}
-              </div>
+              <UserAvatar name={viewIntern.name} avatar={(viewIntern as any).avatar} size="lg" />
               <div>
                 <h3 className="text-[1rem] font-bold text-[#1e1b4b]">{viewIntern.name}</h3>
                 <p className="text-[0.82rem] text-[#6b7280]">{viewIntern.email}</p>

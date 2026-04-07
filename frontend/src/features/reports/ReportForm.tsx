@@ -1,4 +1,5 @@
 import { useState, useRef, type FormEvent, type DragEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal } from '../../components/ui/Modal';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
@@ -13,6 +14,7 @@ interface ReportFormProps {
 }
 
 export function ReportForm({ open, onClose, onSubmit, loading }: ReportFormProps) {
+  const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const position = (user as any)?.position || '';
   const company = (user as any)?.company_name || '';
@@ -46,11 +48,11 @@ export function ReportForm({ open, onClose, onSubmit, loading }: ReportFormProps
   };
 
   return (
-    <Modal open={open} onClose={onClose} title="Create Final Report" size="lg">
+    <Modal open={open} onClose={onClose} title={t('reports.createReport')} size="lg">
       <form onSubmit={handleSubmit} className="space-y-4">
-        <Input label="Title" value={title} onChange={(e) => setTitle(e.target.value)} required />
+        <Input label={t('common.title')} value={title} onChange={(e) => setTitle(e.target.value)} required />
         <div className="w-full">
-          <label className="block text-[0.85rem] font-medium text-[#374151] mb-1">Content</label>
+          <label className="block text-[0.85rem] font-medium text-[#374151] mb-1">{t('reports.content')}</label>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
@@ -61,7 +63,7 @@ export function ReportForm({ open, onClose, onSubmit, loading }: ReportFormProps
 
         {/* Upload Area */}
         <div>
-          <label className="block text-[0.85rem] font-medium text-[#374151] mb-2">Upload Report File</label>
+          <label className="block text-[0.85rem] font-medium text-[#374151] mb-2">{t('reports.uploadFile')}</label>
           <div
             onDrop={handleDrop}
             onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
@@ -72,13 +74,13 @@ export function ReportForm({ open, onClose, onSubmit, loading }: ReportFormProps
             }`}
           >
             <Upload className="w-8 h-8 text-[#9ca3af] mb-2" />
-            <p className="text-[0.85rem] font-medium text-[#374151]">Choose a file or drag & drop it here.</p>
-            <p className="text-[0.75rem] text-[#9ca3af] mt-1">PDF, DOC, DOCX, up to 50 MB.</p>
+            <p className="text-[0.85rem] font-medium text-[#374151]">{t('reports.chooseFile')}</p>
+            <p className="text-[0.75rem] text-[#9ca3af] mt-1">{t('reports.fileFormats')}</p>
             <button
               type="button"
               className="mt-3 px-4 py-[6px] rounded-[5px] border border-[#e0e0e0] text-[0.82rem] font-medium text-[#374151] hover:bg-[#f5f5f7] transition-colors"
             >
-              Browse File
+              {t('reports.browseFile')}
             </button>
             <input
               ref={fileInputRef}
@@ -100,7 +102,7 @@ export function ReportForm({ open, onClose, onSubmit, loading }: ReportFormProps
                   {formatSize(file.size)}
                   <span className="mx-1">·</span>
                   <CheckCircle className="w-3 h-3 text-[#22c55e]" />
-                  <span className="text-[#22c55e]">Ready</span>
+                  <span className="text-[#22c55e]">{t('reports.ready')}</span>
                 </p>
               </div>
               <button type="button" onClick={(e) => { e.stopPropagation(); setFile(null); }} className="p-1 text-[#9ca3af] hover:text-[#dc2626] transition-colors">
@@ -111,8 +113,8 @@ export function ReportForm({ open, onClose, onSubmit, loading }: ReportFormProps
         </div>
 
         <div className="flex justify-end gap-3 pt-2">
-          <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
-          <Button type="submit" loading={loading}>Create</Button>
+          <Button type="button" variant="secondary" onClick={onClose}>{t('common.cancel')}</Button>
+          <Button type="submit" loading={loading}>{t('common.create')}</Button>
         </div>
       </form>
     </Modal>

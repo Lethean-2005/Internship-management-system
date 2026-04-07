@@ -1,10 +1,12 @@
 import { useState, useEffect, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal } from '../../components/ui/Modal';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { DatePicker } from '../../components/ui/DatePicker';
 import { TimePicker } from '../../components/ui/TimePicker';
 import { Button } from '../../components/ui/Button';
+import { UserAvatar } from '../../components/ui/UserAvatar';
 import { useAuthStore } from '../../stores/authStore';
 import { useInterviews } from '../../hooks/useInterviews';
 import type { CompanyInterview, User } from '../../types/ims';
@@ -40,6 +42,7 @@ interface InterviewFormProps {
 }
 
 export function InterviewForm({ open, onClose, onSubmit, users, interview, loading }: InterviewFormProps) {
+  const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const roleSlug = user?.role?.slug || '';
   const isAdmin = roleSlug === 'admin' || roleSlug === 'supervisor';
@@ -119,30 +122,30 @@ export function InterviewForm({ open, onClose, onSubmit, users, interview, loadi
   };
 
   const typeOptions = [
-    { value: 'onsite', label: 'Onsite' },
-    { value: 'online', label: 'Online' },
-    { value: 'hybrid', label: 'Hybrid' },
+    { value: 'onsite', label: t('interviews.onsite') },
+    { value: 'online', label: t('interviews.online') },
+    { value: 'hybrid', label: t('interviews.hybrid') },
   ];
 
   const hasPassed = interview?.result === 'passed';
 
   const employmentOptions = hasPassed ? [
-    { value: '', label: 'Select Employment Agreement' },
-    { value: 'internship', label: 'Internship' },
-    { value: 'probation', label: 'Probation' },
-    { value: 'staff', label: 'Staff' },
-    { value: 'contract', label: 'Contract' },
+    { value: '', label: t('interviews.selectEmployment') },
+    { value: 'internship', label: t('status.internship') },
+    { value: 'probation', label: t('status.probation') },
+    { value: 'staff', label: t('status.staff') },
+    { value: 'contract', label: t('status.contract') },
   ] : [
-    { value: 'internship', label: 'Internship' },
+    { value: 'internship', label: t('status.internship') },
   ];
 
   return (
-    <Modal open={open} onClose={onClose} title={interview ? 'Edit Interview' : 'Schedule Interview'}>
+    <Modal open={open} onClose={onClose} title={interview ? t('interviews.editInterview') : t('interviews.scheduleInterview')}>
       <form onSubmit={handleSubmit} className="space-y-4">
         {isAdmin && users && (
           <div className="w-full relative">
             <label className="block text-[0.85rem] font-medium text-[#374151] mb-1">
-              Assign Intern<span className="text-[#dc2626] ml-0.5">*</span>
+              {t('interviews.assignIntern')}<span className="text-[#dc2626] ml-0.5">*</span>
             </label>
             <input
               type="text"
@@ -153,7 +156,7 @@ export function InterviewForm({ open, onClose, onSubmit, users, interview, loadi
                 if (!e.target.value) setAssignUserId('');
               }}
               onFocus={() => setInternDropdownOpen(true)}
-              placeholder="Search intern by name..."
+              placeholder={t('interviews.searchIntern')}
               required={!assignUserId}
               className="block w-full rounded-[5px] border border-[#e0e0e0] px-[14px] py-[11px] text-[0.88rem] transition-all focus:outline-none focus:border-[#48B6E8] focus:ring-[3px] focus:ring-[rgba(72,182,232,0.08)]"
             />
@@ -176,15 +179,13 @@ export function InterviewForm({ open, onClose, onSubmit, users, interview, loadi
                           : 'text-white/70 hover:bg-white/[0.06] hover:text-white'
                       }`}
                     >
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#48B6E8] to-[#3a9fd4] flex items-center justify-center text-white text-[0.6rem] font-semibold shrink-0">
-                        {u.name.charAt(0).toUpperCase()}
-                      </div>
+                      <UserAvatar name={u.name} avatar={(u as any).avatar} size="sm" />
                       {u.name}
                       <span className="text-white/40 text-[0.75rem] ml-auto">{u.email}</span>
                     </button>
                   ))}
                 {users.filter((u) => u.name.toLowerCase().includes(internSearch.toLowerCase())).length === 0 && (
-                  <div className="px-3 py-3 text-[0.82rem] text-white/40 text-center">No interns found</div>
+                  <div className="px-3 py-3 text-[0.82rem] text-white/40 text-center">{t('interviews.noInternsFound')}</div>
                 )}
               </div>
             )}
@@ -197,7 +198,7 @@ export function InterviewForm({ open, onClose, onSubmit, users, interview, loadi
               return (
                 <div className="mt-2 p-2.5 rounded-[5px] bg-[#fff7ed] border border-[#fed7aa] text-[0.78rem] text-[#ea580c]">
                   {passedInterviews.map((iv: any, i: number) => (
-                    <p key={i}>{internName} has passed at <strong>{iv.company_name || iv.company?.name || 'a company'}</strong></p>
+                    <p key={i}>{internName} {t('interviews.hasPassedAt')} <strong>{iv.company_name || iv.company?.name || 'a company'}</strong></p>
                   ))}
                 </div>
               );
@@ -206,16 +207,16 @@ export function InterviewForm({ open, onClose, onSubmit, users, interview, loadi
         )}
         <Input label="Company Name" type="text" value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="e.g. Tech Solutions Inc." required />
         <div className="grid grid-cols-2 gap-3">
-          <DatePicker label="Interview Date" value={interviewDate} onChange={setInterviewDate} required />
-          <TimePicker label="Time" value={interviewTime} period={interviewPeriod} onChange={setInterviewTime} onPeriodChange={setInterviewPeriod} required />
+          <DatePicker label={t('interviews.interviewDate')} value={interviewDate} onChange={setInterviewDate} required />
+          <TimePicker label={t('interviews.time')} value={interviewTime} period={interviewPeriod} onChange={setInterviewTime} onPeriodChange={setInterviewPeriod} required />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <Input label="Location" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. Room 201 or https://maps.google.com/..." required />
-          <Select label="Type" options={typeOptions} value={type} onChange={(e) => setType(e.target.value)} required />
+          <Select label={t('interviews.type')} options={typeOptions} value={type} onChange={(e) => setType(e.target.value)} required />
         </div>
-        <Select label="Employment Agreement" options={employmentOptions} value={employment} onChange={(e) => setEmployment(e.target.value)} required />
+        <Select label={t('interviews.employmentAgreement')} options={employmentOptions} value={employment} onChange={(e) => setEmployment(e.target.value)} required />
         <div className="w-full">
-          <label className="block text-[0.85rem] font-medium text-[#374151] mb-1">Notes<span className="text-[#dc2626] ml-0.5">*</span></label>
+          <label className="block text-[0.85rem] font-medium text-[#374151] mb-1">{t('interviews.notes')}<span className="text-[#dc2626] ml-0.5">*</span></label>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
@@ -227,11 +228,11 @@ export function InterviewForm({ open, onClose, onSubmit, users, interview, loadi
         <div className="flex justify-end gap-3 pt-2">
           {isDateExpired && (
             <div className="flex-1 p-2 rounded-[5px] bg-[#fef2f2] border border-[#fecaca] text-[0.78rem] text-[#dc2626] font-medium">
-              Date is Expired
+              {t('interviews.dateExpired')}
             </div>
           )}
-          <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
-          <Button type="submit" loading={loading} disabled={isDateExpired}>{interview ? 'Update' : 'Schedule'}</Button>
+          <Button type="button" variant="secondary" onClick={onClose}>{t('common.cancel')}</Button>
+          <Button type="submit" loading={loading} disabled={isDateExpired}>{interview ? t('common.update') : t('interviews.schedule')}</Button>
         </div>
       </form>
     </Modal>

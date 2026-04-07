@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { useRoles, useCreateRole, useUpdateRole, useDeleteRole } from '../../hooks/useRoles';
 import { Button } from '../../components/ui/Button';
@@ -8,6 +9,7 @@ import { RoleForm } from './RoleForm';
 import type { Role } from '../../types/ims';
 
 export function RolesPage() {
+  const { t } = useTranslation();
   const [formOpen, setFormOpen] = useState(false);
   const [editRole, setEditRole] = useState<Role | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -49,12 +51,12 @@ export function RolesPage() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-[1.1rem] sm:text-[1.35rem] font-bold text-[#1e1b4b]">Roles</h1>
-          <p className="mt-1 text-[0.85rem] text-[#6b7280]">Manage user roles and permissions.</p>
+          <h1 className="text-[1.1rem] sm:text-[1.35rem] font-bold text-[#1e1b4b]">{t('roles.title')}</h1>
+          <p className="mt-1 text-[0.85rem] text-[#6b7280]">{t('roles.subtitle')}</p>
         </div>
         <Button onClick={handleCreate} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
-          Add Role
+          {t('roles.addRole')}
         </Button>
       </div>
 
@@ -74,12 +76,12 @@ export function RolesPage() {
                     <button onClick={() => handleDelete(role.id)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#dc2626] hover:bg-[#fef2f2] transition-colors"><Trash2 className="h-4 w-4" /></button>
                   </div>
                 </div>
-                <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Slug</span><span className="text-[0.82rem] text-[#374151] font-medium font-mono">{role.slug}</span></div>
-                <div className="flex items-start"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Description</span><span className="text-[0.82rem] text-[#374151] font-medium">{role.description || '-'}</span></div>
+                <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">{t('roles.slug')}</span><span className="text-[0.82rem] text-[#374151] font-medium font-mono">{role.slug}</span></div>
+                <div className="flex items-start"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">{t('roles.description')}</span><span className="text-[0.82rem] text-[#374151] font-medium">{role.description || '-'}</span></div>
               </div>
             ))}
             {roles?.length === 0 && (
-              <div className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">No roles found.</div>
+              <div className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">{t('roles.noRolesFound')}</div>
             )}
           </div>
 
@@ -88,10 +90,10 @@ export function RolesPage() {
             <table className="w-full min-w-[500px]">
               <thead>
                 <tr className="bg-[#fafafa]">
-                  <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Name</th>
-                  <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Slug</th>
-                  <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Description</th>
-                  <th className="text-right px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Actions</th>
+                  <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('roles.name')}</th>
+                  <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('roles.slug')}</th>
+                  <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('roles.description')}</th>
+                  <th className="text-right px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('users.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -121,7 +123,7 @@ export function RolesPage() {
                 {roles?.length === 0 && (
                   <tr>
                     <td colSpan={4} className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">
-                      No roles found.
+                      {t('roles.noRolesFound')}
                     </td>
                   </tr>
                 )}
@@ -142,7 +144,7 @@ export function RolesPage() {
 
       <ConfirmDialog
         open={deleteId !== null}
-        message="Are you sure you want to delete this role? This action cannot be undone."
+        message={t('roles.deleteConfirm')}
         onConfirm={confirmDelete}
         onCancel={() => setDeleteId(null)}
       />

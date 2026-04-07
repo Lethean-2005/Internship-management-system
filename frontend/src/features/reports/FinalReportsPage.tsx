@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Eye, Send, Pencil, Upload, Trash2, List, FilePen, CheckCircle, XCircle, CalendarClock } from 'lucide-react';
 import { useReports, useCreateReport, useDeleteReport, useSubmitReport, useUploadReportFile, useUpdateReport } from '../../hooks/useReports';
@@ -14,11 +15,13 @@ import { Modal } from '../../components/ui/Modal';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { DatePicker } from '../../components/ui/DatePicker';
 import { ReportForm } from './ReportForm';
-import { STATUS_COLORS, STATUS_LABELS } from '../../lib/constants';
+import { UserAvatar } from '../../components/ui/UserAvatar';
+import { STATUS_COLORS, STATUS_LABELS, STATUS_KEYS } from '../../lib/constants';
 import { formatDate } from '../../lib/formatDate';
 import type { FinalReport } from '../../types/ims';
 
 export function FinalReportsPage() {
+  const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const roleSlug = user?.role?.slug || '';
   const isTutor = roleSlug === 'tutor';
@@ -92,31 +95,31 @@ export function FinalReportsPage() {
   };
 
   const statusOptions = [
-    { value: '', label: 'All Statuses', icon: List },
-    { value: 'draft', label: 'Draft', icon: FilePen },
-    { value: 'submitted', label: 'Submitted', icon: Send },
-    { value: 'approved', label: 'Approved', icon: CheckCircle },
-    { value: 'rejected', label: 'Rejected', icon: XCircle },
+    { value: '', label: t('common.allStatuses'), icon: List },
+    { value: 'draft', label: t('common.draft'), icon: FilePen },
+    { value: 'submitted', label: t('common.submitted'), icon: Send },
+    { value: 'approved', label: t('common.approved'), icon: CheckCircle },
+    { value: 'rejected', label: t('common.rejected'), icon: XCircle },
   ];
 
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-[1.1rem] sm:text-[1.35rem] font-bold text-[#1e1b4b]">Final Reports</h1>
-          <p className="mt-1 text-[0.85rem] text-[#6b7280]">Manage internship final reports.</p>
+          <h1 className="text-[1.1rem] sm:text-[1.35rem] font-bold text-[#1e1b4b]">{t('reports.title')}</h1>
+          <p className="mt-1 text-[0.85rem] text-[#6b7280]">{t('reports.subtitle')}</p>
         </div>
         {isTutor ? (
           <div className="flex flex-wrap items-center gap-3">
             {deadlineDate && (
               <div className="flex items-center gap-2 px-3 py-[9px] rounded-[5px] border bg-[#eff6ff] border-[#bfdbfe] text-[#2563eb] text-[0.82rem] font-medium">
                 <CalendarClock className="w-4 h-4" />
-                Deadline: {formatDate(deadlineDate)}
+                {t('reports.deadline')}: {formatDate(deadlineDate)}
               </div>
             )}
             <Button onClick={() => { setDeadlineReport(null); setDeadlineValue(deadlineDate || ''); setDeadlineOpen(true); }}>
               <CalendarClock className="h-4 w-4 mr-2" />
-              {deadlineDate ? 'Edit Deadline' : 'Set Deadline'}
+              {deadlineDate ? t('reports.editDeadline') : t('reports.setDeadline')}
             </Button>
           </div>
         ) : (
@@ -128,12 +131,12 @@ export function FinalReportsPage() {
                   : 'bg-[#eff6ff] border-[#bfdbfe] text-[#2563eb]'
               }`}>
                 <CalendarClock className="w-4 h-4" />
-                {new Date(deadlineDate) < new Date() ? 'Expired' : 'Deadline'}: {formatDate(deadlineDate)}
+                {new Date(deadlineDate) < new Date() ? t('reports.expired') : t('reports.deadline')}: {formatDate(deadlineDate)}
               </div>
             )}
             <Button onClick={() => setFormOpen(true)} className="w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-2" />
-              New Report
+              {t('reports.newReport')}
             </Button>
           </div>
         )}
@@ -153,9 +156,9 @@ export function FinalReportsPage() {
             <h2 className={`text-[1.2rem] font-bold mb-2 ${
               new Date(deadlineDate) < new Date() ? 'text-[#dc2626]' : 'text-[#1e1b4b]'
             }`}>
-              {new Date(deadlineDate) < new Date() ? 'Deadline Expired!' : 'Final Report Deadline'}
+              {new Date(deadlineDate) < new Date() ? t('reports.deadlineExpired') : t('reports.finalReportDeadline')}
             </h2>
-            <p className="text-[0.92rem] text-[#6b7280] mb-1">Your tutor has set a deadline for final reports</p>
+            <p className="text-[0.92rem] text-[#6b7280] mb-1">{t('reports.tutorSetDeadline')}</p>
             <p className={`text-[1.1rem] font-bold mb-6 ${
               new Date(deadlineDate) < new Date() ? 'text-[#dc2626]' : 'text-[#48B6E8]'
             }`}>
@@ -170,7 +173,7 @@ export function FinalReportsPage() {
               );
             })()}
             <Button onClick={() => { setDeadlineDismissed(true); localStorage.setItem('report_deadline_dismissed', 'true'); }} className="w-full py-[10px]">
-              Got it
+              {t('reports.gotIt')}
             </Button>
           </div>
         </div>
@@ -205,14 +208,14 @@ export function FinalReportsPage() {
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Intern</span><span className="text-[0.82rem] text-[#374151] font-medium">{report.user?.name || '-'}</span></div>
-                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">File</span>{report.file_path ? <a href={report.file_path} target="_blank" rel="noreferrer" className="inline-flex items-center rounded-[5px] px-[10px] py-[3px] text-[0.7rem] font-semibold bg-[#f0fdf4] border border-[#bbf7d0] text-[#22c55e] hover:bg-[#dcfce7] transition-colors">Download</a> : <span className="text-[0.82rem] text-[#9ca3af]">-</span>}</div>
-                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Deadline</span>{deadlineDate ? <Badge color={new Date(deadlineDate) < new Date() ? 'red' : 'blue'}>{formatDate(deadlineDate)}</Badge> : <span className="text-[0.82rem] text-[#9ca3af]">-</span>}</div>
-                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Status</span><Badge color={STATUS_COLORS[report.status] || 'gray'}>{STATUS_LABELS[report.status] || report.status}</Badge></div>
+                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">{t('worklogs.intern')}</span><span className="text-[0.82rem] text-[#374151] font-medium">{report.user?.name || '-'}</span></div>
+                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">{t('reports.file')}</span>{report.file_path ? <a href={report.file_path} target="_blank" rel="noreferrer" className="inline-flex items-center rounded-[5px] px-[10px] py-[3px] text-[0.7rem] font-semibold bg-[#f0fdf4] border border-[#bbf7d0] text-[#22c55e] hover:bg-[#dcfce7] transition-colors">{t('reports.download')}</a> : <span className="text-[0.82rem] text-[#9ca3af]">-</span>}</div>
+                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">{t('reports.deadline')}</span>{deadlineDate ? <Badge color={new Date(deadlineDate) < new Date() ? 'red' : 'blue'}>{formatDate(deadlineDate)}</Badge> : <span className="text-[0.82rem] text-[#9ca3af]">-</span>}</div>
+                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">{t('common.status')}</span><Badge color={STATUS_COLORS[report.status] || 'gray'}>{t(STATUS_KEYS[report.status] || report.status)}</Badge></div>
                 </div>
               ))}
               {data?.data.length === 0 && (
-                <div className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">No reports found.</div>
+                <div className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">{t('reports.noReportsFound')}</div>
               )}
             </div>
 
@@ -221,12 +224,12 @@ export function FinalReportsPage() {
               <table className="w-full min-w-[700px]">
                 <thead>
                   <tr className="bg-[#fafafa]">
-                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Title</th>
-                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Intern</th>
-                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">File</th>
-                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Deadline</th>
-                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Status</th>
-                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Actions</th>
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('roles.title')}</th>
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('worklogs.intern')}</th>
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('reports.file')}</th>
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('reports.deadline')}</th>
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('common.status')}</th>
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('users.actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -236,7 +239,7 @@ export function FinalReportsPage() {
                       <td className="px-5 py-3 text-[0.82rem] text-[#374151]">{report.user?.name || '-'}</td>
                       <td className="px-5 py-3 text-[0.82rem]">
                         {report.file_path ? (
-                          <a href={report.file_path} target="_blank" rel="noreferrer" className="inline-flex items-center rounded-[5px] px-[10px] py-[3px] text-[0.7rem] font-semibold bg-[#f0fdf4] border border-[#bbf7d0] text-[#22c55e] hover:bg-[#dcfce7] transition-colors">Download</a>
+                          <a href={report.file_path} target="_blank" rel="noreferrer" className="inline-flex items-center rounded-[5px] px-[10px] py-[3px] text-[0.7rem] font-semibold bg-[#f0fdf4] border border-[#bbf7d0] text-[#22c55e] hover:bg-[#dcfce7] transition-colors">{t('reports.download')}</a>
                         ) : (
                           <span className="text-[#9ca3af]">-</span>
                         )}
@@ -249,7 +252,7 @@ export function FinalReportsPage() {
                         ) : '-'}
                       </td>
                       <td className="px-5 py-3">
-                        <Badge color={STATUS_COLORS[report.status] || 'gray'}>{STATUS_LABELS[report.status] || report.status}</Badge>
+                        <Badge color={STATUS_COLORS[report.status] || 'gray'}>{t(STATUS_KEYS[report.status] || report.status)}</Badge>
                       </td>
                       <td className="px-5 py-3">
                         <div className="flex items-center gap-1">
@@ -280,7 +283,7 @@ export function FinalReportsPage() {
                   ))}
                   {data?.data.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">No reports found.</td>
+                      <td colSpan={6} className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">{t('reports.noReportsFound')}</td>
                     </tr>
                   )}
                 </tbody>
@@ -297,12 +300,12 @@ export function FinalReportsPage() {
       </div>
 
       {/* Edit Report Modal */}
-      <Modal open={!!editReport} onClose={() => setEditReport(null)} title="Edit Report" size="lg">
+      <Modal open={!!editReport} onClose={() => setEditReport(null)} title={t('reports.editReport')} size="lg">
         {editReport && (
           <div className="space-y-4">
             <Input label="Title" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} required />
             <div className="w-full">
-              <label className="block text-[0.85rem] font-medium text-[#374151] mb-1">Content</label>
+              <label className="block text-[0.85rem] font-medium text-[#374151] mb-1">{t('reports.content')}</label>
               <textarea
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
@@ -312,10 +315,10 @@ export function FinalReportsPage() {
             </div>
 
             <div>
-              <label className="block text-[0.85rem] font-medium text-[#374151] mb-2">Replace File</label>
+              <label className="block text-[0.85rem] font-medium text-[#374151] mb-2">{t('reports.replaceFile')}</label>
               <label className="flex items-center gap-2 px-4 py-[9px] rounded-[5px] border border-[#e0e0e0] text-[0.82rem] font-medium text-[#374151] hover:bg-[#f5f5f7] transition-colors cursor-pointer w-fit">
                 <Upload className="w-4 h-4 text-[#9ca3af]" />
-                Choose New File
+                {t('reports.chooseNewFile')}
                 <input type="file" className="hidden" accept=".pdf,.doc,.docx,.pptx,.zip" onChange={async (e) => {
                   if (e.target.files?.[0]) {
                     await uploadMutation.mutateAsync({ id: editReport.id, file: e.target.files[0] });
@@ -324,14 +327,14 @@ export function FinalReportsPage() {
               </label>
               {editReport.file_path && (
                 <p className="mt-2 text-[0.78rem] text-[#22c55e] flex items-center gap-1">
-                  <CheckCircle className="w-3 h-3" /> File uploaded
+                  <CheckCircle className="w-3 h-3" /> {t('reports.fileUploaded')}
                 </p>
               )}
             </div>
 
             <div className="flex justify-end gap-3 pt-2">
-              <Button type="button" variant="secondary" onClick={() => setEditReport(null)}>Cancel</Button>
-              <Button onClick={handleEditSubmit} disabled={!editTitle}>Update</Button>
+              <Button type="button" variant="secondary" onClick={() => setEditReport(null)}>{t('common.cancel')}</Button>
+              <Button onClick={handleEditSubmit} disabled={!editTitle}>{t('common.update')}</Button>
             </div>
           </div>
         )}
@@ -342,19 +345,17 @@ export function FinalReportsPage() {
         {viewReport && (
           <div className="space-y-4">
             <div className="flex items-center gap-3 flex-wrap">
-              <Badge color={STATUS_COLORS[viewReport.status] || 'gray'}>{STATUS_LABELS[viewReport.status] || viewReport.status}</Badge>
+              <Badge color={STATUS_COLORS[viewReport.status] || 'gray'}>{t(STATUS_KEYS[viewReport.status] || viewReport.status)}</Badge>
               {deadlineDate && (
                 <Badge color={new Date(deadlineDate) < new Date() ? 'red' : 'blue'}>
-                  Deadline: {formatDate(deadlineDate)}
+                  {t('reports.deadline')}: {formatDate(deadlineDate)}
                 </Badge>
               )}
             </div>
 
             {viewReport.user && (
               <div className="flex items-center gap-3 p-3 bg-[#f9fafb] rounded-[5px]">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#48B6E8] to-[#3a9fd4] flex items-center justify-center text-white text-[0.8rem] font-bold shrink-0">
-                  {viewReport.user.name.charAt(0).toUpperCase()}
-                </div>
+                <UserAvatar name={viewReport.user.name} avatar={(viewReport.user as any).avatar} size="md" />
                 <div>
                   <p className="text-[0.85rem] font-medium text-[#374151]">{viewReport.user.name}</p>
                   <p className="text-[0.75rem] text-[#9ca3af]">{viewReport.user.email}</p>
@@ -363,19 +364,19 @@ export function FinalReportsPage() {
             )}
 
             <div>
-              <p className="text-[0.72rem] font-semibold text-[#9ca3af] uppercase mb-1">Content</p>
-              <p className="text-[0.82rem] text-[#374151] whitespace-pre-wrap">{viewReport.content || 'No content yet.'}</p>
+              <p className="text-[0.72rem] font-semibold text-[#9ca3af] uppercase mb-1">{t('reports.content')}</p>
+              <p className="text-[0.82rem] text-[#374151] whitespace-pre-wrap">{viewReport.content || t('reports.noContent')}</p>
             </div>
             {viewReport.feedback && (
               <div>
-                <p className="text-[0.72rem] font-semibold text-[#9ca3af] uppercase mb-1">Feedback</p>
+                <p className="text-[0.72rem] font-semibold text-[#9ca3af] uppercase mb-1">{t('reports.feedback')}</p>
                 <p className="text-[0.82rem] text-[#374151] whitespace-pre-wrap">{viewReport.feedback}</p>
               </div>
             )}
             {viewReport.file_path && (
               <div>
-                <p className="text-[0.72rem] font-semibold text-[#9ca3af] uppercase mb-1">File</p>
-                <a href={viewReport.file_path} target="_blank" rel="noreferrer" className="text-[0.82rem] text-[#3a9fd4] hover:underline">Download File</a>
+                <p className="text-[0.72rem] font-semibold text-[#9ca3af] uppercase mb-1">{t('reports.file')}</p>
+                <a href={viewReport.file_path} target="_blank" rel="noreferrer" className="text-[0.82rem] text-[#3a9fd4] hover:underline">{t('reports.downloadFile')}</a>
               </div>
             )}
           </div>
@@ -383,18 +384,18 @@ export function FinalReportsPage() {
       </Modal>
 
       {/* Set Deadline Modal (Tutor) */}
-      <Modal open={deadlineOpen} onClose={() => { setDeadlineOpen(false); setDeadlineReport(null); }} title={deadlineDate ? 'Edit Deadline' : 'Set Deadline'}>
+      <Modal open={deadlineOpen} onClose={() => { setDeadlineOpen(false); setDeadlineReport(null); }} title={deadlineDate ? t('reports.editDeadline') : t('reports.setDeadline')}>
         <div className="space-y-4">
           {deadlineDate && (
             <div className="p-3 rounded-[5px] bg-[#eff6ff] border border-[#bfdbfe] text-[0.85rem] text-[#2563eb] flex items-center gap-2">
               <CalendarClock className="w-4 h-4 shrink-0" />
-              Current deadline: <strong>{formatDate(deadlineDate)}</strong>
+              {t('reports.currentDeadline')}: <strong>{formatDate(deadlineDate)}</strong>
             </div>
           )}
-          <DatePicker label="New Deadline Date" value={deadlineValue} onChange={setDeadlineValue} required />
+          <DatePicker label={t('reports.newDeadlineDate')} value={deadlineValue} onChange={setDeadlineValue} required />
           <div className="flex justify-end gap-3 pt-2">
-            <Button type="button" variant="secondary" onClick={() => { setDeadlineOpen(false); setDeadlineReport(null); }}>Cancel</Button>
-            <Button onClick={handleSetDeadline} disabled={!deadlineValue}>{deadlineDate ? 'Update Deadline' : 'Set Deadline'}</Button>
+            <Button type="button" variant="secondary" onClick={() => { setDeadlineOpen(false); setDeadlineReport(null); }}>{t('common.cancel')}</Button>
+            <Button onClick={handleSetDeadline} disabled={!deadlineValue}>{deadlineDate ? t('reports.updateDeadline') : t('reports.setDeadline')}</Button>
           </div>
         </div>
       </Modal>
@@ -410,7 +411,7 @@ export function FinalReportsPage() {
 
       <ConfirmDialog
         open={deleteId !== null}
-        message="Are you sure you want to delete this report? This action cannot be undone."
+        message={t('reports.deleteConfirm')}
         onConfirm={() => { if (deleteId !== null) { deleteMutation.mutate(deleteId); setDeleteId(null); } }}
         onCancel={() => setDeleteId(null)}
       />

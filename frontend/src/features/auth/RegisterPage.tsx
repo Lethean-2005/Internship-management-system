@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { register } from '../../api/auth';
 import { useAuthStore } from '../../stores/authStore';
@@ -10,12 +11,13 @@ import type { ApiError } from '../../types/api';
 import { GraduationCap, List } from 'lucide-react';
 
 const roleCards = [
-  { slug: 'tutor', label: 'Tutor', image: '/tutor.png' },
-  { slug: 'supervisor', label: 'Supervisor', image: '/supervisor.jpg' },
-  { slug: 'intern', label: 'Intern', image: '/Intern.webp' },
+  { slug: 'tutor', labelKey: 'auth.tutor', image: '/tutor.png' },
+  { slug: 'supervisor', labelKey: 'auth.supervisor', image: '/supervisor.jpg' },
+  { slug: 'intern', labelKey: 'auth.intern', image: '/Intern.webp' },
 ];
 
 export function RegisterPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const setAuth = useAuthStore((s) => s.setAuth);
 
@@ -54,7 +56,7 @@ export function RegisterPage() {
         company_name: (isIntern || roleSlug === 'supervisor') ? (companyName || undefined) : undefined,
       });
       setAuth(res.user, res.token);
-      navigate('/');
+      navigate('/verify-email');
     } catch (err: unknown) {
       const apiErr = (err as { response?: { data?: ApiError } }).response?.data;
       if (apiErr?.errors) {
@@ -64,7 +66,7 @@ export function RegisterPage() {
         }
         setErrors(flat);
       } else {
-        setErrors({ general: apiErr?.message || 'Registration failed' });
+        setErrors({ general: apiErr?.message || t('auth.registrationFailed') });
       }
     } finally {
       setLoading(false);
@@ -99,9 +101,9 @@ export function RegisterPage() {
       {step === 1 && (
         <div className="bg-white rounded-[5px] w-full max-w-[760px] px-5 py-8 sm:px-12 sm:py-14" style={{ boxShadow: '0 2px 20px rgba(0,0,0,0.06)' }}>
           <div className="text-center mb-12">
-            <h1 className="text-[1.55rem] font-bold text-[#1e1e2d]">Select your role</h1>
+            <h1 className="text-[1.55rem] font-bold text-[#1e1e2d]">{t('auth.selectRole')}</h1>
             <p className="mt-2 text-[0.88rem] text-[#a0a3b1]">
-              To start your registration we need to know your role.
+              {t('auth.selectRoleDesc')}
             </p>
           </div>
 
@@ -121,10 +123,10 @@ export function RegisterPage() {
                   style={isSelected ? { boxShadow: '0 0 0 1px #48B6E8' } : {}}
                 >
                   <div className="w-[150px] h-[130px] flex items-center justify-center mb-4">
-                    <img src={role.image} alt={role.label} className="max-w-full max-h-full object-contain" />
+                    <img src={role.image} alt={t(role.labelKey)} className="max-w-full max-h-full object-contain" />
                   </div>
                   <span className={`text-[0.92rem] font-semibold transition-colors ${isSelected ? 'text-[#48B6E8]' : 'text-[#2d2d3a]'}`}>
-                    {role.label}
+                    {t(role.labelKey)}
                   </span>
                 </button>
               );
@@ -140,12 +142,12 @@ export function RegisterPage() {
               onClick={handleNext}
               className="px-12 py-[11px] rounded-[5px] bg-[#1e1e2d] text-white font-semibold text-[0.9rem] hover:bg-[#252a3e] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              Next
+              {t('auth.next')}
             </button>
             <p className="text-[0.84rem] text-[#a0a3b1]">
-              Already have an account?{' '}
+              {t('auth.alreadyHaveAccount')}{' '}
               <Link to="/login" className="text-[#48B6E8] hover:text-[#3a9fd4] font-semibold transition-colors">
-                Sign in
+                {t('auth.signIn')}
               </Link>
             </p>
           </div>
@@ -156,9 +158,9 @@ export function RegisterPage() {
       {step === 2 && (
         <div className="bg-white rounded-[5px] w-full max-w-[480px] px-5 py-8 sm:px-10 sm:py-10" style={{ boxShadow: '0 2px 20px rgba(0,0,0,0.06)' }}>
           <div className="text-center mb-8">
-            <h1 className="text-[1.55rem] font-bold text-[#1e1e2d]">Personal Information</h1>
+            <h1 className="text-[1.55rem] font-bold text-[#1e1e2d]">{t('auth.personalInfo')}</h1>
             <p className="mt-2 text-[0.88rem] text-[#a0a3b1]">
-              Registering as{' '}
+              {t('auth.registeringAs')}{' '}
               <span className="font-semibold text-[#48B6E8] capitalize">{roleSlug}</span>
             </p>
           </div>
@@ -170,21 +172,21 @@ export function RegisterPage() {
           )}
 
           <div className="space-y-4">
-            <Input label="Full Name" type="text" value={name} onChange={(e) => setName(e.target.value)} error={errors.name} required autoFocus />
+            <Input label={t('auth.fullName')} type="text" value={name} onChange={(e) => setName(e.target.value)} error={errors.name} required autoFocus />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} required />
-              <Input label="Phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} error={errors.phone} placeholder="Optional" />
+              <Input label={t('auth.email')} type="email" value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} required />
+              <Input label={t('auth.phone')} type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} error={errors.phone} placeholder={t('auth.optional')} />
             </div>
 
-            <Input label="Department" type="text" value={department} onChange={(e) => setDepartment(e.target.value)} error={errors.department} placeholder={isIntern ? 'e.g. Engineering' : 'e.g. Computer Science'} />
+            <Input label={t('auth.department')} type="text" value={department} onChange={(e) => setDepartment(e.target.value)} error={errors.department} placeholder={isIntern ? 'e.g. Engineering' : 'e.g. Computer Science'} />
 
             {isIntern && (
               <div>
-                <label className="block text-[0.85rem] font-medium text-[#374151] mb-1">Generation</label>
+                <label className="block text-[0.85rem] font-medium text-[#374151] mb-1">{t('auth.generation')}</label>
                 <FilterDropdown
                   options={[
-                    { value: '', label: 'Select Generation', icon: List },
+                    { value: '', label: t('auth.selectGeneration'), icon: List },
                     ...Array.from({ length: new Date().getFullYear() - 2007 + 1 }, (_, i) => {
                       const year = new Date().getFullYear() - i;
                       return { value: String(year), label: `Generation ${year}`, icon: GraduationCap };
@@ -199,16 +201,16 @@ export function RegisterPage() {
             )}
 
             {roleSlug === 'supervisor' && (
-              <Input label="Company Name" type="text" value={companyName} onChange={(e) => setCompanyName(e.target.value)} error={errors.company_name} placeholder="e.g. Tech Solutions Inc." required />
+              <Input label={t('auth.companyName')} type="text" value={companyName} onChange={(e) => setCompanyName(e.target.value)} error={errors.company_name} placeholder="e.g. Tech Solutions Inc." required />
             )}
 
             {!isIntern && (
               <>
                 <div className="border-t border-[#f0f0f2] pt-4 mt-4">
-                  <p className="text-[0.8rem] font-semibold text-[#a0a3b1] uppercase tracking-wider mb-4">Security</p>
+                  <p className="text-[0.8rem] font-semibold text-[#a0a3b1] uppercase tracking-wider mb-4">{t('auth.security')}</p>
                 </div>
-                <Input label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} error={errors.password} required />
-                <Input label="Confirm Password" type="password" value={passwordConfirmation} onChange={(e) => setPasswordConfirmation(e.target.value)} error={errors.password_confirmation} required />
+                <Input label={t('auth.password')} type="password" value={password} onChange={(e) => setPassword(e.target.value)} error={errors.password} required />
+                <Input label={t('auth.confirmPassword')} type="password" value={passwordConfirmation} onChange={(e) => setPasswordConfirmation(e.target.value)} error={errors.password_confirmation} required />
               </>
             )}
 
@@ -216,16 +218,16 @@ export function RegisterPage() {
 
             <div className="flex gap-3 pt-3">
               <button type="button" onClick={handleBack} className="flex-1 py-[11px] rounded-[5px] border border-[#e2e4ea] text-[#2d2d3a] font-semibold text-[0.9rem] hover:bg-[#f9fafb] transition-colors">
-                Back
+                {t('auth.back')}
               </button>
               {isIntern ? (
                 <button type="button" onClick={handleNext} className="flex-1 py-[11px] rounded-[5px] bg-[#1e1e2d] text-white font-semibold text-[0.9rem] hover:bg-[#252a3e] transition-colors">
-                  Next
+                  {t('auth.next')}
                 </button>
               ) : (
                 <form onSubmit={handleSubmit} className="flex-1">
                   <Button type="submit" loading={loading} className="w-full py-[11px]">
-                    Create account
+                    {t('auth.createAccount')}
                   </Button>
                 </form>
               )}
@@ -233,9 +235,9 @@ export function RegisterPage() {
           </div>
 
           <p className="mt-6 text-center text-[0.84rem] text-[#a0a3b1]">
-            Already have an account?{' '}
+            {t('auth.alreadyHaveAccount')}{' '}
             <Link to="/login" className="text-[#48B6E8] hover:text-[#3a9fd4] font-semibold transition-colors">
-              Sign in
+              {t('auth.signIn')}
             </Link>
           </p>
         </div>
@@ -245,9 +247,9 @@ export function RegisterPage() {
       {step === 3 && isIntern && (
         <div className="bg-white rounded-[5px] w-full max-w-[480px] px-5 py-8 sm:px-10 sm:py-10" style={{ boxShadow: '0 2px 20px rgba(0,0,0,0.06)' }}>
           <div className="text-center mb-8">
-            <h1 className="text-[1.55rem] font-bold text-[#1e1e2d]">Security</h1>
+            <h1 className="text-[1.55rem] font-bold text-[#1e1e2d]">{t('auth.security')}</h1>
             <p className="mt-2 text-[0.88rem] text-[#a0a3b1]">
-              Set your password to secure your account.
+              {t('auth.setPassword')}
             </p>
           </div>
 
@@ -258,25 +260,25 @@ export function RegisterPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Input label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} error={errors.password} required />
-            <Input label="Confirm Password" type="password" value={passwordConfirmation} onChange={(e) => setPasswordConfirmation(e.target.value)} error={errors.password_confirmation} required />
+            <Input label={t('auth.password')} type="password" value={password} onChange={(e) => setPassword(e.target.value)} error={errors.password} required />
+            <Input label={t('auth.confirmPassword')} type="password" value={passwordConfirmation} onChange={(e) => setPasswordConfirmation(e.target.value)} error={errors.password_confirmation} required />
 
             <div className="pt-3">{dots}</div>
 
             <div className="flex gap-3 pt-3">
               <button type="button" onClick={handleBack} className="flex-1 py-[11px] rounded-[5px] border border-[#e2e4ea] text-[#2d2d3a] font-semibold text-[0.9rem] hover:bg-[#f9fafb] transition-colors">
-                Back
+                {t('auth.back')}
               </button>
               <Button type="submit" loading={loading} className="flex-1 py-[11px]">
-                Create account
+                {t('auth.createAccount')}
               </Button>
             </div>
           </form>
 
           <p className="mt-6 text-center text-[0.84rem] text-[#a0a3b1]">
-            Already have an account?{' '}
+            {t('auth.alreadyHaveAccount')}{' '}
             <Link to="/login" className="text-[#48B6E8] hover:text-[#3a9fd4] font-semibold transition-colors">
-              Sign in
+              {t('auth.signIn')}
             </Link>
           </p>
         </div>

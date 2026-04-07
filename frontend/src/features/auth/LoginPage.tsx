@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { login } from '../../api/auth';
 import { useAuthStore } from '../../stores/authStore';
 import { Input } from '../../components/ui/Input';
@@ -7,6 +8,7 @@ import { Button } from '../../components/ui/Button';
 import type { ApiError } from '../../types/api';
 
 export function LoginPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const setAuth = useAuthStore((s) => s.setAuth);
 
@@ -33,7 +35,7 @@ export function LoginPage() {
         }
         setErrors(flat);
       } else {
-        setErrors({ general: apiErr?.message || 'Login failed' });
+        setErrors({ general: apiErr?.message || t('auth.loginFailed') });
       }
     } finally {
       setLoading(false);
@@ -47,8 +49,8 @@ export function LoginPage() {
       <div className="flex-1 flex items-center justify-center px-4">
         <div className="bg-white rounded-[5px] border border-[#f0f0f0] p-6 sm:p-10 w-full max-w-[420px]" style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
           <div className="text-center mb-8">
-            <h1 className="text-[1.7rem] font-bold text-[#1e1b4b]">Sign in</h1>
-            <p className="mt-2 text-[0.92rem] text-[#9ca3af]">Sign in to your account</p>
+            <h1 className="text-[1.7rem] font-bold text-[#1e1b4b]">{t('auth.signIn')}</h1>
+            <p className="mt-2 text-[0.92rem] text-[#9ca3af]">{t('auth.signInToAccount')}</p>
           </div>
 
           {errors.general && (
@@ -59,7 +61,7 @@ export function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <Input
-              label="Email"
+              label={t('auth.email')}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -68,7 +70,7 @@ export function LoginPage() {
               autoFocus
             />
             <Input
-              label="Password"
+              label={t('auth.password')}
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -76,14 +78,14 @@ export function LoginPage() {
               required
             />
             <Button type="submit" loading={loading} className="w-full py-[11px]">
-              Sign in
+              {t('auth.signIn')}
             </Button>
           </form>
 
           <p className="mt-6 text-center text-[0.85rem] text-[#6b7280]">
-            Don't have an account?{' '}
+            {t('auth.noAccount')}{' '}
             <Link to="/register" className="text-[#3a9fd4] hover:text-[#3a9fd4] font-semibold transition-colors">
-              Register
+              {t('auth.register')}
             </Link>
           </p>
         </div>

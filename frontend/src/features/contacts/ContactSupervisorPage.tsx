@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Plus, Mail, MailOpen, Reply } from 'lucide-react';
 import { useContacts, useCreateContact, useReplyContact } from '../../hooks/useContacts';
 import { useUsers } from '../../hooks/useUsers';
@@ -12,6 +13,7 @@ import { formatDateTime } from '../../lib/formatDate';
 import type { SupervisorContact } from '../../types/ims';
 
 export function ContactSupervisorPage() {
+  const { t } = useTranslation();
   const [page, setPage] = useState(1);
   const [formOpen, setFormOpen] = useState(false);
   const [viewContact, setViewContact] = useState<SupervisorContact | null>(null);
@@ -38,12 +40,12 @@ export function ContactSupervisorPage() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-[1.1rem] sm:text-[1.35rem] font-bold text-[#1e1b4b]">Contact Supervisor</h1>
-          <p className="mt-1 text-[0.85rem] text-[#6b7280]">Messages between interns and supervisors.</p>
+          <h1 className="text-[1.1rem] sm:text-[1.35rem] font-bold text-[#1e1b4b]">{t('contacts.title')}</h1>
+          <p className="mt-1 text-[0.85rem] text-[#6b7280]">{t('contacts.subtitle')}</p>
         </div>
         <Button onClick={() => setFormOpen(true)} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
-          New Message
+          {t('contacts.newMessage')}
         </Button>
       </div>
 
@@ -71,11 +73,11 @@ export function ContactSupervisorPage() {
                       <span className={`text-[0.85rem] font-medium truncate ${contact.is_read ? 'text-[#374151]' : 'text-[#1e1b4b] font-semibold'}`}>
                         {contact.subject}
                       </span>
-                      {!contact.is_read && <Badge color="blue">New</Badge>}
-                      {contact.reply && <Badge color="green">Replied</Badge>}
+                      {!contact.is_read && <Badge color="blue">{t('contacts.new')}</Badge>}
+                      {contact.reply && <Badge color="green">{t('contacts.replied')}</Badge>}
                     </div>
                     <p className="text-[0.78rem] text-[#6b7280] truncate">
-                      From: {contact.user?.name || '-'} &middot; To: {contact.supervisor?.name || '-'}
+                      {t('contacts.from')}: {contact.user?.name || '-'} &middot; {t('contacts.to')}: {contact.supervisor?.name || '-'}
                     </p>
                   </div>
                   <span className="text-[0.72rem] text-[#9ca3af] shrink-0">
@@ -84,7 +86,7 @@ export function ContactSupervisorPage() {
                 </button>
               ))}
               {data?.data.length === 0 && (
-                <p className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">No messages found.</p>
+                <p className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">{t('contacts.noMessagesFound')}</p>
               )}
             </div>
 
@@ -102,9 +104,9 @@ export function ContactSupervisorPage() {
         {viewContact && (
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-[0.82rem] text-[#6b7280]">
-              <span>From: <strong className="text-[#374151]">{viewContact.user?.name}</strong></span>
+              <span>{t('contacts.from')}: <strong className="text-[#374151]">{viewContact.user?.name}</strong></span>
               <span>&middot;</span>
-              <span>To: <strong className="text-[#374151]">{viewContact.supervisor?.name}</strong></span>
+              <span>{t('contacts.to')}: <strong className="text-[#374151]">{viewContact.supervisor?.name}</strong></span>
             </div>
             <div className="bg-[#fafafa] rounded-[5px] p-4">
               <p className="text-[0.82rem] text-[#374151] whitespace-pre-wrap">{viewContact.message}</p>
@@ -112,7 +114,7 @@ export function ContactSupervisorPage() {
 
             {viewContact.reply && (
               <div>
-                <p className="text-[0.72rem] font-semibold text-[#9ca3af] uppercase mb-2">Reply</p>
+                <p className="text-[0.72rem] font-semibold text-[#9ca3af] uppercase mb-2">{t('contacts.reply')}</p>
                 <div className="bg-[#f0fdf4] rounded-[5px] p-4">
                   <p className="text-[0.82rem] text-[#374151] whitespace-pre-wrap">{viewContact.reply}</p>
                   {viewContact.replied_at && (
@@ -124,17 +126,17 @@ export function ContactSupervisorPage() {
 
             {!viewContact.reply && (
               <div>
-                <p className="text-[0.72rem] font-semibold text-[#9ca3af] uppercase mb-2">Reply</p>
+                <p className="text-[0.72rem] font-semibold text-[#9ca3af] uppercase mb-2">{t('contacts.reply')}</p>
                 <textarea
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
                   rows={4}
-                  placeholder="Type your reply..."
+                  placeholder={t('contacts.typeReply')}
                   className="block w-full rounded-[5px] border border-[#e0e0e0] px-[14px] py-[11px] text-[0.88rem] transition-all focus:outline-none focus:border-[#48B6E8] focus:ring-[3px] focus:ring-[rgba(72,182,232,0.08)] mb-3"
                 />
                 <Button onClick={handleReply} loading={replyMutation.isPending} disabled={!replyText.trim()}>
                   <Reply className="h-4 w-4 mr-2" />
-                  Send Reply
+                  {t('contacts.sendReply')}
                 </Button>
               </div>
             )}

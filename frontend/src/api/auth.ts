@@ -12,3 +12,9 @@ export const logout = () =>
 
 export const getMe = () =>
   client.get<{ data: User }>('/me').then((r) => r.data.data);
+
+export const verifyEmail = (code: string) =>
+  client.post('/verify-email', { code }).then((r) => r.data);
+
+export const resendCode = () =>
+  client.post('/resend-code').then((r) => r.data);

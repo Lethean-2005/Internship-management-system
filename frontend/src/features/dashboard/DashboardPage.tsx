@@ -14,12 +14,13 @@ import {
   Award,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useDashboardStats } from '../../hooks/useDashboard';
 import { useAuthStore } from '../../stores/authStore';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 
 interface StatCard {
-  label: string;
+  labelKey: string;
   key: string;
   icon: LucideIcon;
   color: string;
@@ -28,64 +29,64 @@ interface StatCard {
 
 // Top stat cards (first 4 shown in top row)
 const adminTopCards: StatCard[] = [
-  { label: 'Total Users', key: 'total_users', icon: Users, color: '#48B6E8', bgColor: '#eef8fd' },
-  { label: 'Total Interns', key: 'total_interns', icon: GraduationCap, color: '#22c55e', bgColor: '#f0fdf4' },
-  { label: 'Total Tutors', key: 'total_tutors', icon: BookOpen, color: '#a78bfa', bgColor: '#f5f3ff' },
-  { label: 'Total Supervisors', key: 'total_supervisors', icon: Briefcase, color: '#f59e0b', bgColor: '#fffbeb' },
+  { labelKey: 'dashboard.totalUsers', key: 'total_users', icon: Users, color: '#48B6E8', bgColor: '#eef8fd' },
+  { labelKey: 'dashboard.totalInterns', key: 'total_interns', icon: GraduationCap, color: '#22c55e', bgColor: '#f0fdf4' },
+  { labelKey: 'dashboard.totalTutors', key: 'total_tutors', icon: BookOpen, color: '#a78bfa', bgColor: '#f5f3ff' },
+  { labelKey: 'dashboard.totalSupervisors', key: 'total_supervisors', icon: Briefcase, color: '#f59e0b', bgColor: '#fffbeb' },
 ];
 
 const adminBottomCards: StatCard[] = [
-  { label: 'Pending Worklogs', key: 'pending_worklogs', icon: ClipboardList, color: '#fb923c', bgColor: '#fff7ed' },
-  { label: 'Pending Reports', key: 'pending_reports', icon: FileText, color: '#ef4444', bgColor: '#fef2f2' },
-  { label: 'Pending Slides', key: 'pending_slides', icon: Presentation, color: '#8b5cf6', bgColor: '#f5f3ff' },
-  { label: 'Upcoming Interviews', key: 'upcoming_interviews', icon: CalendarCheck, color: '#0d9488', bgColor: '#f0fdfa' },
+  { labelKey: 'dashboard.pendingWorklogs', key: 'pending_worklogs', icon: ClipboardList, color: '#fb923c', bgColor: '#fff7ed' },
+  { labelKey: 'dashboard.pendingReports', key: 'pending_reports', icon: FileText, color: '#ef4444', bgColor: '#fef2f2' },
+  { labelKey: 'dashboard.pendingSlides', key: 'pending_slides', icon: Presentation, color: '#8b5cf6', bgColor: '#f5f3ff' },
+  { labelKey: 'dashboard.upcomingInterviews', key: 'upcoming_interviews', icon: CalendarCheck, color: '#0d9488', bgColor: '#f0fdfa' },
 ];
 
 const tutorTopCards: StatCard[] = [
-  { label: 'My Interns', key: 'my_interns', icon: GraduationCap, color: '#48B6E8', bgColor: '#eef8fd' },
-  { label: 'Pending Worklogs', key: 'pending_worklogs', icon: ClipboardList, color: '#fb923c', bgColor: '#fff7ed' },
-  { label: 'Pending Reports', key: 'pending_reports', icon: FileText, color: '#ef4444', bgColor: '#fef2f2' },
-  { label: 'Pending Slides', key: 'pending_slides', icon: Presentation, color: '#8b5cf6', bgColor: '#f5f3ff' },
+  { labelKey: 'dashboard.myInterns', key: 'my_interns', icon: GraduationCap, color: '#48B6E8', bgColor: '#eef8fd' },
+  { labelKey: 'dashboard.pendingWorklogs', key: 'pending_worklogs', icon: ClipboardList, color: '#fb923c', bgColor: '#fff7ed' },
+  { labelKey: 'dashboard.pendingReports', key: 'pending_reports', icon: FileText, color: '#ef4444', bgColor: '#fef2f2' },
+  { labelKey: 'dashboard.pendingSlides', key: 'pending_slides', icon: Presentation, color: '#8b5cf6', bgColor: '#f5f3ff' },
 ];
 
 const tutorBottomCards: StatCard[] = [
-  { label: 'Total Worklogs', key: 'total_worklogs', icon: TrendingUp, color: '#22c55e', bgColor: '#f0fdf4' },
-  { label: 'Approved Reports', key: 'approved_reports', icon: CheckCircle, color: '#0d9488', bgColor: '#f0fdfa' },
-  { label: 'Approved Slides', key: 'approved_slides', icon: Award, color: '#f59e0b', bgColor: '#fffbeb' },
+  { labelKey: 'dashboard.totalWorklogs', key: 'total_worklogs', icon: TrendingUp, color: '#22c55e', bgColor: '#f0fdf4' },
+  { labelKey: 'dashboard.approvedReports', key: 'approved_reports', icon: CheckCircle, color: '#0d9488', bgColor: '#f0fdfa' },
+  { labelKey: 'dashboard.approvedSlides', key: 'approved_slides', icon: Award, color: '#f59e0b', bgColor: '#fffbeb' },
 ];
 
 const supervisorTopCards: StatCard[] = [
-  { label: 'Total Interns', key: 'total_interns', icon: GraduationCap, color: '#48B6E8', bgColor: '#eef8fd' },
-  { label: 'Pending Worklogs', key: 'pending_worklogs', icon: ClipboardList, color: '#fb923c', bgColor: '#fff7ed' },
-  { label: 'Pending Reports', key: 'pending_reports', icon: FileText, color: '#ef4444', bgColor: '#fef2f2' },
-  { label: 'Pending Slides', key: 'pending_slides', icon: Presentation, color: '#8b5cf6', bgColor: '#f5f3ff' },
+  { labelKey: 'dashboard.totalInterns', key: 'total_interns', icon: GraduationCap, color: '#48B6E8', bgColor: '#eef8fd' },
+  { labelKey: 'dashboard.pendingWorklogs', key: 'pending_worklogs', icon: ClipboardList, color: '#fb923c', bgColor: '#fff7ed' },
+  { labelKey: 'dashboard.pendingReports', key: 'pending_reports', icon: FileText, color: '#ef4444', bgColor: '#fef2f2' },
+  { labelKey: 'dashboard.pendingSlides', key: 'pending_slides', icon: Presentation, color: '#8b5cf6', bgColor: '#f5f3ff' },
 ];
 
 const supervisorBottomCards: StatCard[] = [
-  { label: 'Upcoming Interviews', key: 'upcoming_interviews', icon: CalendarCheck, color: '#0d9488', bgColor: '#f0fdfa' },
+  { labelKey: 'dashboard.upcomingInterviews', key: 'upcoming_interviews', icon: CalendarCheck, color: '#0d9488', bgColor: '#f0fdfa' },
 ];
 
 const internTopCards: StatCard[] = [
-  { label: 'My Worklogs', key: 'my_worklogs', icon: ClipboardList, color: '#48B6E8', bgColor: '#eef8fd' },
-  { label: 'Submitted', key: 'submitted_worklogs', icon: Send, color: '#f59e0b', bgColor: '#fffbeb' },
-  { label: 'Approved', key: 'approved_worklogs', icon: CheckCircle, color: '#22c55e', bgColor: '#f0fdf4' },
-  { label: 'My Interviews', key: 'my_interviews', icon: CalendarCheck, color: '#0d9488', bgColor: '#f0fdfa' },
+  { labelKey: 'dashboard.myWorklogs', key: 'my_worklogs', icon: ClipboardList, color: '#48B6E8', bgColor: '#eef8fd' },
+  { labelKey: 'dashboard.submitted', key: 'submitted_worklogs', icon: Send, color: '#f59e0b', bgColor: '#fffbeb' },
+  { labelKey: 'dashboard.approved', key: 'approved_worklogs', icon: CheckCircle, color: '#22c55e', bgColor: '#f0fdf4' },
+  { labelKey: 'dashboard.myInterviews', key: 'my_interviews', icon: CalendarCheck, color: '#0d9488', bgColor: '#f0fdfa' },
 ];
 
 const internBottomCards: StatCard[] = [
-  { label: 'My Reports', key: 'my_reports', icon: FileText, color: '#fb923c', bgColor: '#fff7ed' },
-  { label: 'My Slides', key: 'my_slides', icon: Presentation, color: '#8b5cf6', bgColor: '#f5f3ff' },
-  { label: 'Passed Interviews', key: 'passed_interviews', icon: Award, color: '#ef4444', bgColor: '#fef2f2' },
+  { labelKey: 'dashboard.myReports', key: 'my_reports', icon: FileText, color: '#fb923c', bgColor: '#fff7ed' },
+  { labelKey: 'dashboard.mySlides', key: 'my_slides', icon: Presentation, color: '#8b5cf6', bgColor: '#f5f3ff' },
+  { labelKey: 'dashboard.passedInterviews', key: 'passed_interviews', icon: Award, color: '#ef4444', bgColor: '#fef2f2' },
 ];
 
 const roleTopMap: Record<string, StatCard[]> = { admin: adminTopCards, tutor: tutorTopCards, supervisor: supervisorTopCards, intern: internTopCards };
 const roleBottomMap: Record<string, StatCard[]> = { admin: adminBottomCards, tutor: tutorBottomCards, supervisor: supervisorBottomCards, intern: internBottomCards };
 
 const greetingMap: Record<string, string> = {
-  admin: 'System overview and management.',
-  tutor: 'Overview of your assigned interns.',
-  supervisor: 'Overview of internship activities.',
-  intern: 'Your internship progress overview.',
+  admin: 'dashboard.adminGreeting',
+  tutor: 'dashboard.tutorGreeting',
+  supervisor: 'dashboard.supervisorGreeting',
+  intern: 'dashboard.internGreeting',
 };
 
 function getValue(stats: any, key: string): number {
@@ -93,6 +94,7 @@ function getValue(stats: any, key: string): number {
 }
 
 export function DashboardPage() {
+  const { t } = useTranslation();
   const { data: stats, isLoading } = useDashboardStats();
   const user = useAuthStore((s) => s.user);
   const roleSlug = user?.role?.slug || '';
@@ -103,10 +105,10 @@ export function DashboardPage() {
     <div>
       <div className="mb-8">
         <h1 className="text-[1.1rem] sm:text-[1.35rem] font-bold text-[#1e1b4b]">
-          Welcome, {user?.name || 'User'}
+          {t('dashboard.welcome', { name: user?.name || 'User' })}
         </h1>
         <p className="mt-1 text-[0.88rem] text-[#6b7280]">
-          {greetingMap[roleSlug] || 'Overview of the Internship Management System.'}
+          {t(greetingMap[roleSlug] || 'dashboard.defaultGreeting')}
         </p>
       </div>
 
@@ -122,7 +124,7 @@ export function DashboardPage() {
                   <div className="w-9 h-9 rounded-[5px] flex items-center justify-center" style={{ backgroundColor: card.bgColor }}>
                     <card.icon className="w-[18px] h-[18px]" style={{ color: card.color }} />
                   </div>
-                  <p className="text-[0.75rem] sm:text-[0.8rem] text-[#6b7280] font-medium leading-tight">{card.label}</p>
+                  <p className="text-[0.75rem] sm:text-[0.8rem] text-[#6b7280] font-medium leading-tight">{t(card.labelKey)}</p>
                 </div>
                 <p className="text-[1.5rem] sm:text-[1.75rem] font-extrabold text-[#111827] leading-none">
                   {getValue(stats, card.key).toLocaleString()}
@@ -138,7 +140,7 @@ export function DashboardPage() {
               <div className="bg-white rounded-[5px] border border-[#e5e7eb] p-5">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-[0.95rem] font-bold text-[#111827]">
-                    {roleSlug === 'intern' ? 'My Progress' : 'Pending Review'}
+                    {roleSlug === 'intern' ? t('dashboard.myProgress') : t('dashboard.pendingReview')}
                   </h2>
                   <Clock className="w-4 h-4 text-[#9ca3af]" />
                 </div>
@@ -151,7 +153,7 @@ export function DashboardPage() {
                           <div className="w-8 h-8 rounded-[5px] flex items-center justify-center" style={{ backgroundColor: card.bgColor }}>
                             <card.icon className="w-4 h-4" style={{ color: card.color }} />
                           </div>
-                          <span className="text-[0.82rem] text-[#374151] font-medium">{card.label}</span>
+                          <span className="text-[0.82rem] text-[#374151] font-medium">{t(card.labelKey)}</span>
                         </div>
                         <span className="text-[1.1rem] font-bold text-[#111827]">{value.toLocaleString()}</span>
                       </div>
@@ -165,7 +167,7 @@ export function DashboardPage() {
                 <div className="bg-white rounded-[5px] border border-[#e5e7eb] p-5">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-[0.95rem] font-bold text-[#111827]">
-                      {roleSlug === 'intern' ? 'Submissions' : 'Activity Summary'}
+                      {roleSlug === 'intern' ? t('dashboard.submissions') : t('dashboard.activitySummary')}
                     </h2>
                     <TrendingUp className="w-4 h-4 text-[#9ca3af]" />
                   </div>
@@ -181,7 +183,7 @@ export function DashboardPage() {
                               <div className="w-8 h-8 rounded-[5px] flex items-center justify-center" style={{ backgroundColor: card.bgColor }}>
                                 <card.icon className="w-4 h-4" style={{ color: card.color }} />
                               </div>
-                              <span className="text-[0.82rem] text-[#374151] font-medium">{card.label}</span>
+                              <span className="text-[0.82rem] text-[#374151] font-medium">{t(card.labelKey)}</span>
                             </div>
                             <span className="text-[0.82rem] font-bold text-[#111827]">{value.toLocaleString()}</span>
                           </div>

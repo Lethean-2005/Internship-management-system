@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Plus, Pencil, Trash2, Building2 } from 'lucide-react';
 import { useCompanies, useCreateCompany, useUpdateCompany, useDeleteCompany } from '../../hooks/useCompanies';
 import { useInternships, useCreateInternship, useDeleteInternship } from '../../hooks/useInternships';
@@ -15,6 +16,7 @@ import { formatDate } from '../../lib/formatDate';
 import type { Company } from '../../types/ims';
 
 export function CompanyInternshipPage() {
+  const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const [intPage, setIntPage] = useState(1);
   const [companyFormOpen, setCompanyFormOpen] = useState(false);
@@ -80,17 +82,17 @@ export function CompanyInternshipPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-[1.35rem] font-bold text-[#1e1b4b]">Company & Internship</h1>
-        <p className="mt-1 text-[0.85rem] text-[#6b7280]">Manage companies and their internship programs.</p>
+        <h1 className="text-[1.35rem] font-bold text-[#1e1b4b]">{t('companies.title')}</h1>
+        <p className="mt-1 text-[0.85rem] text-[#6b7280]">{t('companies.subtitle')}</p>
       </div>
 
       {/* Companies Section */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-[1.1rem] font-semibold text-[#1e1b4b]">Companies</h2>
+          <h2 className="text-[1.1rem] font-semibold text-[#1e1b4b]">{t('companies.companies')}</h2>
           <Button onClick={() => { setEditCompany(null); setCompanyFormOpen(true); }}>
             <Plus className="h-4 w-4 mr-1" />
-            Add Company
+            {t('companies.addCompany')}
           </Button>
         </div>
 
@@ -99,7 +101,7 @@ export function CompanyInternshipPage() {
         ) : (
           <>
             <div className="mb-4">
-              <SearchInput value={search} onChange={setSearch} placeholder="Search companies..." className="max-w-xs" />
+              <SearchInput value={search} onChange={setSearch} placeholder={t('companies.searchCompanies')} className="max-w-xs" />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {companiesData?.data.map((company) => (
@@ -124,19 +126,19 @@ export function CompanyInternshipPage() {
                     </div>
                   </div>
                   <h3 className="text-[0.88rem] font-semibold text-[#1e1b4b] mb-1">{company.name}</h3>
-                  <p className="text-[0.78rem] text-[#6b7280] mb-2">{company.industry || 'No industry'}</p>
+                  <p className="text-[0.78rem] text-[#6b7280] mb-2">{company.industry || t('companies.noIndustry')}</p>
                   <div className="flex items-center justify-between">
                     <Badge color={company.is_active ? 'green' : 'gray'}>
-                      {company.is_active ? 'Active' : 'Inactive'}
+                      {company.is_active ? t('users.active') : t('users.inactive')}
                     </Badge>
                     <span className="text-[0.72rem] text-[#9ca3af]">
-                      {company.internships_count ?? 0} internships
+                      {company.internships_count ?? 0} {t('companies.internships')}
                     </span>
                   </div>
                 </div>
               ))}
               {companiesData?.data.length === 0 && (
-                <p className="col-span-full text-center py-8 text-[0.85rem] text-[#9ca3af]">No companies found.</p>
+                <p className="col-span-full text-center py-8 text-[0.85rem] text-[#9ca3af]">{t('companies.noCompaniesFound')}</p>
               )}
             </div>
           </>
@@ -146,10 +148,10 @@ export function CompanyInternshipPage() {
       {/* Internships Section */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-[1.1rem] font-semibold text-[#1e1b4b]">Internships</h2>
+          <h2 className="text-[1.1rem] font-semibold text-[#1e1b4b]">{t('companies.internshipsList')}</h2>
           <Button onClick={() => setInternshipFormOpen(true)}>
             <Plus className="h-4 w-4 mr-1" />
-            Add Internship
+            {t('companies.addInternship')}
           </Button>
         </div>
 
@@ -162,13 +164,13 @@ export function CompanyInternshipPage() {
                 <table className="w-full">
                   <thead>
                     <tr className="bg-[#fafafa]">
-                      <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Title</th>
-                      <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Company</th>
-                      <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Dates</th>
-                      <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Positions</th>
-                      <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Status</th>
-                      <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Applicants</th>
-                      <th className="text-right px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Actions</th>
+                      <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('common.title')}</th>
+                      <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('users.company')}</th>
+                      <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('companies.dates')}</th>
+                      <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('companies.positions')}</th>
+                      <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('common.status')}</th>
+                      <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('companies.applicants')}</th>
+                      <th className="text-right px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('users.actions')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -196,7 +198,7 @@ export function CompanyInternshipPage() {
                     ))}
                     {internshipsData?.data.length === 0 && (
                       <tr>
-                        <td colSpan={7} className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">No internships found.</td>
+                        <td colSpan={7} className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">{t('companies.noInternshipsFound')}</td>
                       </tr>
                     )}
                   </tbody>

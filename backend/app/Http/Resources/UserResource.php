@@ -28,6 +28,7 @@ class UserResource extends JsonResource
             'supervisor_name' => $this->supervisor_name,
             'generation' => $this->generation,
             'role' => new RoleResource($this->whenLoaded('role')),
+            'email_verified_at' => $this->email_verified_at,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

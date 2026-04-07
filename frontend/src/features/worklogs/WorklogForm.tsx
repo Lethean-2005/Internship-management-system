@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {} from 'lucide-react';
 import { Modal } from '../../components/ui/Modal';
 import { Input } from '../../components/ui/Input';
@@ -65,6 +66,7 @@ interface Props {
 }
 
 export function WorklogForm({ open, onClose, onSubmit, internships, loading, mode = 'create', worklog, onReview, reviewLoading, nextWeekNumber }: Props) {
+  const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const isIntern = user?.role?.slug === 'intern';
   const ro = mode === 'view' || mode === 'review';
@@ -162,11 +164,11 @@ export function WorklogForm({ open, onClose, onSubmit, internships, loading, mod
   const prevent = (e: React.KeyboardEvent) => { if (e.key === 'Enter' && e.target instanceof HTMLInputElement) e.preventDefault(); };
   const internUser: any = isIntern ? user : worklog?.user;
   const intTitle = internUser?.position || internships.find(i => i.id.toString() === internshipId)?.title || worklog?.internship?.title || '';
-  const intOpts = [{ value: '', label: 'Select Internship' }, ...internships.map(i => ({ value: i.id.toString(), label: i.title }))];
+  const intOpts = [{ value: '', label: t('worklogs.selectInternship') }, ...internships.map(i => ({ value: i.id.toString(), label: i.title }))];
   const grow = (el: HTMLTextAreaElement) => { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; };
   const taCls = `w-full px-2 py-[6px] text-[0.78rem] text-[#374151] bg-transparent border-0 focus:outline-none focus:bg-[#f0f9ff] transition-colors resize-none overflow-hidden leading-[1.4] ${ro ? 'cursor-default' : ''}`;
   const roBox = "rounded-[5px] border border-[#e0e0e0] px-[14px] py-[11px] text-[0.88rem] text-[#374151] bg-[#f9fafb]";
-  const title = mode === 'review' ? `Review Week ${worklog?.week_number || ''} Worklog` : mode === 'view' ? `Week ${worklog?.week_number || ''} Worklog` : mode === 'edit' ? `Edit Week ${worklog?.week_number || ''} Worklog` : 'Weekly Work Log';
+  const title = mode === 'review' ? t('worklogs.reviewWeek', { num: worklog?.week_number || '' }) : mode === 'view' ? t('worklogs.viewWeek', { num: worklog?.week_number || '' }) : mode === 'edit' ? t('worklogs.editWeek', { num: worklog?.week_number || '' }) : t('worklogs.weeklyWorkLog');
   const grouped = groupByDate(rows);
 
   return (
@@ -184,29 +186,29 @@ export function WorklogForm({ open, onClose, onSubmit, internships, loading, mod
           const info = isIntern ? user : worklog?.user;
           return info && (
             <div className="flex flex-wrap items-center gap-x-6 gap-y-1 bg-[#f8f9fb] rounded-[5px] px-4 py-3 text-[0.8rem] text-[#6b7280]">
-              <span><strong className="text-[#374151]">Intern:</strong> {info.name}</span>
-              {(info as any).company_name && <span><strong className="text-[#374151]">Company:</strong> {(info as any).company_name}</span>}
-              {(info as any).position && <span><strong className="text-[#374151]">Position:</strong> {(info as any).position}</span>}
-              {(info as any).generation && <span><strong className="text-[#374151]">Generation:</strong> Gen {(info as any).generation}</span>}
+              <span><strong className="text-[#374151]">{t('worklogs.intern') + ':'}</strong> {info.name}</span>
+              {(info as any).company_name && <span><strong className="text-[#374151]">{t('users.company') + ':'}</strong> {(info as any).company_name}</span>}
+              {(info as any).position && <span><strong className="text-[#374151]">{t('users.position') + ':'}</strong> {(info as any).position}</span>}
+              {(info as any).generation && <span><strong className="text-[#374151]">{t('auth.generation') + ':'}</strong> Gen {(info as any).generation}</span>}
             </div>
           );
         })()}
 
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
           {ro || isIntern ? (
-            <div><label className="block text-[0.85rem] font-medium text-[#374151] mb-1">Position</label><div className={`${roBox} truncate`} title={intTitle}>{intTitle || '-'}</div></div>
+            <div><label className="block text-[0.85rem] font-medium text-[#374151] mb-1">{t('worklogs.position')}</label><div className={`${roBox} truncate`} title={intTitle}>{intTitle || '-'}</div></div>
           ) : (
-            <Select label="Internship" options={intOpts} value={internshipId} onChange={e => setInternshipId(e.target.value)} required />
+            <Select label={t('config.internship')} options={intOpts} value={internshipId} onChange={e => setInternshipId(e.target.value)} required />
           )}
-          {weekLocked ? <div><label className="block text-[0.85rem] font-medium text-[#374151] mb-1">Week #</label><div className={roBox}>{weekNum}</div></div> : <Input label="Week #" type="number" value={weekNum} onChange={e => setWeekNum(e.target.value)} required placeholder="1" />}
-          {headerLocked ? <div><label className="block text-[0.85rem] font-medium text-[#374151] mb-1">Start Date</label><div className={roBox}>{startDate ? fmtDay(startDate) : '-'}</div></div> : <DatePicker label="Start Date" value={startDate} onChange={setStartDate} required />}
-          {headerLocked ? <div><label className="block text-[0.85rem] font-medium text-[#374151] mb-1">End Date</label><div className={roBox}>{endDate ? fmtDay(endDate) : '-'}</div></div> : <DatePicker label="End Date" value={endDate} onChange={setEndDate} required />}
-          {headerLocked ? <div><label className="block text-[0.85rem] font-medium text-[#374151] mb-1">Hours</label><div className={roBox}>{hours}h</div></div> : <Input label="Hours" type="number" value={hours} onChange={e => setHours(e.target.value)} placeholder="40" />}
+          {weekLocked ? <div><label className="block text-[0.85rem] font-medium text-[#374151] mb-1">{t('worklogs.weekNum')}</label><div className={roBox}>{weekNum}</div></div> : <Input label={t('worklogs.weekNum')} type="number" value={weekNum} onChange={e => setWeekNum(e.target.value)} required placeholder="1" />}
+          {headerLocked ? <div><label className="block text-[0.85rem] font-medium text-[#374151] mb-1">{t('worklogs.startDate')}</label><div className={roBox}>{startDate ? fmtDay(startDate) : '-'}</div></div> : <DatePicker label={t('worklogs.startDate')} value={startDate} onChange={setStartDate} required />}
+          {headerLocked ? <div><label className="block text-[0.85rem] font-medium text-[#374151] mb-1">{t('worklogs.endDate')}</label><div className={roBox}>{endDate ? fmtDay(endDate) : '-'}</div></div> : <DatePicker label={t('worklogs.endDate')} value={endDate} onChange={setEndDate} required />}
+          {headerLocked ? <div><label className="block text-[0.85rem] font-medium text-[#374151] mb-1">{t('worklogs.hours')}</label><div className={roBox}>{hours}h</div></div> : <Input label={t('worklogs.hours')} type="number" value={hours} onChange={e => setHours(e.target.value)} placeholder="40" />}
         </div>
 
         {rows.length > 0 && (
           <div className="border border-[#e5e7eb] rounded-[5px] overflow-hidden">
-            <div className="bg-[#1e1b4b] text-white text-[0.78rem] font-semibold text-center py-2">INTERNSHIP WEEKLY WORK LOG</div>
+            <div className="bg-[#1e1b4b] text-white text-[0.78rem] font-semibold text-center py-2">{t('worklogs.internshipWeeklyLog')}</div>
 
             {/* Desktop table */}
             <div className="hidden md:block overflow-x-auto">
@@ -218,7 +220,7 @@ export function WorklogForm({ open, onClose, onSubmit, internships, loading, mod
                 </colgroup>
                 <thead>
                   <tr className="bg-[#fdf6ec]">
-                    {['Date', 'Time', 'Work Activities', 'Difficulties/Issues', 'Solutions', 'Comment'].map((h, i) => (
+                    {[t('worklogs.date'), t('worklogs.time'), t('worklogs.workActivities'), t('worklogs.difficulties'), t('worklogs.solutions'), t('worklogs.comment')].map((h, i) => (
                       <th key={h} className={`text-left px-2 py-2.5 text-[0.72rem] font-bold text-[#374151] border-b border-[#e5e7eb] ${i < 5 ? 'border-r' : ''}`}>{h}</th>
                     ))}
                   </tr>
@@ -266,19 +268,19 @@ export function WorklogForm({ open, onClose, onSubmit, internships, loading, mod
                         )}
                       </div>
                       <div>
-                        <label className="block text-[0.72rem] font-semibold text-[#9ca3af] uppercase mb-1">Work Activities</label>
+                        <label className="block text-[0.72rem] font-semibold text-[#9ca3af] uppercase mb-1">{t('worklogs.workActivities')}</label>
                         <textarea value={row.activities} onChange={e => updateRow(idx, 'activities', e.target.value)} readOnly={ro} rows={2} className="w-full rounded-[5px] border border-[#e0e0e0] px-3 py-2 text-[0.82rem] focus:outline-none focus:border-[#48B6E8] resize-none" />
                       </div>
                       <div>
-                        <label className="block text-[0.72rem] font-semibold text-[#9ca3af] uppercase mb-1">Difficulties/Issues</label>
+                        <label className="block text-[0.72rem] font-semibold text-[#9ca3af] uppercase mb-1">{t('worklogs.difficulties')}</label>
                         <textarea value={row.difficulties} onChange={e => updateRow(idx, 'difficulties', e.target.value)} readOnly={ro} rows={2} className="w-full rounded-[5px] border border-[#e0e0e0] px-3 py-2 text-[0.82rem] focus:outline-none focus:border-[#48B6E8] resize-none" />
                       </div>
                       <div>
-                        <label className="block text-[0.72rem] font-semibold text-[#9ca3af] uppercase mb-1">Solutions</label>
+                        <label className="block text-[0.72rem] font-semibold text-[#9ca3af] uppercase mb-1">{t('worklogs.solutions')}</label>
                         <textarea value={row.solutions} onChange={e => updateRow(idx, 'solutions', e.target.value)} readOnly={ro} rows={2} className="w-full rounded-[5px] border border-[#e0e0e0] px-3 py-2 text-[0.82rem] focus:outline-none focus:border-[#48B6E8] resize-none" />
                       </div>
                       <div>
-                        <label className="block text-[0.72rem] font-semibold text-[#9ca3af] uppercase mb-1">Comment</label>
+                        <label className="block text-[0.72rem] font-semibold text-[#9ca3af] uppercase mb-1">{t('worklogs.comment')}</label>
                         <textarea value={row.comment} onChange={e => updateRow(idx, 'comment', e.target.value)} readOnly={ro} rows={2} className="w-full rounded-[5px] border border-[#e0e0e0] px-3 py-2 text-[0.82rem] focus:outline-none focus:border-[#48B6E8] resize-none" />
                       </div>
                     </div>
@@ -290,14 +292,14 @@ export function WorklogForm({ open, onClose, onSubmit, internships, loading, mod
         )}
 
         <div>
-          <label className="block text-[0.85rem] font-medium text-[#48B6E8] mb-1">Topic to be discussed with Tutor:</label>
+          <label className="block text-[0.85rem] font-medium text-[#48B6E8] mb-1">{t('worklogs.topicsWithTutor')}</label>
           {ro ? <div className={`${roBox} min-h-[60px] whitespace-pre-wrap`}>{topics || '\u00A0'}</div> : (
             <textarea value={topics} onChange={e => setTopics(e.target.value)} rows={3} className="block w-full rounded-[5px] border border-[#e0e0e0] px-[14px] py-[11px] text-[0.85rem] transition-all focus:outline-none focus:border-[#48B6E8] focus:ring-[3px] focus:ring-[rgba(72,182,232,0.08)]" placeholder={"1. Topic one\n2. Topic two"} />
           )}
         </div>
 
         <div>
-          <label className="block text-[0.85rem] font-medium text-[#dc2626] mb-1">Reflections for this week:</label>
+          <label className="block text-[0.85rem] font-medium text-[#dc2626] mb-1">{t('worklogs.reflections')}</label>
           {ro ? <div className={`${roBox} min-h-[60px] whitespace-pre-wrap`}>{reflections || '\u00A0'}</div> : (
             <textarea value={reflections} onChange={e => setReflections(e.target.value)} rows={3} className="block w-full rounded-[5px] border border-[#e0e0e0] px-[14px] py-[11px] text-[0.85rem] transition-all focus:outline-none focus:border-[#48B6E8] focus:ring-[3px] focus:ring-[rgba(72,182,232,0.08)]" placeholder="Your reflections and plans for next week..." />
           )}
@@ -306,7 +308,7 @@ export function WorklogForm({ open, onClose, onSubmit, internships, loading, mod
         {worklog?.feedback && mode !== 'review' && (
           <div className={worklog.status === 'rejected' ? 'bg-[#fef2f2] border border-[#fecaca] rounded-[5px] p-4' : ''}>
             <label className={`block text-[0.85rem] font-medium mb-1 ${worklog.status === 'rejected' ? 'text-[#dc2626]' : 'text-[#374151]'}`}>
-              {worklog.status === 'rejected' ? 'Rejection Reason:' : 'Reviewer Feedback:'}
+              {worklog.status === 'rejected' ? t('worklogs.rejectionReason') : t('worklogs.reviewerFeedback')}
             </label>
             <p className="text-[0.85rem] text-[#374151] whitespace-pre-wrap">{worklog.feedback}</p>
           </div>
@@ -314,32 +316,32 @@ export function WorklogForm({ open, onClose, onSubmit, internships, loading, mod
 
         {mode === 'review' && (
           <div className="bg-[#f8f9fb] rounded-[5px] p-5 space-y-3 border border-[#e5e7eb]">
-            <label className="block text-[0.85rem] font-semibold text-[#1e1b4b]">Tutor Review</label>
+            <label className="block text-[0.85rem] font-semibold text-[#1e1b4b]">{t('worklogs.tutorReview')}</label>
             <textarea
               value={feedback}
               onChange={e => setFeedback(e.target.value)}
               rows={3}
               className="block w-full rounded-[5px] border border-[#e0e0e0] px-[14px] py-[11px] text-[0.85rem] transition-all focus:outline-none focus:border-[#48B6E8] focus:ring-[3px] focus:ring-[rgba(72,182,232,0.08)] bg-white"
-              placeholder="Write your feedback or comment here (optional)..."
+              placeholder={t('worklogs.feedbackPlaceholder')}
             />
             <div className="flex justify-end gap-3">
-              <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
-              <Button type="button" variant="danger" loading={reviewLoading} disabled={!feedback.trim()} onClick={() => onReview?.('rejected', feedback)}>Reject</Button>
-              <Button type="button" loading={reviewLoading} onClick={() => onReview?.('reviewed', feedback || null)}>Reviewed</Button>
+              <Button type="button" variant="secondary" onClick={onClose}>{t('common.cancel')}</Button>
+              <Button type="button" variant="danger" loading={reviewLoading} disabled={!feedback.trim()} onClick={() => onReview?.('rejected', feedback)}>{t('worklogs.reject')}</Button>
+              <Button type="button" loading={reviewLoading} onClick={() => onReview?.('reviewed', feedback || null)}>{t('worklogs.reviewed')}</Button>
             </div>
-            {!feedback.trim() && <p className="text-[0.75rem] text-[#dc2626] text-right">* Reason is required to reject</p>}
+            {!feedback.trim() && <p className="text-[0.75rem] text-[#dc2626] text-right">{t('worklogs.reasonRequired')}</p>}
           </div>
         )}
 
         {mode !== 'review' && (
           <div className="flex justify-end gap-3 pt-2">
-            <Button type="button" variant="secondary" onClick={onClose}>{ro ? 'Close' : 'Cancel'}</Button>
+            <Button type="button" variant="secondary" onClick={onClose}>{ro ? t('worklogs.close') : t('common.cancel')}</Button>
             {mode === 'create' && <>
-              <Button type="button" variant="secondary" disabled={!internshipId || !weekNum || !startDate || !endDate} loading={loading} onClick={save}>Save as Draft</Button>
-              <Button type="button" disabled={!internshipId || !weekNum || !startDate || !endDate} loading={loading} onClick={save}>Create Worklog</Button>
+              <Button type="button" variant="secondary" disabled={!internshipId || !weekNum || !startDate || !endDate} loading={loading} onClick={save}>{t('worklogs.saveAsDraft')}</Button>
+              <Button type="button" disabled={!internshipId || !weekNum || !startDate || !endDate} loading={loading} onClick={save}>{t('worklogs.createWorklog')}</Button>
             </>}
             {mode === 'edit' && (
-              <Button type="button" loading={loading} onClick={save}>Save Changes</Button>
+              <Button type="button" loading={loading} onClick={save}>{t('config.saveChanges')}</Button>
             )}
           </div>
         )}

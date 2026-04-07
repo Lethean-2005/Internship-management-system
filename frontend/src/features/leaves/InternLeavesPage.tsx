@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CalendarOff, Plus, Trash2, CheckCircle, XCircle, List, Clock, AlertTriangle, Heart, HelpCircle } from 'lucide-react';
 import { useInternLeaves, useCreateLeave, useReviewLeave, useDeleteLeave } from '../../hooks/useInternLeaves';
 import { useAuthStore } from '../../stores/authStore';
@@ -14,24 +15,10 @@ import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { EmptyState } from '../../components/ui/EmptyState';
 import type { InternLeave } from '../../types/ims';
 
-const statusFilterOptions = [
-  { value: '', label: 'All Status', icon: List },
-  { value: 'pending', label: 'Pending', icon: Clock },
-  { value: 'approved', label: 'Approved', icon: CheckCircle },
-  { value: 'rejected', label: 'Rejected', icon: XCircle },
-];
-
 const STATUS_COLOR: Record<string, string> = {
   pending: 'warning',
   approved: 'green',
   rejected: 'red',
-};
-
-const TYPE_LABELS: Record<string, string> = {
-  personal: 'Personal',
-  sick: 'Sick Leave',
-  emergency: 'Emergency',
-  other: 'Other',
 };
 
 const TYPE_ICONS: Record<string, typeof CalendarOff> = {
@@ -51,6 +38,7 @@ function dayCount(start: string, end: string) {
 }
 
 export default function InternLeavesPage() {
+  const { t } = useTranslation();
   const { user } = useAuthStore();
   const isIntern = user?.role?.slug === 'intern';
   const canReview = ['admin', 'tutor', 'supervisor'].includes(user?.role?.slug || '');
@@ -66,6 +54,20 @@ export default function InternLeavesPage() {
   const createMutation = useCreateLeave();
   const reviewMutation = useReviewLeave();
   const deleteMutation = useDeleteLeave();
+
+  const statusFilterOptions = [
+    { value: '', label: t('leaves.allStatus'), icon: List },
+    { value: 'pending', label: t('leaves.pending'), icon: Clock },
+    { value: 'approved', label: t('common.approved'), icon: CheckCircle },
+    { value: 'rejected', label: t('common.rejected'), icon: XCircle },
+  ];
+
+  const TYPE_LABELS: Record<string, string> = {
+    personal: t('leaves.personal'),
+    sick: t('leaves.sickLeave'),
+    emergency: t('leaves.emergency'),
+    other: t('leaves.other'),
+  };
 
   const handleDelete = (id: number) => setDeleteId(id);
 
@@ -88,14 +90,14 @@ export default function InternLeavesPage() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-[1.1rem] sm:text-[1.35rem] font-bold text-[#1e1b4b]">Take Leave</h1>
+          <h1 className="text-[1.1rem] sm:text-[1.35rem] font-bold text-[#1e1b4b]">{t('leaves.title')}</h1>
           <p className="mt-1 text-[0.85rem] text-[#6b7280]">
-            {isIntern ? 'Request leave during your internship.' : 'Review intern leave requests.'}
+            {isIntern ? t('leaves.subtitleIntern') : t('leaves.subtitleReviewer')}
           </p>
         </div>
         {isIntern && (
           <Button onClick={() => setShowForm(true)} className="w-full sm:w-auto">
-            <Plus className="w-4 h-4 mr-2" /> Request Leave
+            <Plus className="w-4 h-4 mr-2" /> {t('leaves.requestLeave')}
           </Button>
         )}
       </div>
@@ -109,7 +111,7 @@ export default function InternLeavesPage() {
           <LoadingSpinner className="py-12" />
         ) : !data?.data?.length ? (
           <div className="py-12">
-            <EmptyState icon={<CalendarOff className="w-10 h-10" />} title="No leave requests" description={isIntern ? 'You haven\'t requested any leave yet.' : 'No leave requests to review.'} />
+            <EmptyState icon={<CalendarOff className="w-10 h-10" />} title={t('leaves.noLeaveRequests')} description={isIntern ? t('leaves.noLeaveYet') : t('leaves.noLeaveToReview')} />
           </div>
         ) : (
           <>
@@ -127,24 +129,24 @@ export default function InternLeavesPage() {
                       <div className="flex items-center gap-1">
                         {canReview && leave.status === 'pending' && (
                           <>
-                            <button onClick={() => { setReviewLeave(leave); setReviewStatus('approved'); setReviewNote(''); }} className="p-1.5 rounded-[5px] hover:bg-green-50 text-[#9ca3af] hover:text-green-600 transition-colors" title="Approve"><CheckCircle className="w-4 h-4" /></button>
-                            <button onClick={() => { setReviewLeave(leave); setReviewStatus('rejected'); setReviewNote(''); }} className="p-1.5 rounded-[5px] hover:bg-red-50 text-[#9ca3af] hover:text-red-500 transition-colors" title="Reject"><XCircle className="w-4 h-4" /></button>
+                            <button onClick={() => { setReviewLeave(leave); setReviewStatus('approved'); setReviewNote(''); }} className="p-1.5 rounded-[5px] hover:bg-green-50 text-[#9ca3af] hover:text-green-600 transition-colors" title={t('leaves.approve')}><CheckCircle className="w-4 h-4" /></button>
+                            <button onClick={() => { setReviewLeave(leave); setReviewStatus('rejected'); setReviewNote(''); }} className="p-1.5 rounded-[5px] hover:bg-red-50 text-[#9ca3af] hover:text-red-500 transition-colors" title={t('leaves.reject')}><XCircle className="w-4 h-4" /></button>
                           </>
                         )}
                         {isIntern && leave.status === 'pending' && (
-                          <button onClick={() => handleDelete(leave.id)} className="p-1.5 rounded-[5px] hover:bg-red-50 text-[#9ca3af] hover:text-red-500 transition-colors" title="Delete"><Trash2 className="w-4 h-4" /></button>
+                          <button onClick={() => handleDelete(leave.id)} className="p-1.5 rounded-[5px] hover:bg-red-50 text-[#9ca3af] hover:text-red-500 transition-colors" title={t('common.delete')}><Trash2 className="w-4 h-4" /></button>
                         )}
                       </div>
                     </div>
                     {!isIntern && (
-                      <div className="flex items-start"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Intern</span><div><p className="text-[0.82rem] text-[#374151] font-medium">{leave.user?.name}</p>{leave.user?.company_name && <p className="text-[0.75rem] text-[#9ca3af]">{leave.user.company_name}</p>}</div></div>
+                      <div className="flex items-start"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">{t('leaves.intern')}</span><div><p className="text-[0.82rem] text-[#374151] font-medium">{leave.user?.name}</p>{leave.user?.company_name && <p className="text-[0.75rem] text-[#9ca3af]">{leave.user.company_name}</p>}</div></div>
                     )}
-                    <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Period</span><span className="text-[0.82rem] text-[#374151] font-medium">{formatDate(leave.start_date)} — {formatDate(leave.end_date)}</span></div>
-                    <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Days</span><span className="text-[0.82rem] text-[#374151] font-medium">{dayCount(leave.start_date, leave.end_date)}</span></div>
-                    <div className="flex items-start"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Reason</span><div><p className="text-[0.82rem] text-[#374151] font-medium">{leave.reason}</p>{leave.review_note && <p className="text-[0.75rem] text-[#9ca3af] mt-0.5">Note: {leave.review_note}</p>}</div></div>
-                    <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Status</span><Badge color={STATUS_COLOR[leave.status] || 'gray'}>{leave.status.charAt(0).toUpperCase() + leave.status.slice(1)}</Badge></div>
+                    <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">{t('leaves.period')}</span><span className="text-[0.82rem] text-[#374151] font-medium">{formatDate(leave.start_date)} — {formatDate(leave.end_date)}</span></div>
+                    <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">{t('leaves.days')}</span><span className="text-[0.82rem] text-[#374151] font-medium">{dayCount(leave.start_date, leave.end_date)}</span></div>
+                    <div className="flex items-start"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">{t('leaves.reason')}</span><div><p className="text-[0.82rem] text-[#374151] font-medium">{leave.reason}</p>{leave.review_note && <p className="text-[0.75rem] text-[#9ca3af] mt-0.5">{t('leaves.note')}: {leave.review_note}</p>}</div></div>
+                    <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">{t('common.status')}</span><Badge color={STATUS_COLOR[leave.status] || 'gray'}>{t(`status.${leave.status}`) || leave.status}</Badge></div>
                     {leave.reviewer && (
-                      <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Reviewed by</span><span className="text-[0.82rem] text-[#374151] font-medium">{leave.reviewer.name}</span></div>
+                      <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">{t('leaves.reviewedBy')}</span><span className="text-[0.82rem] text-[#374151] font-medium">{leave.reviewer.name}</span></div>
                     )}
                   </div>
                 );
@@ -156,13 +158,13 @@ export default function InternLeavesPage() {
               <table className="w-full min-w-[800px]">
                 <thead>
                   <tr className="bg-[#fafafa]">
-                    {!isIntern && <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Intern</th>}
-                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Type</th>
-                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Period</th>
-                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Days</th>
-                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Reason</th>
-                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Status</th>
-                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Actions</th>
+                    {!isIntern && <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('leaves.intern')}</th>}
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('leaves.type')}</th>
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('leaves.period')}</th>
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('leaves.days')}</th>
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('leaves.reason')}</th>
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('common.status')}</th>
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('users.actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -191,33 +193,33 @@ export default function InternLeavesPage() {
                         <td className="px-5 py-3 text-[0.82rem] text-[#374151] max-w-[200px]">
                           <p className="truncate" title={leave.reason}>{leave.reason}</p>
                           {leave.review_note && (
-                            <p className="text-[0.75rem] text-[#9ca3af] mt-0.5 truncate" title={leave.review_note}>Note: {leave.review_note}</p>
+                            <p className="text-[0.75rem] text-[#9ca3af] mt-0.5 truncate" title={leave.review_note}>{t('leaves.note')}: {leave.review_note}</p>
                           )}
                         </td>
                         <td className="px-5 py-3">
                           <Badge color={STATUS_COLOR[leave.status] || 'gray'}>
-                            {leave.status.charAt(0).toUpperCase() + leave.status.slice(1)}
+                            {t(`status.${leave.status}`) || leave.status}
                           </Badge>
                         </td>
                         <td className="px-5 py-3">
                           <div className="flex items-center gap-1">
                             {canReview && leave.status === 'pending' && (
                               <>
-                                <button onClick={() => { setReviewLeave(leave); setReviewStatus('approved'); setReviewNote(''); }} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-green-600 hover:bg-green-50 transition-colors" title="Approve">
+                                <button onClick={() => { setReviewLeave(leave); setReviewStatus('approved'); setReviewNote(''); }} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-green-600 hover:bg-green-50 transition-colors" title={t('leaves.approve')}>
                                   <CheckCircle className="w-4 h-4" />
                                 </button>
-                                <button onClick={() => { setReviewLeave(leave); setReviewStatus('rejected'); setReviewNote(''); }} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-red-500 hover:bg-red-50 transition-colors" title="Reject">
+                                <button onClick={() => { setReviewLeave(leave); setReviewStatus('rejected'); setReviewNote(''); }} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-red-500 hover:bg-red-50 transition-colors" title={t('leaves.reject')}>
                                   <XCircle className="w-4 h-4" />
                                 </button>
                               </>
                             )}
                             {isIntern && leave.status === 'pending' && (
-                              <button onClick={() => handleDelete(leave.id)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#dc2626] hover:bg-[#fef2f2] transition-colors" title="Delete">
+                              <button onClick={() => handleDelete(leave.id)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#dc2626] hover:bg-[#fef2f2] transition-colors" title={t('common.delete')}>
                                 <Trash2 className="w-4 h-4" />
                               </button>
                             )}
                             {leave.reviewer && (
-                              <span className="text-[0.72rem] text-[#9ca3af] ml-1">by {leave.reviewer.name}</span>
+                              <span className="text-[0.72rem] text-[#9ca3af] ml-1">{t('leaves.reviewedBy').toLowerCase()} {leave.reviewer.name}</span>
                             )}
                           </div>
                         </td>
@@ -250,25 +252,25 @@ export default function InternLeavesPage() {
 
       {/* Review Modal */}
       {reviewLeave && (
-        <Modal open={true} onClose={() => setReviewLeave(null)} title={`${reviewStatus === 'approved' ? 'Approve' : 'Reject'} Leave Request`}>
+        <Modal open={true} onClose={() => setReviewLeave(null)} title={reviewStatus === 'approved' ? t('leaves.approveLeave') : t('leaves.rejectLeave')}>
           <div className="space-y-4">
             <div className={`p-3 rounded-[5px] text-[0.85rem] ${reviewStatus === 'approved' ? 'bg-green-50 border border-green-200 text-green-700' : 'bg-red-50 border border-red-200 text-red-700'}`}>
-              {reviewStatus === 'approved' ? 'Approve' : 'Reject'} leave for <strong>{reviewLeave.user?.name}</strong>
+              {reviewStatus === 'approved' ? t('leaves.approveFor') : t('leaves.rejectFor')} <strong>{reviewLeave.user?.name}</strong>
               <br />
-              {formatDate(reviewLeave.start_date)} — {formatDate(reviewLeave.end_date)} ({dayCount(reviewLeave.start_date, reviewLeave.end_date)} days)
+              {formatDate(reviewLeave.start_date)} — {formatDate(reviewLeave.end_date)} ({dayCount(reviewLeave.start_date, reviewLeave.end_date)} {t('leaves.dayPlural')})
               <br />
-              Reason: {reviewLeave.reason}
+              {t('leaves.reason')}: {reviewLeave.reason}
             </div>
 
             <div>
-              <label className="block text-[0.85rem] font-medium text-[#374151] mb-1">Note (optional)</label>
-              <textarea value={reviewNote} onChange={(e) => setReviewNote(e.target.value)} rows={2} className="w-full rounded-[5px] border border-[#e0e0e0] px-[14px] py-[11px] text-[0.88rem] transition-all focus:outline-none focus:border-[#48B6E8] focus:ring-[3px] focus:ring-[rgba(72,182,232,0.08)]" placeholder="Add a note..." />
+              <label className="block text-[0.85rem] font-medium text-[#374151] mb-1">{t('leaves.noteOptional')}</label>
+              <textarea value={reviewNote} onChange={(e) => setReviewNote(e.target.value)} rows={2} className="w-full rounded-[5px] border border-[#e0e0e0] px-[14px] py-[11px] text-[0.88rem] transition-all focus:outline-none focus:border-[#48B6E8] focus:ring-[3px] focus:ring-[rgba(72,182,232,0.08)]" placeholder={t('leaves.addNote')} />
             </div>
 
             <div className="flex justify-end gap-3 pt-2">
-              <Button type="button" variant="secondary" onClick={() => setReviewLeave(null)}>Cancel</Button>
+              <Button type="button" variant="secondary" onClick={() => setReviewLeave(null)}>{t('common.cancel')}</Button>
               <Button onClick={handleReview} disabled={reviewMutation.isPending}>
-                {reviewMutation.isPending ? 'Saving...' : reviewStatus === 'approved' ? 'Approve' : 'Reject'}
+                {reviewMutation.isPending ? t('common.saving') : reviewStatus === 'approved' ? t('leaves.approve') : t('leaves.reject')}
               </Button>
             </div>
           </div>
@@ -277,7 +279,7 @@ export default function InternLeavesPage() {
 
       <ConfirmDialog
         open={deleteId !== null}
-        message="Are you sure you want to delete this leave request? This action cannot be undone."
+        message={t('leaves.deleteConfirm')}
         onConfirm={confirmDelete}
         onCancel={() => setDeleteId(null)}
       />
@@ -291,6 +293,7 @@ function LeaveFormModal({ onClose, onSubmit, isLoading }: {
   onSubmit: (payload: { type: string; start_date: string; end_date: string; reason: string }) => void;
   isLoading: boolean;
 }) {
+  const { t } = useTranslation();
   const [type, setType] = useState('personal');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -302,35 +305,35 @@ function LeaveFormModal({ onClose, onSubmit, isLoading }: {
   };
 
   return (
-    <Modal open={true} onClose={onClose} title="Request Leave">
+    <Modal open={true} onClose={onClose} title={t('leaves.requestLeave')}>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <Select label="Leave Type" value={type} onChange={(e) => setType(e.target.value)} options={[
-          { value: 'personal', label: 'Personal' },
-          { value: 'sick', label: 'Sick Leave' },
-          { value: 'emergency', label: 'Emergency' },
-          { value: 'other', label: 'Other' },
+        <Select label={t('leaves.leaveType')} value={type} onChange={(e) => setType(e.target.value)} options={[
+          { value: 'personal', label: t('leaves.personal') },
+          { value: 'sick', label: t('leaves.sickLeave') },
+          { value: 'emergency', label: t('leaves.emergency') },
+          { value: 'other', label: t('leaves.other') },
         ]} />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <DatePicker label="Start Date" value={startDate} onChange={setStartDate} required placeholder="Choose start date" />
-          <DatePicker label="End Date" value={endDate} onChange={setEndDate} required placeholder="Choose end date" />
+          <DatePicker label={t('leaves.startDate')} value={startDate} onChange={setStartDate} required placeholder={t('leaves.chooseStartDate')} />
+          <DatePicker label={t('leaves.endDate')} value={endDate} onChange={setEndDate} required placeholder={t('leaves.chooseEndDate')} />
         </div>
 
         {startDate && endDate && (
           <p className="text-[0.82rem] text-[#6b7280]">
-            Duration: <strong>{dayCount(startDate, endDate)} day{dayCount(startDate, endDate) !== 1 ? 's' : ''}</strong>
+            {t('leaves.duration')}: <strong>{dayCount(startDate, endDate)} {dayCount(startDate, endDate) !== 1 ? t('leaves.dayPlural') : t('leaves.day')}</strong>
           </p>
         )}
 
         <div>
-          <label className="block text-[0.85rem] font-medium text-[#374151] mb-1">Reason *</label>
-          <textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={3} required className="w-full rounded-[5px] border border-[#e0e0e0] px-[14px] py-[11px] text-[0.88rem] transition-all focus:outline-none focus:border-[#48B6E8] focus:ring-[3px] focus:ring-[rgba(72,182,232,0.08)]" placeholder="Please provide a reason for your leave..." />
+          <label className="block text-[0.85rem] font-medium text-[#374151] mb-1">{t('leaves.reasonRequired')}</label>
+          <textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={3} required className="w-full rounded-[5px] border border-[#e0e0e0] px-[14px] py-[11px] text-[0.88rem] transition-all focus:outline-none focus:border-[#48B6E8] focus:ring-[3px] focus:ring-[rgba(72,182,232,0.08)]" placeholder={t('leaves.reasonPlaceholder')} />
         </div>
 
         <div className="flex justify-end gap-3 pt-2">
-          <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
+          <Button type="button" variant="secondary" onClick={onClose}>{t('common.cancel')}</Button>
           <Button type="submit" disabled={isLoading || !startDate || !endDate || !reason}>
-            {isLoading ? 'Submitting...' : 'Submit Request'}
+            {isLoading ? t('leaves.submitting') : t('leaves.submitRequest')}
           </Button>
         </div>
       </form>

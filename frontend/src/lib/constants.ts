@@ -55,3 +55,33 @@ export const STATUS_LABELS: Record<string, string> = {
   staff: 'Staff',
   contract: 'Contract',
 };
+
+// i18n-aware status label lookup
+export const STATUS_KEYS: Record<string, string> = {
+  draft: 'status.draft',
+  pending: 'status.pending',
+  submitted: 'status.submitted',
+  approved: 'status.approved',
+  reviewed: 'status.reviewed',
+  rejected: 'status.rejected',
+  resubmitted: 'status.resubmitted',
+  in_progress: 'status.in_progress',
+  completed: 'status.completed',
+  cancelled: 'status.cancelled',
+  active: 'status.active',
+  inactive: 'status.inactive',
+  open: 'status.open',
+  closed: 'status.closed',
+  scheduled: 'status.scheduled',
+  passed: 'status.passed',
+  failed: 'status.failed',
+  hired: 'status.hired',
+  not_hired: 'status.not_hired',
+  online: 'status.online',
+  onsite: 'status.onsite',
+  hybrid: 'status.hybrid',
+  internship: 'status.internship',
+  probation: 'status.probation',
+  staff: 'status.staff',
+  contract: 'status.contract',
+};

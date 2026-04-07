@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal } from '../../components/ui/Modal';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
@@ -13,6 +14,7 @@ interface RoleFormProps {
 }
 
 export function RoleForm({ open, onClose, onSubmit, role, loading }: RoleFormProps) {
+  const { t } = useTranslation();
   const [name, setName] = useState(role?.name || '');
   const [slug, setSlug] = useState(role?.slug || '');
   const [description, setDescription] = useState(role?.description || '');
@@ -30,12 +32,12 @@ export function RoleForm({ open, onClose, onSubmit, role, loading }: RoleFormPro
   };
 
   return (
-    <Modal open={open} onClose={onClose} title={role ? 'Edit Role' : 'Create Role'}>
+    <Modal open={open} onClose={onClose} title={role ? t('roles.editRole') : t('roles.createRole')}>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <Input label="Name" value={name} onChange={(e) => handleNameChange(e.target.value)} required />
-        <Input label="Slug" value={slug} onChange={(e) => setSlug(e.target.value)} required />
+        <Input label={t('roles.name')} value={name} onChange={(e) => handleNameChange(e.target.value)} required />
+        <Input label={t('roles.slug')} value={slug} onChange={(e) => setSlug(e.target.value)} required />
         <div className="w-full">
-          <label className="block text-[0.85rem] font-medium text-[#374151] mb-1">Description</label>
+          <label className="block text-[0.85rem] font-medium text-[#374151] mb-1">{t('roles.description')}</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -44,8 +46,8 @@ export function RoleForm({ open, onClose, onSubmit, role, loading }: RoleFormPro
           />
         </div>
         <div className="flex justify-end gap-3 pt-2">
-          <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
-          <Button type="submit" loading={loading}>{role ? 'Update' : 'Create'}</Button>
+          <Button type="button" variant="secondary" onClick={onClose}>{t('common.cancel')}</Button>
+          <Button type="submit" loading={loading}>{role ? t('common.update') : t('common.create')}</Button>
         </div>
       </form>
     </Modal>

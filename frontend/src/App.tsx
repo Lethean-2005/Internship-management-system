@@ -5,6 +5,7 @@ import { ProtectedRoute } from './components/layout/ProtectedRoute';
 import { RoleRoute } from './components/layout/RoleRoute';
 import { LoginPage } from './features/auth/LoginPage';
 import { RegisterPage } from './features/auth/RegisterPage';
+import { VerifyEmailPage } from './features/auth/VerifyEmailPage';
 import { DashboardPage } from './features/dashboard/DashboardPage';
 import { UsersPage } from './features/users/UsersPage';
 import { RolesPage } from './features/roles/RolesPage';
@@ -17,6 +18,8 @@ import { CompanyInterviewsPage } from './features/interviews/CompanyInterviewsPa
 import JobPostingsPage from './features/jobPostings/JobPostingsPage';
 import InternLeavesPage from './features/leaves/InternLeavesPage';
 import { MyInternsPage } from './features/interns/MyInternsPage';
+import { ConfigurationPage } from './features/configuration/ConfigurationPage';
+import { ProfilePage } from './features/profile/ProfilePage';
 import { useAuthStore } from './stores/authStore';
 import { getMe } from './api/auth';
 import { ToastContainer } from './components/ui/ToastContainer';
@@ -41,6 +44,7 @@ function App() {
       {/* Public routes */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/verify-email" element={<VerifyEmailPage />} />
 
       {/* Protected routes */}
       <Route element={<ProtectedRoute />}>
@@ -52,6 +56,7 @@ function App() {
           <Route element={<RoleRoute roles={['admin']} />}>
             <Route path="users" element={<UsersPage />} />
             <Route path="roles" element={<RolesPage />} />
+            <Route path="configuration" element={<ConfigurationPage />} />
           </Route>
 
 
@@ -59,6 +64,9 @@ function App() {
           <Route element={<RoleRoute roles={['tutor']} />}>
             <Route path="my-interns" element={<MyInternsPage />} />
           </Route>
+
+          {/* Profile — all roles */}
+          <Route path="profile" element={<ProfilePage />} />
 
           {/* All roles */}
           <Route path="weekly-worklogs" element={<WeeklyWorklogsPage />} />

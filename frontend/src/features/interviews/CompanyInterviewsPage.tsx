@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Plus, Pencil, Trash2, Eye, List, Clock, CheckCircle, XCircle, ClipboardCheck, FileCheck, CalendarCheck, HelpCircle, GraduationCap } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useInterviews, useCreateInterview, useUpdateInterview, useDeleteInterview, useUpdateResult } from '../../hooks/useInterviews';
@@ -19,6 +20,7 @@ import client from '../../api/client';
 import type { CompanyInterview } from '../../types/ims';
 
 export function CompanyInterviewsPage() {
+  const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const roleSlug = user?.role?.slug || '';
   const isIntern = roleSlug === 'intern';
@@ -190,32 +192,32 @@ export function CompanyInterviewsPage() {
 
   const currentYear = new Date().getFullYear();
   const generationOptions: { value: string; label: string; icon: typeof List }[] = [
-    { value: '', label: 'All Generations', icon: List },
+    { value: '', label: t('interviews.allGenerations'), icon: List },
     ...Array.from({ length: currentYear - 2007 + 1 }, (_, i) => {
       const year = currentYear - i;
-      return { value: String(year), label: `Generation ${year}`, icon: GraduationCap };
+      return { value: String(year), label: `${t('interviews.generation')} ${year}`, icon: GraduationCap };
     }),
   ];
 
   const statusOptions = [
-    { value: '', label: 'All Statuses', icon: List },
-    { value: 'scheduled', label: 'Scheduled', icon: Clock },
-    { value: 'interviewed', label: 'Interviewed', icon: CalendarCheck },
-    { value: 'wait_result', label: 'Wait Result', icon: HelpCircle },
-    { value: 'passed', label: 'Passed', icon: CheckCircle },
-    { value: 'failed', label: 'Failed', icon: XCircle },
+    { value: '', label: t('interviews.allStatuses'), icon: List },
+    { value: 'scheduled', label: t('interviews.scheduled'), icon: Clock },
+    { value: 'interviewed', label: t('interviews.interviewed'), icon: CalendarCheck },
+    { value: 'wait_result', label: t('interviews.waitResult'), icon: HelpCircle },
+    { value: 'passed', label: t('interviews.passed'), icon: CheckCircle },
+    { value: 'failed', label: t('interviews.failed'), icon: XCircle },
   ];
 
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-[1.1rem] sm:text-[1.35rem] font-bold text-[#1e1b4b]">Company Interviews</h1>
-          <p className="mt-1 text-[0.85rem] text-[#6b7280]">Manage interview schedules with companies.</p>
+          <h1 className="text-[1.1rem] sm:text-[1.35rem] font-bold text-[#1e1b4b]">{t('interviews.companyInterviews')}</h1>
+          <p className="mt-1 text-[0.85rem] text-[#6b7280]">{t('interviews.subtitle')}</p>
         </div>
         <Button onClick={handleCreate} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
-          {isIntern ? 'Schedule Interview' : 'Assign Interview'}
+          {isIntern ? t('interviews.scheduleInterview') : t('interviews.assignInterview')}
         </Button>
       </div>
 
@@ -266,7 +268,7 @@ export function CompanyInterviewsPage() {
                 );
               })}
               {data?.data.length === 0 && (
-                <div className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">No interviews found.</div>
+                <div className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">{t('interviews.noInterviewsFound')}</div>
               )}
             </div>
 
@@ -275,15 +277,15 @@ export function CompanyInterviewsPage() {
               <table className="w-full min-w-[900px]">
                 <thead>
                   <tr className="bg-[#fafafa]">
-                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Company</th>
-                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Intern</th>
-                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Date</th>
-                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Location</th>
-                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Type</th>
-                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Employment</th>
-                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Status</th>
-                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Result</th>
-                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Actions</th>
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('users.company')}</th>
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('interviews.intern')}</th>
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('interviews.date')}</th>
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('jobPostings.location')}</th>
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('interviews.type')}</th>
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('interviews.employment')}</th>
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('common.status')}</th>
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('interviews.result')}</th>
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('users.actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -383,7 +385,7 @@ export function CompanyInterviewsPage() {
                   ))}
                   {data?.data.length === 0 && (
                     <tr>
-                      <td colSpan={9} className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">No interviews found.</td>
+                      <td colSpan={9} className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">{t('interviews.noInterviewsFound')}</td>
                     </tr>
                   )}
                 </tbody>
@@ -400,7 +402,7 @@ export function CompanyInterviewsPage() {
       </div>
 
       {/* View Interview Modal */}
-      <Modal open={!!viewInterview} onClose={() => setViewInterview(null)} title="Interview Details">
+      <Modal open={!!viewInterview} onClose={() => setViewInterview(null)} title={t('interviews.interviewDetails')}>
         {viewInterview && (
           <div className="space-y-5">
             <div className="flex items-center gap-3 flex-wrap">
@@ -420,7 +422,7 @@ export function CompanyInterviewsPage() {
             </div>
 
             <div>
-              <p className="text-[0.72rem] font-semibold text-[#9ca3af] uppercase mb-3">Interview Information</p>
+              <p className="text-[0.72rem] font-semibold text-[#9ca3af] uppercase mb-3">{t('interviews.interviewInformation')}</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="bg-[#f9fafb] rounded-[5px] p-3">
                   <p className="text-[0.72rem] text-[#9ca3af] mb-1">Company</p>
@@ -479,35 +481,35 @@ export function CompanyInterviewsPage() {
       </Modal>
 
       {/* Update Result Modal */}
-      <Modal open={resultOpen} onClose={() => { setResultOpen(false); setResultInterview(null); }} title="Update Interview Result">
+      <Modal open={resultOpen} onClose={() => { setResultOpen(false); setResultInterview(null); }} title={t('interviews.updateResult')}>
         <div className="space-y-4">
           <Select
-            label="Result"
+            label={t('interviews.result')}
             options={[
-              { value: '', label: 'Select Result' },
-              { value: 'passed', label: 'Passed' },
-              { value: 'failed', label: 'Failed' },
-              { value: 'pending', label: 'Wait Result' },
+              { value: '', label: t('interviews.selectResult') },
+              { value: 'passed', label: t('interviews.passed') },
+              { value: 'failed', label: t('interviews.failed') },
+              { value: 'pending', label: t('interviews.waitResult') },
             ]}
             value={resultValue}
             onChange={(e) => setResultValue(e.target.value)}
             required
           />
           <Input
-            label="Feedback"
+            label={t('interviews.feedback')}
             value={resultFeedback}
             onChange={(e) => setResultFeedback(e.target.value)}
             placeholder="Optional feedback..."
           />
           <div className="flex justify-end gap-3 pt-2">
-            <Button type="button" variant="secondary" onClick={() => { setResultOpen(false); setResultInterview(null); }}>Cancel</Button>
-            <Button onClick={handleResultSubmit} loading={resultMutation.isPending} disabled={!resultValue}>Update Result</Button>
+            <Button type="button" variant="secondary" onClick={() => { setResultOpen(false); setResultInterview(null); }}>{t('common.cancel')}</Button>
+            <Button onClick={handleResultSubmit} loading={resultMutation.isPending} disabled={!resultValue}>{t('interviews.updateResult')}</Button>
           </div>
         </div>
       </Modal>
 
       {/* Complete Internship Details Modal */}
-      <Modal open={detailsOpen} onClose={() => { setDetailsOpen(false); setDetailsInterview(null); }} title="Complete Internship Details">
+      <Modal open={detailsOpen} onClose={() => { setDetailsOpen(false); setDetailsInterview(null); }} title={t('interviews.completeDetails')}>
         {detailsInterview && (
           <div className="space-y-4">
             <div className="p-3 rounded-[5px] bg-[#ecfdf5] border border-[#a7f3d0] text-[0.85rem] text-[#059669]">
@@ -568,20 +570,20 @@ export function CompanyInterviewsPage() {
             )}
 
             <Select
-              label="Employment Agreement"
+              label={t('interviews.employmentAgreement')}
               options={[
-                { value: 'internship', label: 'Internship' },
-                { value: 'probation', label: 'Probation' },
-                { value: 'staff', label: 'Staff' },
-                { value: 'contract', label: 'Contract' },
+                { value: 'internship', label: t('status.internship') },
+                { value: 'probation', label: t('status.probation') },
+                { value: 'staff', label: t('status.staff') },
+                { value: 'contract', label: t('status.contract') },
               ]}
               value={detailsEmployment}
               onChange={(e) => setDetailsEmployment(e.target.value)}
             />
 
             <div className="flex justify-end gap-3 pt-2">
-              <Button type="button" variant="secondary" onClick={() => { setDetailsOpen(false); setDetailsInterview(null); }}>Cancel</Button>
-              <Button onClick={handleDetailsSubmit} disabled={!detailsCompany || !detailsPosition || !detailsEmployment}>Complete</Button>
+              <Button type="button" variant="secondary" onClick={() => { setDetailsOpen(false); setDetailsInterview(null); }}>{t('common.cancel')}</Button>
+              <Button onClick={handleDetailsSubmit} disabled={!detailsCompany || !detailsPosition || !detailsEmployment}>{t('interviews.complete')}</Button>
             </div>
           </div>
         )}
@@ -598,7 +600,7 @@ export function CompanyInterviewsPage() {
 
       <ConfirmDialog
         open={deleteId !== null}
-        message="Are you sure you want to delete this interview? This action cannot be undone."
+        message={t('interviews.deleteConfirm')}
         onConfirm={confirmDelete}
         onCancel={() => setDeleteId(null)}
       />

@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal } from '../../components/ui/Modal';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
@@ -14,6 +15,7 @@ interface ContactFormProps {
 }
 
 export function ContactForm({ open, onClose, onSubmit, supervisors, loading }: ContactFormProps) {
+  const { t } = useTranslation();
   const [supervisorId, setSupervisorId] = useState('');
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
@@ -28,17 +30,17 @@ export function ContactForm({ open, onClose, onSubmit, supervisors, loading }: C
   };
 
   const supervisorOptions = [
-    { value: '', label: 'Select Supervisor' },
+    { value: '', label: t('contacts.selectSupervisor') },
     ...supervisors.map((u) => ({ value: u.id.toString(), label: u.name })),
   ];
 
   return (
-    <Modal open={open} onClose={onClose} title="Contact Supervisor">
+    <Modal open={open} onClose={onClose} title={t('contacts.contactSupervisorForm')}>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <Select label="Supervisor" options={supervisorOptions} value={supervisorId} onChange={(e) => setSupervisorId(e.target.value)} required />
-        <Input label="Subject" value={subject} onChange={(e) => setSubject(e.target.value)} required />
+        <Select label={t('contacts.supervisor')} options={supervisorOptions} value={supervisorId} onChange={(e) => setSupervisorId(e.target.value)} required />
+        <Input label={t('contacts.subject')} value={subject} onChange={(e) => setSubject(e.target.value)} required />
         <div className="w-full">
-          <label className="block text-[0.85rem] font-medium text-[#374151] mb-1">Message</label>
+          <label className="block text-[0.85rem] font-medium text-[#374151] mb-1">{t('contacts.message')}</label>
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
@@ -48,8 +50,8 @@ export function ContactForm({ open, onClose, onSubmit, supervisors, loading }: C
           />
         </div>
         <div className="flex justify-end gap-3 pt-2">
-          <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
-          <Button type="submit" loading={loading}>Send Message</Button>
+          <Button type="button" variant="secondary" onClick={onClose}>{t('common.cancel')}</Button>
+          <Button type="submit" loading={loading}>{t('contacts.sendMessage')}</Button>
         </div>
       </form>
     </Modal>

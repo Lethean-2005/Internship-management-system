@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal } from '../../components/ui/Modal';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
@@ -23,6 +24,7 @@ interface CompanyFormProps {
 }
 
 export function CompanyForm({ open, onClose, onSubmit, company, loading }: CompanyFormProps) {
+  const { t } = useTranslation();
   const [name, setName] = useState(company?.name || '');
   const [address, setAddress] = useState(company?.address || '');
   const [phone, setPhone] = useState(company?.phone || '');
@@ -49,20 +51,20 @@ export function CompanyForm({ open, onClose, onSubmit, company, loading }: Compa
   };
 
   return (
-    <Modal open={open} onClose={onClose} title={company ? 'Edit Company' : 'Add Company'}>
+    <Modal open={open} onClose={onClose} title={company ? t('companies.editCompany') : t('companies.addCompany')}>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <Input label="Company Name" value={name} onChange={(e) => setName(e.target.value)} required />
-        <Input label="Address" value={address} onChange={(e) => setAddress(e.target.value)} />
+        <Input label={t('auth.companyName')} value={name} onChange={(e) => setName(e.target.value)} required />
+        <Input label={t('companies.address')} value={address} onChange={(e) => setAddress(e.target.value)} />
         <div className="grid grid-cols-2 gap-4">
-          <Input label="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
-          <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <Input label={t('auth.phone')} value={phone} onChange={(e) => setPhone(e.target.value)} />
+          <Input label={t('auth.email')} type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <Input label="Website" value={website} onChange={(e) => setWebsite(e.target.value)} />
-          <Input label="Industry" value={industry} onChange={(e) => setIndustry(e.target.value)} />
+          <Input label={t('companies.website')} value={website} onChange={(e) => setWebsite(e.target.value)} />
+          <Input label={t('companies.industry')} value={industry} onChange={(e) => setIndustry(e.target.value)} />
         </div>
         <div className="w-full">
-          <label className="block text-[0.85rem] font-medium text-[#374151] mb-1">Description</label>
+          <label className="block text-[0.85rem] font-medium text-[#374151] mb-1">{t('roles.description')}</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -71,12 +73,12 @@ export function CompanyForm({ open, onClose, onSubmit, company, loading }: Compa
           />
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <Input label="Contact Person" value={contactPerson} onChange={(e) => setContactPerson(e.target.value)} />
-          <Input label="Contact Phone" value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} />
+          <Input label={t('companies.contactPerson')} value={contactPerson} onChange={(e) => setContactPerson(e.target.value)} />
+          <Input label={t('companies.contactPhone')} value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} />
         </div>
         <div className="flex justify-end gap-3 pt-2">
-          <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
-          <Button type="submit" loading={loading}>{company ? 'Update' : 'Create'}</Button>
+          <Button type="button" variant="secondary" onClick={onClose}>{t('common.cancel')}</Button>
+          <Button type="submit" loading={loading}>{company ? t('common.update') : t('common.create')}</Button>
         </div>
       </form>
     </Modal>

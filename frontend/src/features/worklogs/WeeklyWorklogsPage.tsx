@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Plus, Eye, Pencil, Send, List, FilePen, CheckCircle, XCircle } from 'lucide-react';
 import { useWorklogs, useCreateWorklog, useUpdateWorklog, useDeleteWorklog, useSubmitWorklog, useReviewWorklog } from '../../hooks/useWorklogs';
 import { useInternships } from '../../hooks/useInternships';
@@ -10,23 +11,24 @@ import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { Pagination } from '../../components/ui/Pagination';
 import { WorklogForm } from './WorklogForm';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
-import { STATUS_COLORS, STATUS_LABELS } from '../../lib/constants';
+import { STATUS_COLORS, STATUS_LABELS, STATUS_KEYS } from '../../lib/constants';
 import { formatDate } from '../../lib/formatDate';
 import type { WeeklyWorklog } from '../../types/ims';
 
 import { RefreshCw } from 'lucide-react';
 
-const statusOptions = [
-  { value: '', label: 'All Statuses', icon: List },
-  { value: 'draft', label: 'Draft', icon: FilePen },
-  { value: 'submitted', label: 'Submitted', icon: Send },
-  { value: 'resubmitted', label: 'Resubmitted', icon: RefreshCw },
-  { value: 'reviewed', label: 'Reviewed', icon: CheckCircle },
-  { value: 'rejected', label: 'Rejected', icon: XCircle },
-];
-
 export function WeeklyWorklogsPage() {
   const user = useAuthStore((s) => s.user);
+  const { t } = useTranslation();
+
+  const statusOptions = [
+    { value: '', label: t('common.allStatuses'), icon: List },
+    { value: 'draft', label: t('common.draft'), icon: FilePen },
+    { value: 'submitted', label: t('common.submitted'), icon: Send },
+    { value: 'resubmitted', label: t('common.resubmitted'), icon: RefreshCw },
+    { value: 'reviewed', label: t('common.reviewed'), icon: CheckCircle },
+    { value: 'rejected', label: t('common.rejected'), icon: XCircle },
+  ];
   const isIntern = user?.role?.slug === 'intern';
   const isTutor = user?.role?.slug === 'tutor';
   const [status, setStatus] = useState('');
@@ -81,13 +83,13 @@ export function WeeklyWorklogsPage() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-[1.1rem] sm:text-[1.35rem] font-bold text-[#1e1b4b]">Weekly Worklogs</h1>
-          <p className="mt-1 text-[0.85rem] text-[#6b7280]">Track weekly internship progress and tasks.</p>
+          <h1 className="text-[1.1rem] sm:text-[1.35rem] font-bold text-[#1e1b4b]">{t('worklogs.title')}</h1>
+          <p className="mt-1 text-[0.85rem] text-[#6b7280]">{t('worklogs.subtitle')}</p>
         </div>
         {!isTutor && (
-          <div className="w-full sm:w-auto" title={hasActiveWeek ? 'You can create a new worklog after your current week ends' : ''}>
+          <div className="w-full sm:w-auto" title={hasActiveWeek ? t('worklogs.createTooltip') : ''}>
             <Button onClick={openCreate} className="w-full sm:w-auto" disabled={hasActiveWeek}>
-              <Plus className="h-4 w-4 mr-2" /> New Worklog
+              <Plus className="h-4 w-4 mr-2" /> {t('worklogs.newWorklog')}
             </Button>
           </div>
         )}
@@ -107,7 +109,7 @@ export function WeeklyWorklogsPage() {
               {data?.data.map((wl) => (
                 <div key={wl.id} className="bg-white rounded-[5px] border border-[#e5e7eb] p-4 space-y-2">
                   <div className="flex items-start justify-between">
-                    <span className="text-[0.82rem] font-medium text-[#374151]">Week {wl.week_number}</span>
+                    <span className="text-[0.82rem] font-medium text-[#374151]">{t('worklogs.week')} {wl.week_number}</span>
                     <div className="flex items-center gap-1">
                       <button onClick={() => openView(wl)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors"><Eye className="h-4 w-4" /></button>
                       {isIntern && (wl.status === 'draft' || wl.status === 'rejected') && <>
@@ -119,13 +121,13 @@ export function WeeklyWorklogsPage() {
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Date Range</span><span className="text-[0.82rem] text-[#374151] font-medium">{formatDate(wl.start_date)} - {formatDate(wl.end_date)}</span></div>
-                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Intern</span><span className="text-[0.82rem] text-[#374151] font-medium">{wl.user?.name || '-'}</span></div>
-                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Hours</span><span className="text-[0.82rem] text-[#374151] font-medium">{wl.hours_worked}h</span></div>
-                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">Status</span><Badge color={STATUS_COLORS[wl.status] || 'gray'}>{STATUS_LABELS[wl.status] || wl.status}</Badge></div>
+                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">{t('worklogs.dateRange')}</span><span className="text-[0.82rem] text-[#374151] font-medium">{formatDate(wl.start_date)} - {formatDate(wl.end_date)}</span></div>
+                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">{t('worklogs.intern')}</span><span className="text-[0.82rem] text-[#374151] font-medium">{wl.user?.name || '-'}</span></div>
+                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">{t('worklogs.hours')}</span><span className="text-[0.82rem] text-[#374151] font-medium">{wl.hours_worked}h</span></div>
+                  <div className="flex items-center"><span className="text-[0.78rem] text-[#6b7280] w-[120px] shrink-0">{t('common.status')}</span><Badge color={STATUS_COLORS[wl.status] || 'gray'}>{t(STATUS_KEYS[wl.status] || wl.status)}</Badge></div>
                 </div>
               ))}
-              {data?.data.length === 0 && <div className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">No worklogs found.</div>}
+              {data?.data.length === 0 && <div className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">{t('worklogs.noWorklogsFound')}</div>}
             </div>
 
             {/* Desktop */}
@@ -133,22 +135,22 @@ export function WeeklyWorklogsPage() {
               <table className="w-full min-w-[700px]">
                 <thead>
                   <tr className="bg-[#fafafa]">
-                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Week #</th>
-                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Date Range</th>
-                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Intern</th>
-                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Hours</th>
-                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Status</th>
-                    <th className="text-right px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">Actions</th>
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('worklogs.week')} #</th>
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('worklogs.dateRange')}</th>
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('worklogs.intern')}</th>
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('worklogs.hours')}</th>
+                    <th className="text-left px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('common.status')}</th>
+                    <th className="text-right px-5 py-3 text-[0.72rem] font-semibold text-[#9ca3af] uppercase">{t('users.actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {data?.data.map((wl) => (
                     <tr key={wl.id} className="border-b border-[#f5f5f5] hover:bg-[#fafafa] transition-colors">
-                      <td className="px-5 py-3 text-[0.82rem] font-medium text-[#374151]">Week {wl.week_number}</td>
+                      <td className="px-5 py-3 text-[0.82rem] font-medium text-[#374151]">{t('worklogs.week')} {wl.week_number}</td>
                       <td className="px-5 py-3 text-[0.82rem] text-[#374151]">{formatDate(wl.start_date)} - {formatDate(wl.end_date)}</td>
                       <td className="px-5 py-3 text-[0.82rem] text-[#374151]">{wl.user?.name || '-'}</td>
                       <td className="px-5 py-3 text-[0.82rem] text-[#374151]">{wl.hours_worked}h</td>
-                      <td className="px-5 py-3"><Badge color={STATUS_COLORS[wl.status] || 'gray'}>{STATUS_LABELS[wl.status] || wl.status}</Badge></td>
+                      <td className="px-5 py-3"><Badge color={STATUS_COLORS[wl.status] || 'gray'}>{t(STATUS_KEYS[wl.status] || wl.status)}</Badge></td>
                       <td className="px-5 py-3">
                         <div className="flex items-center justify-end gap-1">
                           <button onClick={() => openView(wl)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors" title="View"><Eye className="h-4 w-4" /></button>
@@ -163,7 +165,7 @@ export function WeeklyWorklogsPage() {
                       </td>
                     </tr>
                   ))}
-                  {data?.data.length === 0 && <tr><td colSpan={6} className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">No worklogs found.</td></tr>}
+                  {data?.data.length === 0 && <tr><td colSpan={6} className="px-5 py-12 text-center text-[0.85rem] text-[#9ca3af]">{t('worklogs.noWorklogsFound')}</td></tr>}
                 </tbody>
               </table>
             </div>
@@ -178,7 +180,7 @@ export function WeeklyWorklogsPage() {
       </div>
 
       <WorklogForm open={formOpen} onClose={() => setFormOpen(false)} onSubmit={handleSubmitForm} internships={internshipsData?.data || []} loading={createMutation.isPending || updateMutation.isPending} mode={formMode} worklog={selected} onReview={handleReview} reviewLoading={reviewMutation.isPending} nextWeekNumber={nextWeekNumber} />
-      <ConfirmDialog open={deleteId !== null} message="Are you sure you want to delete this worklog? This action cannot be undone." onConfirm={confirmDelete} onCancel={() => setDeleteId(null)} />
+      <ConfirmDialog open={deleteId !== null} message={t('worklogs.deleteConfirm')} onConfirm={confirmDelete} onCancel={() => setDeleteId(null)} />
     </div>
   );
 }
