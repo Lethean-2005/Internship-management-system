@@ -46,12 +46,8 @@ EXPOSE 8000
 
 # At runtime: write all env vars to .env, run migrations on PostgreSQL, then serve
 CMD echo "" >> .env && \
-    echo "DB_CONNECTION=${DB_CONNECTION:-sqlite}" >> .env && \
-    echo "DB_HOST=${DB_HOST:-127.0.0.1}" >> .env && \
-    echo "DB_PORT=${DB_PORT:-5432}" >> .env && \
-    echo "DB_DATABASE=${DB_DATABASE:-laravel}" >> .env && \
-    echo "DB_USERNAME=${DB_USERNAME:-}" >> .env && \
-    echo "DB_PASSWORD=${DB_PASSWORD:-}" >> .env && \
+    echo "DB_CONNECTION=pgsql" >> .env && \
+    echo "DB_URL=${DATABASE_URL:-}" >> .env && \
     echo "MAIL_MAILER=${MAIL_MAILER:-log}" >> .env && \
     echo "MAIL_HOST=${MAIL_HOST:-127.0.0.1}" >> .env && \
     echo "MAIL_PORT=${MAIL_PORT:-587}" >> .env && \
