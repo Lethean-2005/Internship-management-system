@@ -43,7 +43,6 @@ class AuthController extends Controller
         try {
             Mail::to($user->email)->send(new VerificationCodeMail($code, $user->name));
         } catch (\Exception $e) {
-            // Log but don't fail registration
             \Log::warning('Failed to send verification email: ' . $e->getMessage());
         }
 
@@ -108,12 +107,18 @@ class AuthController extends Controller
             return response()->json(['message' => 'Email already verified.']);
         }
 
+        if (!$user->verification_code) {
+            // No code exists — auto-verify (user registered before this feature)
+            $user->update(['email_verified_at' => now()]);
+            return response()->json(['message' => 'Email verified successfully.']);
+        }
+
         if ($user->verification_code !== $request->code) {
             return response()->json(['message' => 'Invalid verification code.'], 422);
         }
 
-        // Check if code expired (2 minutes)
-        if ($user->verification_code_sent_at && $user->verification_code_sent_at->diffInSeconds(now()) > 120) {
+        // Check if code expired (5 minutes)
+        if ($user->verification_code_sent_at && $user->verification_code_sent_at->diffInSeconds(now()) > 300) {
             return response()->json(['message' => 'Verification code has expired. Please request a new one.'], 422);
         }
 

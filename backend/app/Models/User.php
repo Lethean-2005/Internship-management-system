@@ -30,6 +30,7 @@ class User extends Authenticatable
         'tutor_id',
         'supervisor_name',
         'generation',
+        'email_verified_at',
         'verification_code',
         'verification_code_sent_at',
     ];

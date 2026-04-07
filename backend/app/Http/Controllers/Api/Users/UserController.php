@@ -50,6 +50,7 @@ class UserController extends Controller
     {
         $data = $request->validated();
         $data['password'] = Hash::make($data['password']);
+        $data['email_verified_at'] = now();
 
         $user = User::create($data);
         $user->load('role');

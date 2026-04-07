@@ -33,14 +33,17 @@ export function CongratulationsOverlay({ interview, onClose }: Props) {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          onClose();
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [onClose]);
+  }, []);
+
+  useEffect(() => {
+    if (countdown === 0) onClose();
+  }, [countdown, onClose]);
 
   const u = interview.user;
   if (!u) return null;
