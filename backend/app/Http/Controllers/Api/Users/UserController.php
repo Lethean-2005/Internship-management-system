@@ -88,10 +88,10 @@ class UserController extends Controller
 
     public function destroy(User $user): JsonResponse
     {
-        $user->update(['is_active' => false]);
+        $user->delete();
 
         return response()->json([
-            'message' => 'User deactivated successfully.',
+            'message' => 'User deleted successfully.',
         ]);
     }
 

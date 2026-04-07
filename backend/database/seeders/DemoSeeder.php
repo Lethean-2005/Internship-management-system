@@ -32,6 +32,7 @@ class DemoSeeder extends Seeder
             'role_id' => $adminRole->id,
             'department' => 'Administration',
             'is_active' => true,
+            'email_verified_at' => now(),
         ]);
 
         $tutor = User::create([
@@ -41,6 +42,7 @@ class DemoSeeder extends Seeder
             'role_id' => $tutorRole->id,
             'department' => 'Computer Science',
             'is_active' => true,
+            'email_verified_at' => now(),
         ]);
 
         $supervisor = User::create([
@@ -50,6 +52,7 @@ class DemoSeeder extends Seeder
             'role_id' => $supervisorRole->id,
             'department' => 'Engineering',
             'is_active' => true,
+            'email_verified_at' => now(),
         ]);
 
         $intern = User::create([
@@ -59,6 +62,7 @@ class DemoSeeder extends Seeder
             'role_id' => $internRole->id,
             'department' => 'Engineering',
             'is_active' => true,
+            'email_verified_at' => now(),
             'tutor_id' => $tutor->id,
             'company_name' => 'Tech Solutions Inc.',
             'position' => 'Software Engineer Intern',
