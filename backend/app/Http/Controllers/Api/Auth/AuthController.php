@@ -139,9 +139,9 @@ class AuthController extends Controller
             return response()->json(['message' => 'Email already verified.']);
         }
 
-        // Rate limit: 60 seconds between resends
-        if ($user->verification_code_sent_at && $user->verification_code_sent_at->diffInSeconds(now()) < 60) {
-            $wait = 60 - $user->verification_code_sent_at->diffInSeconds(now());
+        // Rate limit: 10 seconds between resends
+        if ($user->verification_code_sent_at && $user->verification_code_sent_at->diffInSeconds(now()) < 10) {
+            $wait = 10 - $user->verification_code_sent_at->diffInSeconds(now());
             return response()->json(['message' => "Please wait {$wait} seconds before requesting a new code."], 429);
         }
 
