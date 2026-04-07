@@ -34,10 +34,8 @@ RUN mkdir -p /app/database \
     && touch /app/database/database.sqlite \
     && php artisan migrate --seed --force
 
-# Cache config and routes for performance
-RUN php artisan config:cache \
-    && php artisan route:cache \
-    && php artisan view:cache
+# Cache views only (config/route cache will use runtime env vars)
+RUN php artisan view:cache
 
 # Create storage link and set permissions
 RUN php artisan storage:link 2>/dev/null || true \
@@ -45,4 +43,8 @@ RUN php artisan storage:link 2>/dev/null || true \
 
 EXPOSE 8000
 
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+# At runtime: apply env vars, clear config cache, then serve
+CMD php artisan config:clear \
+    && php artisan route:clear \
+    && php artisan migrate --force 2>/dev/null; \
+    php artisan serve --host=0.0.0.0 --port=8000
