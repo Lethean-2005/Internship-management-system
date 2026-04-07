@@ -506,7 +506,9 @@
     "success": "Email verified successfully!",
     "failed": "Verification failed. Please try again.",
     "codeSent": "New verification code sent!",
-    "resendFailed": "Failed to resend code."
+    "resendFailed": "Failed to resend code.",
+    "expiresIn": "Code expires in",
+    "expired": "Code expired. Please resend."
   },
   "common": {
     "cancel": "Cancel",

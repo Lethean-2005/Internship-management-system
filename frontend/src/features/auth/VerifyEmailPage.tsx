@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Mail } from 'lucide-react';
@@ -18,25 +18,38 @@ export function VerifyEmailPage() {
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
   const [error, setError] = useState('');
+  const [countdown, setCountdown] = useState(120);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const verifyingRef = useRef(false);
 
   // Redirect if not logged in
   useEffect(() => {
-    if (!token) {
-      navigate('/login', { replace: true });
-    }
+    if (!token) navigate('/login', { replace: true });
   }, [token, navigate]);
 
   // Redirect if already verified
   useEffect(() => {
-    if (user?.email_verified_at) {
-      navigate('/', { replace: true });
-    }
+    if (user?.email_verified_at) navigate('/', { replace: true });
   }, [user, navigate]);
 
+  // Focus first input
   useEffect(() => {
     inputRefs.current[0]?.focus();
   }, []);
+
+  // 2-minute countdown timer
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCountdown((prev) => (prev <= 0 ? 0 : prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (s: number) => {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return `${m}:${sec.toString().padStart(2, '0')}`;
+  };
 
   const handleChange = (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return;
@@ -78,29 +91,32 @@ export function VerifyEmailPage() {
     }
   };
 
-  const handleVerify = async () => {
+  const handleVerify = useCallback(async () => {
+    if (verifyingRef.current) return;
     const fullCode = code.join('');
     if (fullCode.length !== 4) {
       setError(t('verify.enterAllDigits'));
       return;
     }
 
+    verifyingRef.current = true;
     setLoading(true);
     setError('');
     try {
       await verifyEmail(fullCode);
       const updatedUser = await getMe();
-      setUser(updatedUser);
       toast.success(t('verify.success'));
-      navigate('/', { replace: true });
+      setUser(updatedUser);
+      // user state update will trigger the redirect via useEffect
     } catch (err: any) {
       setError(err.response?.data?.message || t('verify.failed'));
       setCode(['', '', '', '']);
       inputRefs.current[0]?.focus();
+      verifyingRef.current = false;
     } finally {
       setLoading(false);
     }
-  };
+  }, [code, t, setUser]);
 
   const handleResend = async () => {
     setResending(true);
@@ -109,6 +125,7 @@ export function VerifyEmailPage() {
       toast.success(t('verify.codeSent'));
       setCode(['', '', '', '']);
       setError('');
+      setCountdown(120);
       inputRefs.current[0]?.focus();
     } catch (err: any) {
       toast.error(err.response?.data?.message || t('verify.resendFailed'));
@@ -124,7 +141,7 @@ export function VerifyEmailPage() {
 
   // Auto-submit when all 4 digits entered
   useEffect(() => {
-    if (code.every(d => d !== '')) {
+    if (code.every(d => d !== '') && !verifyingRef.current) {
       handleVerify();
     }
   }, [code]);
@@ -141,7 +158,6 @@ export function VerifyEmailPage() {
         className="bg-white rounded-[5px] w-full max-w-[400px] overflow-hidden"
         style={{ boxShadow: '0 4px 32px rgba(0,0,0,0.08)' }}
       >
-        {/* Content */}
         <div className="px-8 pt-10 pb-6">
           {/* Icon */}
           <div className="flex justify-center mb-6">
@@ -185,8 +201,21 @@ export function VerifyEmailPage() {
             <p className="text-[0.82rem] text-[#dc2626] text-center mb-3">{error}</p>
           )}
 
+          {/* Timer */}
+          <div className="text-center mt-4 mb-2">
+            {countdown > 0 ? (
+              <span className={`text-[0.85rem] font-medium ${countdown <= 30 ? 'text-[#dc2626]' : 'text-[#6b7280]'}`}>
+                {t('verify.expiresIn')} {formatTime(countdown)}
+              </span>
+            ) : (
+              <span className="text-[0.85rem] font-medium text-[#dc2626]">
+                {t('verify.expired')}
+              </span>
+            )}
+          </div>
+
           {/* Resend */}
-          <p className="text-[0.85rem] text-[#6b7280] text-center mt-5">
+          <p className="text-[0.85rem] text-[#6b7280] text-center mt-3">
             {t('verify.noCode')}{' '}
             <button
               onClick={handleResend}
@@ -212,7 +241,7 @@ export function VerifyEmailPage() {
             type="button"
             onClick={handleVerify}
             loading={loading}
-            disabled={code.some(d => d === '')}
+            disabled={code.some(d => d === '') || countdown === 0}
             className="flex-1 py-[11px]"
           >
             {t('verify.verify')}

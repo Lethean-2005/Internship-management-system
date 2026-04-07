@@ -552,7 +552,9 @@
     "success": "Xác minh email thành công!",
     "failed": "Xác minh thất bại. Vui lòng thử lại.",
     "codeSent": "Mã xác minh mới đã được gửi!",
-    "resendFailed": "Không thể gửi lại mã."
+    "resendFailed": "Không thể gửi lại mã.",
+    "expiresIn": "Mã hết hạn sau",
+    "expired": "Mã đã hết hạn. Vui lòng gửi lại."
   },
   "profile": {
     "accountSettings": "Cài đặt tài khoản",

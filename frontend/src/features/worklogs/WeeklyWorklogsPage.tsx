@@ -11,7 +11,7 @@ import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { Pagination } from '../../components/ui/Pagination';
 import { WorklogForm } from './WorklogForm';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
-import { STATUS_COLORS, STATUS_LABELS, STATUS_KEYS } from '../../lib/constants';
+import { STATUS_COLORS, STATUS_KEYS } from '../../lib/constants';
 import { formatDate } from '../../lib/formatDate';
 import type { WeeklyWorklog } from '../../types/ims';
 

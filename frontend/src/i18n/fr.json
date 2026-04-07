@@ -552,7 +552,9 @@
     "success": "Email vérifié avec succès !",
     "failed": "La vérification a échoué. Veuillez réessayer.",
     "codeSent": "Nouveau code de vérification envoyé !",
-    "resendFailed": "Échec du renvoi du code."
+    "resendFailed": "Échec du renvoi du code.",
+    "expiresIn": "Le code expire dans",
+    "expired": "Code expiré. Veuillez renvoyer."
   },
   "profile": {
     "accountSettings": "Paramètres du compte",

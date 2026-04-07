@@ -552,7 +552,9 @@
     "success": "Mailaka voamarina soa aman-tsara!",
     "failed": "Tsy nahomby ny fanamarinana. Andramo indray.",
     "codeSent": "Kaody fanamarinana vaovao nalefa!",
-    "resendFailed": "Tsy nahomby ny fandrefasana kaody."
+    "resendFailed": "Tsy nahomby ny fandrefasana kaody.",
+    "expiresIn": "Lany ny kaody ao anatin'ny",
+    "expired": "Lany ny kaody. Avereno alefa."
   },
   "profile": {
     "accountSettings": "Fikarakarana kaonty",

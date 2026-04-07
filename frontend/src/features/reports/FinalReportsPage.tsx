@@ -16,7 +16,7 @@ import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { DatePicker } from '../../components/ui/DatePicker';
 import { ReportForm } from './ReportForm';
 import { UserAvatar } from '../../components/ui/UserAvatar';
-import { STATUS_COLORS, STATUS_LABELS, STATUS_KEYS } from '../../lib/constants';
+import { STATUS_COLORS, STATUS_KEYS } from '../../lib/constants';
 import { formatDate } from '../../lib/formatDate';
 import type { FinalReport } from '../../types/ims';
 

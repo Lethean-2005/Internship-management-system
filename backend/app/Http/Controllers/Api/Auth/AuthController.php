@@ -112,8 +112,8 @@ class AuthController extends Controller
             return response()->json(['message' => 'Invalid verification code.'], 422);
         }
 
-        // Check if code expired (10 minutes)
-        if ($user->verification_code_sent_at && $user->verification_code_sent_at->diffInMinutes(now()) > 10) {
+        // Check if code expired (2 minutes)
+        if ($user->verification_code_sent_at && $user->verification_code_sent_at->diffInSeconds(now()) > 120) {
             return response()->json(['message' => 'Verification code has expired. Please request a new one.'], 422);
         }
 
