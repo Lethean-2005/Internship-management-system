@@ -9,7 +9,6 @@ import {
   ClipboardList,
   FileText,
   Presentation,
-  MessageSquare,
   CalendarCheck,
   Briefcase,
   CalendarOff,
