@@ -49,26 +49,24 @@ EXPOSE 8000
 
 # At runtime: generate fresh .env from env vars, then serve
 CMD APP_KEY=$(cat /tmp/app_key.txt | cut -d= -f2) && \
-    cat > .env << ENVEOF
-APP_NAME="${APP_NAME:-IMS}"
-APP_ENV=production
-APP_KEY=${APP_KEY}
-APP_DEBUG=false
-APP_URL=${APP_URL:-http://localhost}
-DB_CONNECTION=pgsql
-DB_URL=${DATABASE_URL:-}
-SESSION_DRIVER=cookie
-SESSION_LIFETIME=120
-CACHE_STORE=file
-MAIL_MAILER=${MAIL_MAILER:-log}
-MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}
-MAIL_PORT=${MAIL_PORT:-587}
-MAIL_USERNAME=${MAIL_USERNAME:-}
-MAIL_PASSWORD=${MAIL_PASSWORD:-}
-MAIL_ENCRYPTION=${MAIL_ENCRYPTION:-tls}
-MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS:-noreply@example.com}
-MAIL_FROM_NAME="${MAIL_FROM_NAME:-IMS}"
-ENVEOF
+    echo "APP_NAME=${APP_NAME:-IMS}" > .env && \
+    echo "APP_ENV=production" >> .env && \
+    echo "APP_KEY=${APP_KEY}" >> .env && \
+    echo "APP_DEBUG=false" >> .env && \
+    echo "APP_URL=${APP_URL:-http://localhost}" >> .env && \
+    echo "DB_CONNECTION=pgsql" >> .env && \
+    echo "DB_URL=${DATABASE_URL:-}" >> .env && \
+    echo "SESSION_DRIVER=cookie" >> .env && \
+    echo "SESSION_LIFETIME=120" >> .env && \
+    echo "CACHE_STORE=file" >> .env && \
+    echo "MAIL_MAILER=${MAIL_MAILER:-log}" >> .env && \
+    echo "MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}" >> .env && \
+    echo "MAIL_PORT=${MAIL_PORT:-587}" >> .env && \
+    echo "MAIL_USERNAME=${MAIL_USERNAME:-}" >> .env && \
+    echo "MAIL_PASSWORD=${MAIL_PASSWORD:-}" >> .env && \
+    echo "MAIL_ENCRYPTION=${MAIL_ENCRYPTION:-tls}" >> .env && \
+    echo "MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS:-noreply@example.com}" >> .env && \
+    echo "MAIL_FROM_NAME=${MAIL_FROM_NAME:-IMS}" >> .env && \
     php artisan config:clear && \
     php artisan route:clear && \
     php artisan migrate --seed --force 2>/dev/null; \
