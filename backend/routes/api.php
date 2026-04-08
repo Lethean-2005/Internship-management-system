@@ -12,12 +12,24 @@ use App\Http\Controllers\Api\Slides\FinalSlideController;
 use App\Http\Controllers\Api\Users\UserController;
 use App\Http\Controllers\Api\JobPostings\JobPostingController;
 use App\Http\Controllers\Api\Leaves\InternLeaveController;
+use App\Http\Controllers\Api\MentoringSessions\MentoringSessionController;
 use App\Http\Controllers\Api\Settings\SettingController;
 use App\Http\Controllers\Api\Worklogs\WeeklyWorklogController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+
+// Public settings (registration page needs these)
+Route::get('/public/settings', function () {
+    return response()->json([
+        'data' => [
+            'allow_registration' => \App\Models\Setting::getValue('allow_registration', '1'),
+            'require_email_verification' => \App\Models\Setting::getValue('require_email_verification', '1'),
+            'password_min_length' => \App\Models\Setting::getValue('password_min_length', '8'),
+            'app_name' => \App\Models\Setting::getValue('app_name', 'IMS'),
+        ],
+    ]);
+});
 
 // Public lists for registration
 Route::get('/public/companies', [CompanyController::class, 'index']);
@@ -88,10 +100,29 @@ Route::middleware('auth:sanctum')->group(function (): void {
         ]);
     });
 
+    Route::post('/me/cover', function (\Illuminate\Http\Request $request) {
+        $request->validate([
+            'cover' => ['required', 'image', 'max:4096'],
+        ]);
+        $file = $request->file('cover');
+        $data = base64_encode(file_get_contents($file->getRealPath()));
+        $mime = $file->getMimeType();
+        $dataUri = "data:{$mime};base64,{$data}";
+
+        $user = $request->user();
+        $user->update(['cover' => $dataUri]);
+        $user->load('role');
+
+        return response()->json([
+            'message' => 'Cover updated successfully.',
+            'data' => new \App\Http\Resources\UserResource($user),
+        ]);
+    });
+
     Route::put('/me/password', function (\Illuminate\Http\Request $request) {
         $data = $request->validate([
             'current_password' => ['required', 'string'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'string', 'min:' . \App\Models\Setting::getValue('password_min_length', '8'), 'confirmed'],
         ]);
         $user = $request->user();
         if (!\Illuminate\Support\Facades\Hash::check($data['current_password'], $user->password)) {
@@ -204,6 +235,13 @@ Route::middleware('auth:sanctum')->group(function (): void {
         // Choose intern — assign tutor_id
         Route::post('/my-interns/choose', function (\Illuminate\Http\Request $request) {
             $request->validate(['user_id' => 'required|exists:users,id']);
+
+            $maxInterns = (int) \App\Models\Setting::getValue('max_interns_per_tutor', '10');
+            $currentCount = \App\Models\User::where('tutor_id', $request->user()->id)->count();
+            if ($currentCount >= $maxInterns) {
+                return response()->json(['message' => "You have reached the maximum of {$maxInterns} interns."], 422);
+            }
+
             $intern = \App\Models\User::findOrFail($request->user_id);
             if ($intern->role?->slug !== 'intern') {
                 return response()->json(['message' => 'User is not an intern.'], 422);
@@ -269,7 +307,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
     });
 
     // Companies — admin, supervisor
-    Route::middleware('role:admin,supervisor')->group(function (): void {
+    Route::middleware('role:admin')->group(function (): void {
         Route::get('/companies', [CompanyController::class, 'index']);
         Route::post('/companies', [CompanyController::class, 'store']);
         Route::get('/companies/{company}', [CompanyController::class, 'show']);
@@ -281,7 +319,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/internships', [InternshipController::class, 'index']);
     Route::get('/internships/{internship}', [InternshipController::class, 'show']);
     Route::post('/internships/{internship}/apply', [InternshipController::class, 'apply']);
-    Route::middleware('role:admin,tutor,supervisor')->group(function (): void {
+    Route::middleware('role:admin,tutor')->group(function (): void {
         Route::post('/internships', [InternshipController::class, 'store']);
         Route::put('/internships/{internship}', [InternshipController::class, 'update']);
         Route::delete('/internships/{internship}', [InternshipController::class, 'destroy']);
@@ -291,41 +329,41 @@ Route::middleware('auth:sanctum')->group(function (): void {
     // Weekly Worklogs — all roles (intern sees own, others see all)
     Route::get('/weekly-worklogs', [WeeklyWorklogController::class, 'index']);
     Route::get('/weekly-worklogs/{worklog}', [WeeklyWorklogController::class, 'show']);
-    Route::middleware('role:admin,supervisor,intern')->group(function (): void {
+    Route::middleware('role:admin,intern')->group(function (): void {
         Route::post('/weekly-worklogs', [WeeklyWorklogController::class, 'store']);
         Route::put('/weekly-worklogs/{worklog}', [WeeklyWorklogController::class, 'update']);
         Route::delete('/weekly-worklogs/{worklog}', [WeeklyWorklogController::class, 'destroy']);
         Route::patch('/weekly-worklogs/{worklog}/submit', [WeeklyWorklogController::class, 'submit']);
     });
-    Route::middleware('role:admin,tutor,supervisor')->group(function (): void {
+    Route::middleware('role:admin,tutor')->group(function (): void {
         Route::patch('/weekly-worklogs/{worklog}/review', [WeeklyWorklogController::class, 'review']);
     });
 
     // Final Reports — all roles (intern sees own, tutor/supervisor/admin review)
     Route::get('/final-reports', [FinalReportController::class, 'index']);
     Route::get('/final-reports/{report}', [FinalReportController::class, 'show']);
-    Route::middleware('role:admin,tutor,supervisor,intern')->group(function (): void {
+    Route::middleware('role:admin,tutor,intern')->group(function (): void {
         Route::post('/final-reports', [FinalReportController::class, 'store']);
         Route::put('/final-reports/{report}', [FinalReportController::class, 'update']);
         Route::delete('/final-reports/{report}', [FinalReportController::class, 'destroy']);
         Route::patch('/final-reports/{report}/submit', [FinalReportController::class, 'submit']);
         Route::post('/final-reports/{report}/upload', [FinalReportController::class, 'upload']);
     });
-    Route::middleware('role:admin,tutor,supervisor')->group(function (): void {
+    Route::middleware('role:admin,tutor')->group(function (): void {
         Route::patch('/final-reports/{report}/review', [FinalReportController::class, 'review']);
     });
 
     // Final Slides — all roles (intern sees own, tutor/supervisor/admin review)
     Route::get('/final-slides', [FinalSlideController::class, 'index']);
     Route::get('/final-slides/{slide}', [FinalSlideController::class, 'show']);
-    Route::middleware('role:admin,tutor,supervisor,intern')->group(function (): void {
+    Route::middleware('role:admin,tutor,intern')->group(function (): void {
         Route::post('/final-slides', [FinalSlideController::class, 'store']);
         Route::put('/final-slides/{slide}', [FinalSlideController::class, 'update']);
         Route::delete('/final-slides/{slide}', [FinalSlideController::class, 'destroy']);
         Route::patch('/final-slides/{slide}/submit', [FinalSlideController::class, 'submit']);
         Route::post('/final-slides/{slide}/upload', [FinalSlideController::class, 'upload']);
     });
-    Route::middleware('role:admin,tutor,supervisor')->group(function (): void {
+    Route::middleware('role:admin,tutor')->group(function (): void {
         Route::patch('/final-slides/{slide}/review', [FinalSlideController::class, 'review']);
     });
 
@@ -333,23 +371,23 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/supervisor-contacts', [SupervisorContactController::class, 'index']);
     Route::post('/supervisor-contacts', [SupervisorContactController::class, 'store']);
     Route::get('/supervisor-contacts/{contact}', [SupervisorContactController::class, 'show']);
-    Route::middleware('role:admin,tutor,supervisor')->group(function (): void {
+    Route::middleware('role:admin,tutor')->group(function (): void {
         Route::patch('/supervisor-contacts/{contact}/reply', [SupervisorContactController::class, 'reply']);
     });
 
     // Company Interviews — admin, supervisor, intern
-    Route::middleware('role:admin,supervisor,intern')->group(function (): void {
+    Route::middleware('role:admin,intern')->group(function (): void {
         Route::get('/company-interviews', [CompanyInterviewController::class, 'index']);
         Route::get('/company-interviews/{interview}', [CompanyInterviewController::class, 'show']);
         Route::put('/company-interviews/{interview}', [CompanyInterviewController::class, 'update']);
     });
-    Route::middleware('role:admin,supervisor,intern')->group(function (): void {
+    Route::middleware('role:admin,intern')->group(function (): void {
         Route::patch('/company-interviews/{interview}/result', [CompanyInterviewController::class, 'updateResult']);
     });
-    Route::middleware('role:admin,supervisor,intern')->group(function (): void {
+    Route::middleware('role:admin,intern')->group(function (): void {
         Route::post('/company-interviews', [CompanyInterviewController::class, 'store']);
     });
-    Route::middleware('role:admin,supervisor')->group(function (): void {
+    Route::middleware('role:admin')->group(function (): void {
         Route::delete('/company-interviews/{interview}', [CompanyInterviewController::class, 'destroy']);
     });
 
@@ -362,6 +400,20 @@ Route::middleware('auth:sanctum')->group(function (): void {
         Route::delete('/job-postings/{jobPosting}', [JobPostingController::class, 'destroy']);
     });
 
+    // Mentoring Sessions — tutor manages, intern views + feedback
+    Route::get('/mentoring-sessions', [MentoringSessionController::class, 'index']);
+    Route::get('/mentoring-sessions/{mentoringSession}', [MentoringSessionController::class, 'show']);
+    Route::middleware('role:tutor')->group(function (): void {
+        Route::post('/mentoring-sessions', [MentoringSessionController::class, 'store']);
+        Route::put('/mentoring-sessions/{mentoringSession}', [MentoringSessionController::class, 'update']);
+        Route::delete('/mentoring-sessions/{mentoringSession}', [MentoringSessionController::class, 'destroy']);
+        Route::patch('/mentoring-sessions/{mentoringSession}/cancel', [MentoringSessionController::class, 'cancel']);
+        Route::patch('/mentoring-sessions/{mentoringSession}/complete', [MentoringSessionController::class, 'complete']);
+    });
+    Route::middleware('role:intern')->group(function (): void {
+        Route::patch('/mentoring-sessions/{mentoringSession}/feedback', [MentoringSessionController::class, 'feedback']);
+    });
+
     // Intern Leaves — intern can create/view own, tutor/admin/supervisor can review
     Route::get('/intern-leaves', [InternLeaveController::class, 'index']);
     Route::get('/intern-leaves/{leave}', [InternLeaveController::class, 'show']);
@@ -369,7 +421,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
         Route::post('/intern-leaves', [InternLeaveController::class, 'store']);
         Route::delete('/intern-leaves/{leave}', [InternLeaveController::class, 'destroy']);
     });
-    Route::middleware('role:admin,tutor,supervisor')->group(function (): void {
+    Route::middleware('role:admin,tutor')->group(function (): void {
         Route::patch('/intern-leaves/{leave}/review', [InternLeaveController::class, 'review']);
     });
 });

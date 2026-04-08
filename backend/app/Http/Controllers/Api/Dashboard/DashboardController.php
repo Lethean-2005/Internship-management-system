@@ -7,6 +7,7 @@ use App\Models\CompanyInterview;
 use App\Models\FinalReport;
 use App\Models\FinalSlide;
 use App\Models\Internship;
+use App\Models\MentoringSession;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\WeeklyWorklog;
@@ -32,6 +33,7 @@ class DashboardController extends Controller
                     'pending_reports' => FinalReport::where('status', 'submitted')->count(),
                     'pending_slides' => FinalSlide::where('status', 'submitted')->count(),
                     'upcoming_interviews' => CompanyInterview::where('status', 'scheduled')->count(),
+                    'upcoming_sessions' => MentoringSession::where('status', 'scheduled')->where('scheduled_date', '>=', today())->count(),
                 ],
             ]);
         }
@@ -47,18 +49,7 @@ class DashboardController extends Controller
                     'total_worklogs' => WeeklyWorklog::whereIn('user_id', $internIds)->count(),
                     'approved_reports' => FinalReport::whereIn('user_id', $internIds)->where('status', 'approved')->count(),
                     'approved_slides' => FinalSlide::whereIn('user_id', $internIds)->where('status', 'approved')->count(),
-                ],
-            ]);
-        }
-
-        if ($roleSlug === 'supervisor') {
-            return response()->json([
-                'data' => [
-                    'pending_worklogs' => WeeklyWorklog::where('status', 'submitted')->count(),
-                    'pending_reports' => FinalReport::where('status', 'submitted')->count(),
-                    'pending_slides' => FinalSlide::where('status', 'submitted')->count(),
-                    'upcoming_interviews' => CompanyInterview::where('status', 'scheduled')->count(),
-                    'total_interns' => Role::where('slug', 'intern')->first()?->users()->count() ?? 0,
+                    'upcoming_sessions' => MentoringSession::where('tutor_id', $user->id)->where('status', 'scheduled')->where('scheduled_date', '>=', today())->count(),
                 ],
             ]);
         }
@@ -73,6 +64,7 @@ class DashboardController extends Controller
                 'my_slides' => FinalSlide::where('user_id', $user->id)->count(),
                 'my_interviews' => CompanyInterview::where('user_id', $user->id)->count(),
                 'passed_interviews' => CompanyInterview::where('user_id', $user->id)->where('result', 'passed')->count(),
+                'upcoming_sessions' => MentoringSession::where('intern_id', $user->id)->where('status', 'scheduled')->where('scheduled_date', '>=', today())->count(),
             ],
         ]);
     }

@@ -26,6 +26,8 @@ class WeeklyWorklogController extends Controller
         } elseif ($roleSlug === 'tutor') {
             $query->whereHas('user', fn ($q) => $q->where('tutor_id', $user->id))
                   ->whereNotIn('status', ['draft']);
+        } elseif ($roleSlug === 'admin') {
+            $query->whereNotIn('status', ['draft']);
         }
 
         if ($request->filled('user_id')) {

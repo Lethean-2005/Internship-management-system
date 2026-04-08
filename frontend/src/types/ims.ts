@@ -221,6 +221,31 @@ export interface InternLeave {
   created_at: string;
 }
 
+export interface MentoringSession {
+  id: number;
+  tutor_id: number;
+  tutor?: User;
+  intern_id: number;
+  intern?: User;
+  internship_id: number | null;
+  internship?: Internship;
+  title: string;
+  scheduled_date: string;
+  scheduled_time: string;
+  duration_minutes: number;
+  location: string | null;
+  meeting_link: string | null;
+  type: string;
+  status: string;
+  cancel_reason: string | null;
+  agenda: string | null;
+  notes: string | null;
+  action_items: string | null;
+  intern_feedback: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface DashboardStats {
   total_users: number;
   total_interns: number;

@@ -1,11 +1,12 @@
 interface UserAvatarProps {
   name: string;
   avatar?: string | null;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
 }
 
 const sizes = {
+  xs: { box: 'w-5 h-5', text: 'text-[0.55rem]' },
   sm: { box: 'w-8 h-8', text: 'text-[0.7rem]' },
   md: { box: 'w-10 h-10', text: 'text-[0.8rem]' },
   lg: { box: 'w-14 h-14', text: 'text-[1.2rem]' },

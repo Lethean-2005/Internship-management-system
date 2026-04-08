@@ -26,11 +26,14 @@ RUN composer install --no-interaction --no-progress --no-dev --optimize-autoload
 # Copy built frontend into Laravel public directory
 COPY --from=frontend-build /app/frontend/dist/ /app/public/
 
-# Generate .env from example and create APP_KEY
+# Generate .env and APP_KEY at build time
 RUN cp .env.example .env \
     && php artisan key:generate --force
 
-# Create SQLite for build-time migrations only (production uses PostgreSQL)
+# Save the APP_KEY for runtime
+RUN grep APP_KEY .env > /tmp/app_key.txt
+
+# Create SQLite for build-time migrations only
 RUN mkdir -p /app/database \
     && touch /app/database/database.sqlite \
     && php artisan migrate --seed --force
@@ -44,18 +47,28 @@ RUN php artisan storage:link 2>/dev/null || true \
 
 EXPOSE 8000
 
-# At runtime: write all env vars to .env, run migrations on PostgreSQL, then serve
-CMD echo "" >> .env && \
-    echo "DB_CONNECTION=pgsql" >> .env && \
-    echo "DB_URL=${DATABASE_URL:-}" >> .env && \
-    echo "MAIL_MAILER=${MAIL_MAILER:-log}" >> .env && \
-    echo "MAIL_HOST=${MAIL_HOST:-127.0.0.1}" >> .env && \
-    echo "MAIL_PORT=${MAIL_PORT:-587}" >> .env && \
-    echo "MAIL_USERNAME=${MAIL_USERNAME:-}" >> .env && \
-    echo "MAIL_PASSWORD=${MAIL_PASSWORD:-}" >> .env && \
-    echo "MAIL_ENCRYPTION=${MAIL_ENCRYPTION:-tls}" >> .env && \
-    echo "MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS:-noreply@example.com}" >> .env && \
-    echo "MAIL_FROM_NAME=\"${MAIL_FROM_NAME:-Laravel}\"" >> .env && \
+# At runtime: generate fresh .env from env vars, then serve
+CMD APP_KEY=$(cat /tmp/app_key.txt | cut -d= -f2) && \
+    cat > .env << ENVEOF
+APP_NAME="${APP_NAME:-IMS}"
+APP_ENV=production
+APP_KEY=${APP_KEY}
+APP_DEBUG=false
+APP_URL=${APP_URL:-http://localhost}
+DB_CONNECTION=pgsql
+DB_URL=${DATABASE_URL:-}
+SESSION_DRIVER=cookie
+SESSION_LIFETIME=120
+CACHE_STORE=file
+MAIL_MAILER=${MAIL_MAILER:-log}
+MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}
+MAIL_PORT=${MAIL_PORT:-587}
+MAIL_USERNAME=${MAIL_USERNAME:-}
+MAIL_PASSWORD=${MAIL_PASSWORD:-}
+MAIL_ENCRYPTION=${MAIL_ENCRYPTION:-tls}
+MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS:-noreply@example.com}
+MAIL_FROM_NAME="${MAIL_FROM_NAME:-IMS}"
+ENVEOF
     php artisan config:clear && \
     php artisan route:clear && \
     php artisan migrate --seed --force 2>/dev/null; \

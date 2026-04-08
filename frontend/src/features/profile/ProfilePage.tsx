@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Camera, User as UserIcon, Briefcase, Shield } from 'lucide-react';
+import { Camera, ImagePlus, User as UserIcon, Briefcase, Shield } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
 import { getMe } from '../../api/auth';
 import client from '../../api/client';
@@ -32,7 +32,9 @@ export function ProfilePage() {
 
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (user) {
@@ -112,12 +114,37 @@ export function ProfilePage() {
     }
   };
 
+  const handleCoverChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 4 * 1024 * 1024) {
+      toast.error(t('profile.coverTooLarge'));
+      return;
+    }
+    setUploadingCover(true);
+    try {
+      const formData = new FormData();
+      formData.append('cover', file);
+      await client.post('/me/cover', formData);
+      const updated = await getMe();
+      setUser(updated);
+      toast.success(t('profile.coverSuccess'));
+    } catch {
+      toast.error(t('profile.coverFailed'));
+    } finally {
+      setUploadingCover(false);
+      if (coverInputRef.current) coverInputRef.current.value = '';
+    }
+  };
+
   const roleSlug = user?.role?.slug || '';
   const initials = user?.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'U';
 
+  const isIntern = roleSlug === 'intern';
+
   const tabs: { key: Tab; label: string; icon: typeof UserIcon }[] = [
     { key: 'account', label: t('profile.accountSettings'), icon: UserIcon },
-    { key: 'internship', label: t('profile.internshipInfo'), icon: Briefcase },
+    ...(isIntern ? [{ key: 'internship' as Tab, label: t('profile.internshipInfo'), icon: Briefcase }] : []),
     { key: 'security', label: t('profile.security'), icon: Shield },
   ];
 
@@ -126,13 +153,24 @@ export function ProfilePage() {
       {/* Cover banner - full width */}
       <div
         className="absolute top-0 left-0 right-0 h-[220px] sm:h-[260px] rounded-[5px] overflow-hidden -mx-4 sm:-mx-6 -mt-4 sm:-mt-6"
-        style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #3730a3 40%, #6366f1 100%)' }}
+        style={{ backgroundImage: `url(${user?.cover || '/passerelles_numriques_cambodia_cover.jfif'})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
       >
-        <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' viewBox=\'0 0 40 40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'1\'%3E%3Ccircle cx=\'20\' cy=\'20\' r=\'1.5\'/%3E%3C/g%3E%3C/svg%3E")' }} />
       </div>
 
+      {/* Cover change button - separate from cover div so it's not clipped */}
+      <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={handleCoverChange} />
+      <button
+        onClick={() => coverInputRef.current?.click()}
+        disabled={uploadingCover}
+        className="absolute top-0 right-0 mt-2 mr-2 sm:mt-3 sm:mr-3 z-[20] flex items-center gap-1.5 px-4 py-2 rounded-[5px] bg-black/50 hover:bg-black/70 text-white text-[0.82rem] font-medium backdrop-blur-sm transition-colors disabled:opacity-50 cursor-pointer"
+      >
+        <ImagePlus className="w-3.5 h-3.5" />
+        {uploadingCover ? t('common.saving') : t('profile.changeCover')}
+      </button>
+
       {/* Content over cover */}
-      <div className="relative pt-[140px] sm:pt-[170px]">
+      <div className="relative z-[2] pt-[140px] sm:pt-[170px] pointer-events-none">
+        <div className="pointer-events-auto">
         <div className="flex flex-col lg:flex-row gap-6">
 
           {/* Left - Profile Card (overlapping cover) */}
@@ -160,7 +198,7 @@ export function ProfilePage() {
 
               <h2 className="text-[0.95rem] font-bold text-[#1e1b4b] mb-0.5">{user?.name || 'User'}</h2>
               <p className="text-[0.78rem] text-[#6366f1] font-medium capitalize">{roleSlug}</p>
-              {user?.company_name && (
+              {isIntern && user?.company_name && (
                 <p className="text-[0.75rem] text-[#9ca3af] mt-0.5">{user.company_name}</p>
               )}
 
@@ -182,10 +220,25 @@ export function ProfilePage() {
                     <span className="text-[0.75rem] text-[#374151] font-medium">{user.department}</span>
                   </div>
                 )}
-                {user?.generation && (
+                {isIntern && user?.generation && (
                   <div className="flex items-center justify-between">
                     <span className="text-[0.75rem] text-[#6b7280]">{t('auth.generation')}</span>
                     <span className="text-[0.75rem] text-[#374151] font-medium">Gen {user.generation}</span>
+                  </div>
+                )}
+                {isIntern && user?.tutor && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-[0.75rem] text-[#6b7280]">{t('profile.tutor')}</span>
+                    <div className="flex items-center gap-1.5 ml-2">
+                      {user.tutor.avatar ? (
+                        <img src={user.tutor.avatar} alt={user.tutor.name} className="w-5 h-5 rounded-full object-cover shrink-0" />
+                      ) : (
+                        <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#48B6E8] to-[#3a9fd4] flex items-center justify-center text-white text-[0.5rem] font-semibold shrink-0">
+                          {user.tutor.name?.charAt(0)?.toUpperCase()}
+                        </div>
+                      )}
+                      <span className="text-[0.75rem] text-[#374151] font-medium truncate max-w-[100px]">{user.tutor.name}</span>
+                    </div>
                   </div>
                 )}
               </div>
@@ -280,6 +333,7 @@ export function ProfilePage() {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

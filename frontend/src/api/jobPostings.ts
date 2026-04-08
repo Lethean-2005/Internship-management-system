@@ -7,6 +7,7 @@ export interface JobPostingFilters {
   status?: string;
   type?: string;
   page?: number;
+  per_page?: number;
 }
 
 export interface JobPostingPayload {

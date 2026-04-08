@@ -10,9 +10,10 @@ import { Badge } from '../../components/ui/Badge';
 import { Input } from '../../components/ui/Input';
 import { FilterDropdown } from '../../components/ui/FilterDropdown';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
-import { Pagination } from '../../components/ui/Pagination';
 import { Modal } from '../../components/ui/Modal';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { Pagination } from '../../components/ui/Pagination';
+import { getDefaultPerPage } from '../../lib/perPage';
 import { DatePicker } from '../../components/ui/DatePicker';
 import { ReportForm } from './ReportForm';
 import { UserAvatar } from '../../components/ui/UserAvatar';
@@ -29,6 +30,7 @@ export function FinalReportsPage() {
 
   const [status, setStatus] = useState('');
   const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(getDefaultPerPage());
   const [deadlineDismissed, setDeadlineDismissed] = useState(() => {
     return localStorage.getItem('report_deadline_dismissed') === 'true';
   });
@@ -43,7 +45,7 @@ export function FinalReportsPage() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const qc = useQueryClient();
-  const { data, isLoading } = useReports({ status: status || undefined, page });
+  const { data, isLoading } = useReports({ status: status || undefined, page, per_page: perPage });
   const { data: deadlineData } = useQuery({
     queryKey: ['deadline', 'final_report'],
     queryFn: () => client.get('/deadlines/final_report').then((r: any) => r.data.data),
@@ -117,7 +119,7 @@ export function FinalReportsPage() {
                 {t('reports.deadline')}: {formatDate(deadlineDate)}
               </div>
             )}
-            <Button onClick={() => { setDeadlineReport(null); setDeadlineValue(deadlineDate || ''); setDeadlineOpen(true); }}>
+            <Button onClick={() => { setDeadlineReport(null); setDeadlineValue(deadlineDate ? deadlineDate.slice(0, 10) : ''); setDeadlineOpen(true); }}>
               <CalendarClock className="h-4 w-4 mr-2" />
               {deadlineDate ? t('reports.editDeadline') : t('reports.setDeadline')}
             </Button>
@@ -197,7 +199,7 @@ export function FinalReportsPage() {
                     <div className="flex items-center gap-1">
                       <button onClick={() => setViewReport(report)} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors" title="View"><Eye className="h-4 w-4" /></button>
                       {isTutor && (
-                        <button onClick={() => { setDeadlineReport(report); setDeadlineValue(deadlineDate || ''); setDeadlineOpen(true); }} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors" title="Set Deadline"><CalendarClock className="h-4 w-4" /></button>
+                        <button onClick={() => { setDeadlineReport(report); setDeadlineValue(deadlineDate ? deadlineDate.slice(0, 10) : ''); setDeadlineOpen(true); }} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors" title="Set Deadline"><CalendarClock className="h-4 w-4" /></button>
                       )}
                       {report.status === 'draft' && !isTutor && (
                         <>
@@ -260,7 +262,7 @@ export function FinalReportsPage() {
                             <Eye className="h-4 w-4" />
                           </button>
                           {isTutor && (
-                            <button onClick={() => { setDeadlineReport(report); setDeadlineValue(deadlineDate || ''); setDeadlineOpen(true); }} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors" title="Set Deadline">
+                            <button onClick={() => { setDeadlineReport(report); setDeadlineValue(deadlineDate ? deadlineDate.slice(0, 10) : ''); setDeadlineOpen(true); }} className="p-1.5 rounded-[5px] text-[#9ca3af] hover:text-[#48B6E8] hover:bg-[#eef8fd] transition-colors" title="Set Deadline">
                               <CalendarClock className="h-4 w-4" />
                             </button>
                           )}
@@ -290,14 +292,11 @@ export function FinalReportsPage() {
               </table>
             </div>
 
-            {data?.meta && data.meta.last_page > 1 && (
-              <div className="p-4 border-t border-[#f5f5f5]">
-                <Pagination currentPage={data.meta.current_page} lastPage={data.meta.last_page} onPageChange={setPage} />
-              </div>
-            )}
           </>
         )}
       </div>
+
+      {data?.meta && <Pagination currentPage={data.meta.current_page} lastPage={data.meta.last_page} onPageChange={setPage} total={data.meta.total} perPage={perPage} onPerPageChange={(v: number) => { setPerPage(v); setPage(1); }} />}
 
       {/* Edit Report Modal */}
       <Modal open={!!editReport} onClose={() => setEditReport(null)} title={t('reports.editReport')} size="lg">

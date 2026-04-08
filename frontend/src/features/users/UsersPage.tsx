@@ -8,9 +8,10 @@ import { Badge } from '../../components/ui/Badge';
 import { SearchInput } from '../../components/ui/SearchInput';
 import { FilterDropdown } from '../../components/ui/FilterDropdown';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
-import { Pagination } from '../../components/ui/Pagination';
 import { Modal } from '../../components/ui/Modal';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { Pagination } from '../../components/ui/Pagination';
+import { getDefaultPerPage } from '../../lib/perPage';
 import { UserForm } from './UserForm';
 import { UserAvatar } from '../../components/ui/UserAvatar';
 import type { User } from '../../types/ims';
@@ -28,12 +29,13 @@ export function UsersPage() {
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
   const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(getDefaultPerPage());
   const [formOpen, setFormOpen] = useState(false);
   const [editUser, setEditUser] = useState<User | null>(null);
   const [viewUser, setViewUser] = useState<User | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
-  const { data, isLoading } = useUsers({ search, role: roleFilter || undefined, page });
+  const { data, isLoading } = useUsers({ search, role: roleFilter || undefined, page, per_page: perPage });
   const { data: roles } = useRoles();
   const createMutation = useCreateUser();
   const updateMutation = useUpdateUser();
@@ -196,18 +198,11 @@ export function UsersPage() {
               </table>
             </div>
 
-            {data?.meta && data.meta.last_page > 1 && (
-              <div className="p-4 border-t border-[#f5f5f5]">
-                <Pagination
-                  currentPage={data.meta.current_page}
-                  lastPage={data.meta.last_page}
-                  onPageChange={setPage}
-                />
-              </div>
-            )}
           </>
         )}
       </div>
+
+      {data?.meta && <Pagination currentPage={data.meta.current_page} lastPage={data.meta.last_page} onPageChange={setPage} total={data.meta.total} perPage={perPage} onPerPageChange={(v: number) => { setPerPage(v); setPage(1); }} />}
 
       {/* View User Modal */}
       <Modal open={!!viewUser} onClose={() => setViewUser(null)} title={t('users.userDetails')} size="lg">

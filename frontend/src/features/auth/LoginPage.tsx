@@ -82,12 +82,6 @@ export function LoginPage() {
             </Button>
           </form>
 
-          <p className="mt-6 text-center text-[0.85rem] text-[#6b7280]">
-            {t('auth.noAccount')}{' '}
-            <Link to="/register" className="text-[#3a9fd4] hover:text-[#3a9fd4] font-semibold transition-colors">
-              {t('auth.register')}
-            </Link>
-          </p>
         </div>
       </div>
     </div>

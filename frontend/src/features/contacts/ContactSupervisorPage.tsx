@@ -6,7 +6,6 @@ import { useUsers } from '../../hooks/useUsers';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
-import { Pagination } from '../../components/ui/Pagination';
 import { Modal } from '../../components/ui/Modal';
 import { ContactForm } from './ContactForm';
 import { formatDateTime } from '../../lib/formatDate';
@@ -15,11 +14,12 @@ import type { SupervisorContact } from '../../types/ims';
 export function ContactSupervisorPage() {
   const { t } = useTranslation();
   const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(getDefaultPerPage());
   const [formOpen, setFormOpen] = useState(false);
   const [viewContact, setViewContact] = useState<SupervisorContact | null>(null);
   const [replyText, setReplyText] = useState('');
 
-  const { data, isLoading } = useContacts({ page });
+  const { data, isLoading } = useContacts({ page, per_page: perPage });
   const { data: usersData } = useUsers();
   const createMutation = useCreateContact();
   const replyMutation = useReplyContact();
@@ -90,11 +90,6 @@ export function ContactSupervisorPage() {
               )}
             </div>
 
-            {data?.meta && data.meta.last_page > 1 && (
-              <div className="p-4 border-t border-[#f5f5f5]">
-                <Pagination currentPage={data.meta.current_page} lastPage={data.meta.last_page} onPageChange={setPage} />
-              </div>
-            )}
           </>
         )}
       </div>

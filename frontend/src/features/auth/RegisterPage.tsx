@@ -12,7 +12,6 @@ import { GraduationCap, List } from 'lucide-react';
 
 const roleCards = [
   { slug: 'tutor', labelKey: 'auth.tutor', image: '/tutor.png' },
-  { slug: 'supervisor', labelKey: 'auth.supervisor', image: '/supervisor.jpg' },
   { slug: 'intern', labelKey: 'auth.intern', image: '/Intern.webp' },
 ];
 
@@ -53,7 +52,7 @@ export function RegisterPage() {
         role: roleSlug,
         department: department || undefined,
         generation: generation || undefined,
-        company_name: (isIntern || roleSlug === 'supervisor') ? (companyName || undefined) : undefined,
+        company_name: isIntern ? (companyName || undefined) : undefined,
       });
       setAuth(res.user, res.token);
       navigate('/verify-email');
@@ -200,9 +199,6 @@ export function RegisterPage() {
               </div>
             )}
 
-            {roleSlug === 'supervisor' && (
-              <Input label={t('auth.companyName')} type="text" value={companyName} onChange={(e) => setCompanyName(e.target.value)} error={errors.company_name} placeholder="e.g. Tech Solutions Inc." required />
-            )}
 
             {!isIntern && (
               <>

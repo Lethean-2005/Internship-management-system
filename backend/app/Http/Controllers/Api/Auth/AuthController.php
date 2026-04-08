@@ -19,6 +19,11 @@ class AuthController extends Controller
 {
     public function register(RegisterRequest $request): JsonResponse
     {
+        $allowReg = \App\Models\Setting::getValue('allow_registration', '1');
+        if ($allowReg === '0') {
+            return response()->json(['message' => 'Registration is currently disabled.'], 403);
+        }
+
         $roleSlug = $request->validated('role') ?? 'intern';
         $role = Role::where('slug', $roleSlug)->first();
 
@@ -40,8 +45,10 @@ class AuthController extends Controller
             'verification_code_sent_at' => now(),
         ]);
 
+        $emailSent = false;
         try {
             Mail::to($user->email)->send(new VerificationCodeMail($code, $user->name));
+            $emailSent = true;
         } catch (\Exception $e) {
             \Log::warning('Failed to send verification email: ' . $e->getMessage());
         }
@@ -49,11 +56,18 @@ class AuthController extends Controller
         $token = $user->createToken('auth-token')->plainTextToken;
         $user->load('role');
 
-        return response()->json([
-            'message' => 'Registration successful. Please verify your email.',
+        $response = [
+            'message' => $emailSent ? 'Registration successful. Please verify your email.' : 'Registration successful. Email could not be sent.',
             'token' => $token,
             'user' => new UserResource($user),
-        ], 201);
+        ];
+
+        // If email failed, include code so user can still verify
+        if (!$emailSent) {
+            $response['verification_code'] = $code;
+        }
+
+        return response()->json($response, 201);
     }
 
     public function login(LoginRequest $request): JsonResponse
@@ -88,7 +102,7 @@ class AuthController extends Controller
     public function me(Request $request): JsonResponse
     {
         $user = $request->user();
-        $user->load('role');
+        $user->load(['role', 'tutor']);
 
         return response()->json([
             'data' => new UserResource($user),
@@ -154,11 +168,10 @@ class AuthController extends Controller
 
         try {
             Mail::to($user->email)->send(new VerificationCodeMail($code, $user->name));
+            return response()->json(['message' => 'Verification code sent.']);
         } catch (\Exception $e) {
             \Log::warning('Failed to send verification email: ' . $e->getMessage());
-            return response()->json(['message' => 'Failed to send email. Please try again.'], 500);
+            return response()->json(['message' => 'Email could not be sent.', 'verification_code' => $code]);
         }
-
-        return response()->json(['message' => 'Verification code sent.']);
     }
 }

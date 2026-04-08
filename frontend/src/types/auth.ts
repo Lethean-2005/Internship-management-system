@@ -9,11 +9,13 @@ export interface User {
   phone: string | null;
   department: string | null;
   avatar: string | null;
+  cover: string | null;
   is_active: boolean;
   company_name: string | null;
   position: string | null;
   allowance: number | null;
   tutor_id: number | null;
+  tutor?: { id: number; name: string; email: string; avatar: string | null } | null;
   supervisor_name: string | null;
   generation: string | null;
   email_verified_at: string | null;

@@ -8,9 +8,10 @@ import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { FilterDropdown } from '../../components/ui/FilterDropdown';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
-import { Pagination } from '../../components/ui/Pagination';
 import { WorklogForm } from './WorklogForm';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { Pagination } from '../../components/ui/Pagination';
+import { getDefaultPerPage } from '../../lib/perPage';
 import { STATUS_COLORS, STATUS_KEYS } from '../../lib/constants';
 import { formatDate } from '../../lib/formatDate';
 import type { WeeklyWorklog } from '../../types/ims';
@@ -33,12 +34,13 @@ export function WeeklyWorklogsPage() {
   const isTutor = user?.role?.slug === 'tutor';
   const [status, setStatus] = useState('');
   const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(getDefaultPerPage());
   const [formOpen, setFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<'create' | 'edit' | 'view' | 'review'>('create');
   const [selected, setSelected] = useState<WeeklyWorklog | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
-  const { data, isLoading } = useWorklogs({ status: status || undefined, page });
+  const { data, isLoading } = useWorklogs({ status: status || undefined, page, per_page: perPage });
   const { data: internshipsData } = useInternships();
   const createMutation = useCreateWorklog();
   const updateMutation = useUpdateWorklog();
@@ -170,14 +172,11 @@ export function WeeklyWorklogsPage() {
               </table>
             </div>
 
-            {data?.meta && data.meta.last_page > 1 && (
-              <div className="p-4 border-t border-[#f5f5f5]">
-                <Pagination currentPage={data.meta.current_page} lastPage={data.meta.last_page} onPageChange={setPage} />
-              </div>
-            )}
           </>
         )}
       </div>
+
+      {data?.meta && <Pagination currentPage={data.meta.current_page} lastPage={data.meta.last_page} onPageChange={setPage} total={data.meta.total} perPage={perPage} onPerPageChange={(v: number) => { setPerPage(v); setPage(1); }} />}
 
       <WorklogForm open={formOpen} onClose={() => setFormOpen(false)} onSubmit={handleSubmitForm} internships={internshipsData?.data || []} loading={createMutation.isPending || updateMutation.isPending} mode={formMode} worklog={selected} onReview={handleReview} reviewLoading={reviewMutation.isPending} nextWeekNumber={nextWeekNumber} />
       <ConfirmDialog open={deleteId !== null} message={t('worklogs.deleteConfirm')} onConfirm={confirmDelete} onCancel={() => setDeleteId(null)} />

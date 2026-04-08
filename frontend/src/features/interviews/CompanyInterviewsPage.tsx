@@ -8,10 +8,11 @@ import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { FilterDropdown } from '../../components/ui/FilterDropdown';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
-import { Pagination } from '../../components/ui/Pagination';
 import { InterviewForm } from './InterviewForm';
 import { Modal } from '../../components/ui/Modal';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { Pagination } from '../../components/ui/Pagination';
+import { getDefaultPerPage } from '../../lib/perPage';
 import { Select } from '../../components/ui/Select';
 import { Input } from '../../components/ui/Input';
 import { STATUS_COLORS, STATUS_LABELS } from '../../lib/constants';
@@ -28,11 +29,12 @@ export function CompanyInterviewsPage() {
   const [status, setStatus] = useState('');
   const [generation, setGeneration] = useState('');
   const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(getDefaultPerPage());
   const [formOpen, setFormOpen] = useState(false);
   const [editInterview, setEditInterview] = useState<CompanyInterview | null>(null);
   const [viewInterview, setViewInterview] = useState<CompanyInterview | null>(null);
 
-  const { data: rawData, isLoading } = useInterviews({ page });
+  const { data: rawData, isLoading } = useInterviews({ page, per_page: perPage });
 
   const isPastDate = (interview: any) => {
     const m = String(interview.interview_date).match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/);
@@ -392,14 +394,11 @@ export function CompanyInterviewsPage() {
               </table>
             </div>
 
-            {data?.meta && data.meta.last_page > 1 && (
-              <div className="p-4 border-t border-[#f5f5f5]">
-                <Pagination currentPage={data.meta.current_page} lastPage={data.meta.last_page} onPageChange={setPage} />
-              </div>
-            )}
           </>
         )}
       </div>
+
+      {data?.meta && <Pagination currentPage={data.meta.current_page} lastPage={data.meta.last_page} onPageChange={setPage} total={data.meta.total} perPage={perPage} onPerPageChange={(v: number) => { setPerPage(v); setPage(1); }} />}
 
       {/* View Interview Modal */}
       <Modal open={!!viewInterview} onClose={() => setViewInterview(null)} title={t('interviews.interviewDetails')}>

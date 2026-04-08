@@ -11,9 +11,10 @@ import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { FilterDropdown } from '../../components/ui/FilterDropdown';
 import { DatePicker } from '../../components/ui/DatePicker';
-import { Pagination } from '../../components/ui/Pagination';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { Pagination } from '../../components/ui/Pagination';
+import { getDefaultPerPage } from '../../lib/perPage';
 import type { JobPosting } from '../../types/ims';
 import type { JobPostingPayload } from '../../api/jobPostings';
 
@@ -83,6 +84,7 @@ export default function JobPostingsPage() {
   const isAdmin = user?.role?.slug === 'admin';
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(getDefaultPerPage());
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [showForm, setShowForm] = useState(false);
@@ -91,7 +93,7 @@ export default function JobPostingsPage() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const { data, isLoading } = useJobPostings({
-    search, page,
+    search, page, per_page: perPage,
     status: statusFilter || undefined,
     type: typeFilter || undefined,
   });
@@ -143,20 +145,13 @@ export default function JobPostingsPage() {
       ) : !data?.data?.length ? (
         <EmptyState icon={<Briefcase className="w-10 h-10" />} title={t('jobPostings.noJobPostingsFound')} description={t('jobPostings.noJobPostingsDescription')} />
       ) : (
-        <>
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {data.data.map((posting) => (
-              <DetailCard key={posting.id} posting={posting} isAdmin={isAdmin} onView={setViewPosting} onEdit={setEditPosting} onDelete={handleDelete} />
-            ))}
-          </div>
-
-          {data.meta && data.meta.last_page > 1 && (
-            <div className="mt-6">
-              <Pagination currentPage={data.meta.current_page} lastPage={data.meta.last_page} onPageChange={setPage} />
-            </div>
-          )}
-        </>
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {data.data.map((posting) => (
+            <DetailCard key={posting.id} posting={posting} isAdmin={isAdmin} onView={setViewPosting} onEdit={setEditPosting} onDelete={handleDelete} />
+          ))}
+        </div>
       )}
+
 
       {/* Create Modal */}
       {showForm && (

@@ -7,8 +7,8 @@ import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { SearchInput } from '../../components/ui/SearchInput';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
-import { Pagination } from '../../components/ui/Pagination';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { Pagination } from '../../components/ui/Pagination';
 import { CompanyForm } from './CompanyForm';
 import { InternshipForm } from './InternshipForm';
 import { STATUS_COLORS, STATUS_LABELS } from '../../lib/constants';
@@ -19,13 +19,14 @@ export function CompanyInternshipPage() {
   const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const [intPage, setIntPage] = useState(1);
+  const [intPerPage, setIntPerPage] = useState(20);
   const [companyFormOpen, setCompanyFormOpen] = useState(false);
   const [editCompany, setEditCompany] = useState<Company | null>(null);
   const [internshipFormOpen, setInternshipFormOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ type: 'company' | 'internship'; id: number } | null>(null);
 
   const { data: companiesData, isLoading: companiesLoading } = useCompanies({ search });
-  const { data: internshipsData, isLoading: internshipsLoading } = useInternships({ page: intPage });
+  const { data: internshipsData, isLoading: internshipsLoading } = useInternships({ page: intPage, per_page: intPerPage });
   const createCompanyMutation = useCreateCompany();
   const updateCompanyMutation = useUpdateCompany();
   const deleteCompanyMutation = useDeleteCompany();
@@ -205,14 +206,11 @@ export function CompanyInternshipPage() {
                 </table>
               </div>
 
-              {internshipsData?.meta && internshipsData.meta.last_page > 1 && (
-                <div className="p-4 border-t border-[#f5f5f5]">
-                  <Pagination currentPage={internshipsData.meta.current_page} lastPage={internshipsData.meta.last_page} onPageChange={setIntPage} />
-                </div>
-              )}
             </>
           )}
         </div>
+
+        {internshipsData?.meta && <Pagination currentPage={internshipsData.meta.current_page} lastPage={internshipsData.meta.last_page} onPageChange={setIntPage} total={internshipsData.meta.total} perPage={intPerPage} onPerPageChange={(v: number) => { setIntPerPage(v); setIntPage(1); }} />}
       </div>
 
       <CompanyForm

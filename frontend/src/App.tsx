@@ -4,7 +4,6 @@ import { AppLayout } from './components/layout/AppLayout';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
 import { RoleRoute } from './components/layout/RoleRoute';
 import { LoginPage } from './features/auth/LoginPage';
-import { RegisterPage } from './features/auth/RegisterPage';
 import { VerifyEmailPage } from './features/auth/VerifyEmailPage';
 import { DashboardPage } from './features/dashboard/DashboardPage';
 import { UsersPage } from './features/users/UsersPage';
@@ -13,10 +12,11 @@ import { WeeklyWorklogsPage } from './features/worklogs/WeeklyWorklogsPage';
 import { WorklogDetail } from './features/worklogs/WorklogDetail';
 import { FinalReportsPage } from './features/reports/FinalReportsPage';
 import { FinalSlidesPage } from './features/slides/FinalSlidesPage';
-import { ContactSupervisorPage } from './features/contacts/ContactSupervisorPage';
 import { CompanyInterviewsPage } from './features/interviews/CompanyInterviewsPage';
 import JobPostingsPage from './features/jobPostings/JobPostingsPage';
 import InternLeavesPage from './features/leaves/InternLeavesPage';
+import { MentoringSessionsPage } from './features/mentoringSessions/MentoringSessionsPage';
+import { CalendarPage } from './features/calendar/CalendarPage';
 import { MyInternsPage } from './features/interns/MyInternsPage';
 import { ConfigurationPage } from './features/configuration/ConfigurationPage';
 import { ProfilePage } from './features/profile/ProfilePage';
@@ -43,7 +43,6 @@ function App() {
     <Routes>
       {/* Public routes */}
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
       <Route path="/verify-email" element={<VerifyEmailPage />} />
 
       {/* Protected routes */}
@@ -73,10 +72,11 @@ function App() {
           <Route path="weekly-worklogs/:id" element={<WorklogDetail />} />
           <Route path="final-reports" element={<FinalReportsPage />} />
           <Route path="final-slides" element={<FinalSlidesPage />} />
-          <Route path="contact-supervisor" element={<ContactSupervisorPage />} />
           <Route path="company-interviews" element={<CompanyInterviewsPage />} />
           <Route path="job-postings" element={<JobPostingsPage />} />
           <Route path="take-leave" element={<InternLeavesPage />} />
+          <Route path="mentoring-sessions" element={<MentoringSessionsPage />} />
+          <Route path="calendar" element={<CalendarPage />} />
         </Route>
       </Route>
 

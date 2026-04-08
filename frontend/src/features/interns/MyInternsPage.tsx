@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Eye, Search, UserPlus, X } from 'lucide-react';
+import { Pagination } from '../../components/ui/Pagination';
+import { getDefaultPerPage } from '../../lib/perPage';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
@@ -23,10 +25,12 @@ export function MyInternsPage() {
   const [chooseSearch, setChooseSearch] = useState('');
   const [chooseDropdownOpen, setChooseDropdownOpen] = useState(false);
   const [removeId, setRemoveId] = useState<number | null>(null);
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(getDefaultPerPage());
 
   const { data, isLoading } = useQuery({
-    queryKey: ['my-interns'],
-    queryFn: () => client.get<PaginatedResponse<User>>('/my-interns').then((r) => r.data),
+    queryKey: ['my-interns', page, perPage],
+    queryFn: () => client.get<PaginatedResponse<User>>('/my-interns', { params: { page, per_page: perPage } }).then((r) => r.data),
   });
 
   const { data: interviews, isLoading: interviewsLoading } = useQuery({
@@ -175,6 +179,8 @@ export function MyInternsPage() {
           </>
         )}
       </div>
+
+      {data?.meta && <Pagination currentPage={data.meta.current_page} lastPage={data.meta.last_page} onPageChange={setPage} total={data.meta.total} perPage={perPage} onPerPageChange={(v: number) => { setPerPage(v); setPage(1); }} />}
 
       {/* Choose Intern Modal */}
       <Modal open={chooseDropdownOpen} onClose={() => { setChooseDropdownOpen(false); setChooseSearch(''); }} title="Choose Intern">

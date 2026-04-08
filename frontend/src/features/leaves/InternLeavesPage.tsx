@@ -10,9 +10,10 @@ import { Select } from '../../components/ui/Select';
 import { FilterDropdown } from '../../components/ui/FilterDropdown';
 import { DatePicker } from '../../components/ui/DatePicker';
 import { Badge } from '../../components/ui/Badge';
-import { Pagination } from '../../components/ui/Pagination';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { Pagination } from '../../components/ui/Pagination';
+import { getDefaultPerPage } from '../../lib/perPage';
 import type { InternLeave } from '../../types/ims';
 
 const STATUS_COLOR: Record<string, string> = {
@@ -43,6 +44,7 @@ export default function InternLeavesPage() {
   const isIntern = user?.role?.slug === 'intern';
   const canReview = ['admin', 'tutor', 'supervisor'].includes(user?.role?.slug || '');
   const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(getDefaultPerPage());
   const [statusFilter, setStatusFilter] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [reviewLeave, setReviewLeave] = useState<InternLeave | null>(null);
@@ -50,7 +52,7 @@ export default function InternLeavesPage() {
   const [reviewNote, setReviewNote] = useState('');
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
-  const { data, isLoading } = useInternLeaves({ status: statusFilter || undefined, page });
+  const { data, isLoading } = useInternLeaves({ status: statusFilter || undefined, page, per_page: perPage });
   const createMutation = useCreateLeave();
   const reviewMutation = useReviewLeave();
   const deleteMutation = useDeleteLeave();
@@ -230,14 +232,11 @@ export default function InternLeavesPage() {
               </table>
             </div>
 
-            {data.meta && data.meta.last_page > 1 && (
-              <div className="p-4 border-t border-[#f5f5f5]">
-                <Pagination currentPage={data.meta.current_page} lastPage={data.meta.last_page} onPageChange={setPage} />
-              </div>
-            )}
           </>
         )}
       </div>
+
+      {data?.meta && <Pagination currentPage={data.meta.current_page} lastPage={data.meta.last_page} onPageChange={setPage} total={data.meta.total} perPage={perPage} onPerPageChange={(v: number) => { setPerPage(v); setPage(1); }} />}
 
       {/* Create Leave Modal */}
       {showForm && (

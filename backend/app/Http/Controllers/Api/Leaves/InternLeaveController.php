@@ -52,6 +52,19 @@ class InternLeaveController extends Controller
         ]);
 
         $data['user_id'] = $request->user()->id;
+
+        // Enforce max leave days
+        $maxDays = (int) \App\Models\Setting::getValue('max_leave_days_per_intern', '5');
+        $requestedDays = (int) ceil((strtotime($data['end_date']) - strtotime($data['start_date'])) / 86400) + 1;
+        $usedDays = InternLeave::where('user_id', $data['user_id'])
+            ->whereIn('status', ['pending', 'approved'])
+            ->get()
+            ->sum(fn ($l) => (int) ceil((strtotime($l->end_date) - strtotime($l->start_date)) / 86400) + 1);
+        if (($usedDays + $requestedDays) > $maxDays) {
+            $remaining = max(0, $maxDays - $usedDays);
+            return response()->json(['message' => "You can only take {$remaining} more day(s) of leave. Maximum is {$maxDays} days."], 422);
+        }
+
         $leave = InternLeave::create($data);
         $leave->load(['user', 'reviewer']);
 

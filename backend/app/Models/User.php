@@ -23,6 +23,7 @@ class User extends Authenticatable
         'phone',
         'department',
         'avatar',
+        'cover',
         'is_active',
         'company_name',
         'position',

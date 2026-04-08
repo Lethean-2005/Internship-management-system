@@ -19,7 +19,7 @@ class RegisterRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'string', 'min:' . (\App\Models\Setting::getValue('password_min_length', '8')), 'confirmed'],
             'role' => ['nullable', 'string', 'exists:roles,slug', 'not_in:admin'],
             'phone' => ['nullable', 'string', 'max:50'],
             'department' => ['nullable', 'string', 'max:255'],
