@@ -26,12 +26,10 @@ RUN composer install --no-interaction --no-progress --no-dev --optimize-autoload
 # Copy built frontend into Laravel public directory
 COPY --from=frontend-build /app/frontend/dist/ /app/public/
 
-# Generate .env and APP_KEY at build time
+# Generate .env and APP_KEY at build time, save key for runtime
 RUN cp .env.example .env \
-    && php artisan key:generate --force
-
-# Save the APP_KEY for runtime
-RUN grep APP_KEY .env > /tmp/app_key.txt
+    && php artisan key:generate --force \
+    && grep -oP 'APP_KEY=\K.*' .env > /app/.app_key
 
 # Create SQLite for build-time migrations only
 RUN mkdir -p /app/database \
@@ -48,25 +46,12 @@ RUN php artisan storage:link 2>/dev/null || true \
 EXPOSE 8000
 
 # At runtime: generate fresh .env from env vars, then serve
-CMD APP_KEY=$(cat /tmp/app_key.txt | cut -d= -f2) && \
-    echo "APP_NAME=${APP_NAME:-IMS}" > .env && \
-    echo "APP_ENV=production" >> .env && \
-    echo "APP_KEY=${APP_KEY}" >> .env && \
-    echo "APP_DEBUG=false" >> .env && \
-    echo "APP_URL=${APP_URL:-http://localhost}" >> .env && \
-    echo "DB_CONNECTION=pgsql" >> .env && \
-    echo "DB_URL=${DATABASE_URL:-}" >> .env && \
-    echo "SESSION_DRIVER=cookie" >> .env && \
-    echo "SESSION_LIFETIME=120" >> .env && \
-    echo "CACHE_STORE=file" >> .env && \
-    echo "MAIL_MAILER=${MAIL_MAILER:-log}" >> .env && \
-    echo "MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}" >> .env && \
-    echo "MAIL_PORT=${MAIL_PORT:-587}" >> .env && \
-    echo "MAIL_USERNAME=${MAIL_USERNAME:-}" >> .env && \
-    echo "MAIL_PASSWORD=${MAIL_PASSWORD:-}" >> .env && \
-    echo "MAIL_ENCRYPTION=${MAIL_ENCRYPTION:-tls}" >> .env && \
-    echo "MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS:-noreply@example.com}" >> .env && \
-    echo "MAIL_FROM_NAME=${MAIL_FROM_NAME:-IMS}" >> .env && \
+CMD APP_KEY=$(cat /app/.app_key) && \
+    printf 'APP_NAME="%s"\nAPP_ENV=production\nAPP_KEY=%s\nAPP_DEBUG=false\nAPP_URL=%s\nDB_CONNECTION=pgsql\nDB_URL=%s\nSESSION_DRIVER=cookie\nSESSION_LIFETIME=120\nCACHE_STORE=file\nMAIL_MAILER=%s\nMAIL_HOST=%s\nMAIL_PORT=%s\nMAIL_USERNAME=%s\nMAIL_PASSWORD=%s\nMAIL_ENCRYPTION=%s\nMAIL_FROM_ADDRESS=%s\nMAIL_FROM_NAME="%s"\n' \
+    "${APP_NAME:-IMS}" "$APP_KEY" "${APP_URL:-http://localhost}" "${DATABASE_URL:-}" \
+    "${MAIL_MAILER:-log}" "${MAIL_HOST:-smtp.gmail.com}" "${MAIL_PORT:-587}" \
+    "${MAIL_USERNAME:-}" "${MAIL_PASSWORD:-}" "${MAIL_ENCRYPTION:-tls}" \
+    "${MAIL_FROM_ADDRESS:-noreply@example.com}" "${MAIL_FROM_NAME:-IMS}" > .env && \
     php artisan config:clear && \
     php artisan route:clear && \
     php artisan migrate --seed --force 2>/dev/null; \
