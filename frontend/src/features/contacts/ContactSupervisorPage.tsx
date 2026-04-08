@@ -13,13 +13,11 @@ import type { SupervisorContact } from '../../types/ims';
 
 export function ContactSupervisorPage() {
   const { t } = useTranslation();
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(getDefaultPerPage());
   const [formOpen, setFormOpen] = useState(false);
   const [viewContact, setViewContact] = useState<SupervisorContact | null>(null);
   const [replyText, setReplyText] = useState('');
 
-  const { data, isLoading } = useContacts({ page, per_page: perPage });
+  const { data, isLoading } = useContacts({});
   const { data: usersData } = useUsers();
   const createMutation = useCreateContact();
   const replyMutation = useReplyContact();

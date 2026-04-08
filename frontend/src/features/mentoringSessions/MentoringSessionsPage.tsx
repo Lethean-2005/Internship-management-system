@@ -148,7 +148,8 @@ export function MentoringSessionsPage() {
         <div className="flex items-center gap-3">
           <FilterDropdown options={statusOptions} value={status} onChange={setStatus} />
           {isTutor && (
-            <Button onClick={handleCreate} icon={<Plus className="h-4 w-4" />}>
+            <Button onClick={handleCreate}>
+              <Plus className="h-4 w-4 mr-2" />
               {t('mentoring.scheduleSession')}
             </Button>
           )}
@@ -544,11 +545,10 @@ export function MentoringSessionsPage() {
       {/* Delete Confirm */}
       <ConfirmDialog
         open={deleteIds.length > 0}
-        onClose={() => setDeleteIds([])}
+        onCancel={() => setDeleteIds([])}
         onConfirm={handleDelete}
         title={t('common.deleteConfirmTitle')}
         message={t('mentoring.deleteConfirm')}
-        loading={deleteMutation.isPending}
       />
     </div>
   );

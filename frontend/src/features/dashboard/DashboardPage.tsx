@@ -13,9 +13,7 @@ import {
   TrendingUp,
   Clock,
   Award,
-  CalendarClock,
   Mail,
-  Building2,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -23,7 +21,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useDashboardStats } from '../../hooks/useDashboard';
 import { useAuthStore } from '../../stores/authStore';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
-import { Badge } from '../../components/ui/Badge';
 import { UserAvatar } from '../../components/ui/UserAvatar';
 import { formatDate } from '../../lib/formatDate';
 import client from '../../api/client';
@@ -89,8 +86,6 @@ function fmt12(time: string) {
   const p = h >= 12 ? 'PM' : 'AM';
   return `${h > 12 ? h - 12 : h === 0 ? 12 : h}:${String(m).padStart(2, '0')} ${p}`;
 }
-
-const STATUS_BADGE: Record<string, string> = { draft: 'gray', submitted: 'blue', approved: 'green', reviewed: 'green', rejected: 'red', resubmitted: 'yellow' };
 
 // Tutor: Interns overview table
 function TutorInternsOverview() {

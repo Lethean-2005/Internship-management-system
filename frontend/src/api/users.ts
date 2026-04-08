@@ -7,6 +7,7 @@ export interface UserFilters {
   role?: string;
   is_active?: boolean;
   page?: number;
+  per_page?: number;
 }
 
 export interface UserPayload {

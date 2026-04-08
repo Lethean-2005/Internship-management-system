@@ -5,6 +5,7 @@ import type { PaginatedResponse } from '../types/api';
 export interface LeaveFilters {
   status?: string;
   page?: number;
+  per_page?: number;
 }
 
 export interface LeavePayload {

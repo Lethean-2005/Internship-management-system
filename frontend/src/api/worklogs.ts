@@ -7,6 +7,7 @@ export interface WorklogFilters {
   internship_id?: number;
   status?: string;
   page?: number;
+  per_page?: number;
 }
 
 export interface WorklogEntryPayload {

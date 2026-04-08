@@ -28,7 +28,7 @@ export function RegisterPage() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
-  const [companyName, setCompanyName] = useState('');
+  const [companyName] = useState('');
   const [department, setDepartment] = useState('');
   const [generation, setGeneration] = useState('');
   const [loading, setLoading] = useState(false);

@@ -13,7 +13,6 @@ import { FilterDropdown } from '../../components/ui/FilterDropdown';
 import { DatePicker } from '../../components/ui/DatePicker';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { EmptyState } from '../../components/ui/EmptyState';
-import { Pagination } from '../../components/ui/Pagination';
 import { getDefaultPerPage } from '../../lib/perPage';
 import type { JobPosting } from '../../types/ims';
 import type { JobPostingPayload } from '../../api/jobPostings';
@@ -84,7 +83,7 @@ export default function JobPostingsPage() {
   const isAdmin = user?.role?.slug === 'admin';
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(getDefaultPerPage());
+  const [perPage] = useState(getDefaultPerPage());
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [showForm, setShowForm] = useState(false);

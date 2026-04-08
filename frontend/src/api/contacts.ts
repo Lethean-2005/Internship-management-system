@@ -7,6 +7,7 @@ export interface ContactFilters {
   supervisor_id?: number;
   is_read?: boolean;
   page?: number;
+  per_page?: number;
 }
 
 export interface ContactPayload {
