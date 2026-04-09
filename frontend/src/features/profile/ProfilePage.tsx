@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Camera, ImagePlus, User as UserIcon, Briefcase, Shield, Globe, ChevronDown, Check } from 'lucide-react';
+import { Camera, ImagePlus, User as UserIcon, Briefcase, Shield, ChevronDown, Check } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
 import { getMe } from '../../api/auth';
 import client from '../../api/client';
