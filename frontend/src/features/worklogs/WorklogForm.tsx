@@ -189,7 +189,7 @@ export function WorklogForm({ open, onClose, onSubmit, internships, loading, mod
               <span><strong className="text-[#374151]">{t('worklogs.intern') + ':'}</strong> {info.name}</span>
               {(info as any).company_name && <span><strong className="text-[#374151]">{t('users.company') + ':'}</strong> {(info as any).company_name}</span>}
               {(info as any).position && <span><strong className="text-[#374151]">{t('users.position') + ':'}</strong> {(info as any).position}</span>}
-              {(info as any).generation && <span><strong className="text-[#374151]">{t('auth.generation') + ':'}</strong> Gen {(info as any).generation}</span>}
+              {(info as any).generation && <span><strong className="text-[#374151]">{t('auth.generation') + ':'}</strong> {(info as any).generation}</span>}
             </div>
           );
         })()}

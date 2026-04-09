@@ -96,7 +96,7 @@ export function CongratulationsOverlay({ interview, onClose }: Props) {
                   <p className="text-[0.78rem] text-[#6b7280] truncate">{interview.company_name || u.company_name}</p>
                 )}
                 {u.generation && (
-                  <p className="text-[0.72rem] text-[#9ca3af] mt-0.5">Gen {u.generation}</p>
+                  <p className="text-[0.72rem] text-[#9ca3af] mt-0.5">{u.generation}</p>
                 )}
               </div>
             </div>

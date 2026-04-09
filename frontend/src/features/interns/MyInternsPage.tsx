@@ -212,7 +212,7 @@ export function MyInternsPage() {
                 </div>
                 <div className="text-right shrink-0">
                   {intern.company_name && <p className="text-[0.72rem] text-[#6b7280]">{intern.company_name}</p>}
-                  {intern.generation && <p className="text-[0.65rem] text-[#9ca3af]">Gen {intern.generation}</p>}
+                  {intern.generation && <p className="text-[0.65rem] text-[#9ca3af]">{intern.generation}</p>}
                 </div>
               </button>
             )) : (

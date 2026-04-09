@@ -469,6 +469,7 @@
     "internOnReviewDesc": "Notifier les stagiaires lorsque leur soumission a été examinée.",
     "adminOnRegistration": "Admin lors de l'inscription",
     "adminOnRegistrationDesc": "Notifier les administrateurs lorsqu'un nouvel utilisateur crée un compte.",
+    "userManagement": "Utilisateurs et inscription",
     "securityAccess": "Sécurité et accès",
     "securityAccessDesc": "Authentification, gestion des sessions et contrôles d'accès à la plateforme.",
     "sessionLifetime": "Durée de la session",
@@ -662,7 +663,11 @@
     "coverFailed": "Échec de la mise à jour de la couverture.",
     "coverTooLarge": "L'image doit faire moins de 4 Mo.",
     "tutor": "Tuteur",
-    "avatarTooLarge": "L'image doit faire moins de 2 Mo."
+    "avatarTooLarge": "L'image doit faire moins de 2 Mo.",
+    "language": "Langue",
+    "selectLanguage": "Sélectionnez votre langue préférée",
+    "languageChanged": "Langue modifiée avec succès !",
+    "languageDescription": "Choisissez la langue que vous souhaitez utiliser sur la plateforme."
   },
   "congrats": {
     "title": "Félicitations !",

@@ -469,6 +469,7 @@
     "internOnReviewDesc": "Thông báo cho thực tập sinh khi bài nộp đã được xem xét.",
     "adminOnRegistration": "Thông báo quản trị viên khi đăng ký",
     "adminOnRegistrationDesc": "Thông báo cho quản trị viên khi người dùng mới đăng ký tài khoản.",
+    "userManagement": "Người dùng & Đăng ký",
     "securityAccess": "Bảo mật & Truy cập",
     "securityAccessDesc": "Xác thực, quản lý phiên và kiểm soát truy cập nền tảng.",
     "sessionLifetime": "Thời gian phiên",
@@ -662,7 +663,11 @@
     "coverFailed": "Không thể cập nhật ảnh bìa.",
     "coverTooLarge": "Hình ảnh phải nhỏ hơn 4MB.",
     "tutor": "Người hướng dẫn",
-    "avatarTooLarge": "Ảnh phải nhỏ hơn 2MB."
+    "avatarTooLarge": "Ảnh phải nhỏ hơn 2MB.",
+    "language": "Ngôn ngữ",
+    "selectLanguage": "Chọn ngôn ngữ bạn muốn",
+    "languageChanged": "Đổi ngôn ngữ thành công!",
+    "languageDescription": "Chọn ngôn ngữ bạn muốn sử dụng trên nền tảng."
   },
   "congrats": {
     "title": "Chúc mừng!",

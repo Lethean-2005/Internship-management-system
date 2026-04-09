@@ -469,6 +469,7 @@
     "internOnReviewDesc": "Notify interns when their submission has been reviewed.",
     "adminOnRegistration": "Admin on Registration",
     "adminOnRegistrationDesc": "Notify admins when a new user registers an account.",
+    "userManagement": "Users & Registration",
     "securityAccess": "Security & Access",
     "securityAccessDesc": "Authentication, session management, and platform access controls.",
     "sessionLifetime": "Session Lifetime",
@@ -508,7 +509,11 @@
     "coverSuccess": "Cover photo updated!",
     "coverFailed": "Failed to update cover.",
     "coverTooLarge": "Image must be less than 4MB.",
-    "tutor": "Tutor"
+    "tutor": "Tutor",
+    "language": "Language",
+    "selectLanguage": "Select your preferred language",
+    "languageChanged": "Language changed successfully!",
+    "languageDescription": "Choose the language you'd like to use across the platform."
   },
   "verify": {
     "title": "Enter verification code",

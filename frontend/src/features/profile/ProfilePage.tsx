@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Camera, ImagePlus, User as UserIcon, Briefcase, Shield } from 'lucide-react';
+import { Camera, ImagePlus, User as UserIcon, Briefcase, Shield, Globe, ChevronDown, Check } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
 import { getMe } from '../../api/auth';
 import client from '../../api/client';
+import i18n from '../../i18n';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { toast } from '../../stores/toastStore';
@@ -31,6 +32,7 @@ export function ProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState('');
 
   const [saving, setSaving] = useState(false);
+  const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -142,11 +144,31 @@ export function ProfilePage() {
 
   const isIntern = roleSlug === 'intern';
 
+  const languages = [
+    { code: 'en', label: 'English', native: 'English', country: 'gb' },
+    { code: 'km', label: 'Khmer', native: 'ភាសាខ្មែរ', country: 'kh' },
+    { code: 'fr', label: 'French', native: 'Français', country: 'fr' },
+    { code: 'mg', label: 'Malagasy', native: 'Malagasy', country: 'mg' },
+    { code: 'vi', label: 'Vietnamese', native: 'Tiếng Việt', country: 'vn' },
+  ];
+
+  const flagUrl = (country: string) => `/flags/${country}.svg`;
+
+  const changeLanguage = (code: string) => {
+    i18n.changeLanguage(code);
+    if (user?.id) {
+      localStorage.setItem(`language_${user.id}`, code);
+    }
+    toast.success(t('profile.languageChanged'));
+  };
+
   const tabs: { key: Tab; label: string; icon: typeof UserIcon }[] = [
     { key: 'account', label: t('profile.accountSettings'), icon: UserIcon },
     ...(isIntern ? [{ key: 'internship' as Tab, label: t('profile.internshipInfo'), icon: Briefcase }] : []),
     { key: 'security', label: t('profile.security'), icon: Shield },
   ];
+
+  const currentLang = languages.find((l) => l.code === i18n.language) || languages[0];
 
   return (
     <div className="relative">
@@ -223,7 +245,7 @@ export function ProfilePage() {
                 {isIntern && user?.generation && (
                   <div className="flex items-center justify-between">
                     <span className="text-[0.75rem] text-[#6b7280]">{t('auth.generation')}</span>
-                    <span className="text-[0.75rem] text-[#374151] font-medium">Gen {user.generation}</span>
+                    <span className="text-[0.75rem] text-[#374151] font-medium">{user.generation}</span>
                   </div>
                 )}
                 {isIntern && user?.tutor && (
@@ -255,6 +277,44 @@ export function ProfilePage() {
                     <span className="w-1.5 h-1.5 rounded-full bg-[#f59e0b]" />
                     {t('profile.unverified')}
                   </span>
+                )}
+              </div>
+
+              {/* Language Dropdown */}
+              <div className="mt-4 pt-4 border-t border-[#f0f0f0] relative">
+                <label className="block text-[0.7rem] font-medium text-[#9ca3af] uppercase tracking-wider mb-2 text-left">{t('profile.language')}</label>
+                <button
+                  onClick={() => setLangDropdownOpen(!langDropdownOpen)}
+                  className="flex items-center gap-2.5 w-full px-3 py-2 rounded-[6px] border border-[#e5e7eb] hover:border-[#c7c8d9] bg-[#f9fafb] hover:bg-white transition-all text-left"
+                >
+                  <img src={flagUrl(currentLang.country)} alt={currentLang.label} className="w-5 h-3.5 rounded-[2px] object-cover shrink-0" />
+                  <span className="text-[0.82rem] font-medium text-[#374151] flex-1">{currentLang.native}</span>
+                  <ChevronDown className={`w-3.5 h-3.5 text-[#9ca3af] transition-transform ${langDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {langDropdownOpen && (
+                  <>
+                    <div className="fixed inset-0 z-30" onClick={() => setLangDropdownOpen(false)} />
+                    <div className="absolute left-0 right-0 mt-1 bg-white border border-[#e5e7eb] rounded-[8px] overflow-hidden z-40" style={{ boxShadow: '0 4px 16px rgba(0,0,0,0.1)' }}>
+                      {languages.map((lang) => {
+                        const isActive = i18n.language === lang.code;
+                        return (
+                          <button
+                            key={lang.code}
+                            onClick={() => { changeLanguage(lang.code); setLangDropdownOpen(false); }}
+                            className={`flex items-center gap-2.5 w-full px-3 py-2.5 text-left transition-colors ${
+                              isActive ? 'bg-[#6366f1]/5' : 'hover:bg-[#f5f5f5]'
+                            }`}
+                          >
+                            <img src={flagUrl(lang.country)} alt={lang.label} className="w-5 h-3.5 rounded-[2px] object-cover shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <span className={`text-[0.82rem] font-medium ${isActive ? 'text-[#6366f1]' : 'text-[#374151]'}`}>{lang.native}</span>
+                            </div>
+                            {isActive && <Check className="w-3.5 h-3.5 text-[#6366f1] shrink-0" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </>
                 )}
               </div>
             </div>
@@ -329,6 +389,7 @@ export function ProfilePage() {
                     </div>
                   </div>
                 )}
+
               </div>
             </div>
           </div>

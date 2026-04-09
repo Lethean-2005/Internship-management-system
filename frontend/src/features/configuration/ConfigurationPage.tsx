@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Save, Globe, GraduationCap, Briefcase, Shield, Mail } from 'lucide-react';
+import { Save, Globe, GraduationCap, Briefcase, Shield, Mail, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n';
+import { useAuthStore } from '../../stores/authStore';
 import { useSettings, useUpdateSettings } from '../../hooks/useSettings';
 import { Button } from '../../components/ui/Button';
 import { Select } from '../../components/ui/Select';
@@ -65,6 +66,7 @@ function SmallToggle({ checked, onChange, label, icon: Icon, color }: { checked:
 
 export function ConfigurationPage() {
   const { t } = useTranslation();
+  const user = useAuthStore((s) => s.user);
   const { data: settings, isLoading } = useSettings();
   const updateMutation = useUpdateSettings();
   const [form, setForm] = useState<Partial<Settings>>({});
@@ -78,6 +80,9 @@ export function ConfigurationPage() {
     if (key === 'default_language') {
       i18n.changeLanguage(value);
       localStorage.setItem('language', value);
+      if (user?.id) {
+        localStorage.setItem(`language_${user.id}`, value);
+      }
     }
   };
 
@@ -153,6 +158,24 @@ export function ConfigurationPage() {
           </SmallField>
         </MiniCard>
 
+        {/* Users & Registration */}
+        <MiniCard icon={Users} color="#6366f1" title={t('config.userManagement')}>
+          <SmallToggle
+            checked={form.allow_registration === '1'}
+            onChange={(v) => handleChange('allow_registration', v ? '1' : '0')}
+            label={t('config.allowRegistration')}
+            icon={Users}
+            color="#6366f1"
+          />
+          <SmallToggle
+            checked={form.require_email_verification === '1'}
+            onChange={(v) => handleChange('require_email_verification', v ? '1' : '0')}
+            label={t('config.emailVerification')}
+            icon={Mail}
+            color="#0d9488"
+          />
+        </MiniCard>
+
         {/* Security & Access */}
         <MiniCard icon={Shield} color="#ef4444" title={t('config.securityAccess')}>
           <SmallField label={t('config.passwordLength')} hint={t('config.passwordLengthHint')}>
@@ -162,11 +185,11 @@ export function ConfigurationPage() {
             </div>
           </SmallField>
           <SmallToggle
-            checked={form.require_email_verification === '1'}
-            onChange={(v) => handleChange('require_email_verification', v ? '1' : '0')}
-            label={t('config.emailVerification')}
-            icon={Mail}
-            color="#0d9488"
+            checked={form.maintenance_mode === '1'}
+            onChange={(v) => handleChange('maintenance_mode', v ? '1' : '0')}
+            label={t('config.maintenanceMode')}
+            icon={Shield}
+            color="#ef4444"
           />
         </MiniCard>
 

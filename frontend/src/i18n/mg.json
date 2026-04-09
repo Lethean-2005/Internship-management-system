@@ -469,6 +469,7 @@
     "internOnReviewDesc": "Ampandreneso ny mpianatra rehefa voadinika ny fandefasany.",
     "adminOnRegistration": "Mpitantana Rehefa Misy Fisoratana Anarana",
     "adminOnRegistrationDesc": "Ampandreneso ny mpitantana rehefa misy mpampiasa vaovao misoratra anarana.",
+    "userManagement": "Mpampiasa sy Fisoratana anarana",
     "securityAccess": "Fiarovana sy Fidirana",
     "securityAccessDesc": "Fanamarinana, fitantanana ny fidirana, ary fanaraha-maso ny fidirana.",
     "sessionLifetime": "Faharetan'ny Fidirana",
@@ -662,7 +663,11 @@
     "coverFailed": "Tsy nahomby ny fanavaozana ny sary fandrakofana.",
     "coverTooLarge": "Tsy maintsy latsaky ny 4MB ny sary.",
     "tutor": "Mpanoro hevitra",
-    "avatarTooLarge": "Ny sary dia tsy tokony hihoatra ny 2MB."
+    "avatarTooLarge": "Ny sary dia tsy tokony hihoatra ny 2MB.",
+    "language": "Fiteny",
+    "selectLanguage": "Misafidiana ny fiteny tianao",
+    "languageChanged": "Voaova soa aman-tsara ny fiteny!",
+    "languageDescription": "Misafidiana ny fiteny tianao hampiasaina amin'ny sehatra."
   },
   "congrats": {
     "title": "Arahabaina!",
