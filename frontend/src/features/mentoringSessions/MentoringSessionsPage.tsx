@@ -157,13 +157,13 @@ export function MentoringSessionsPage() {
       </div>
 
       {/* Table */}
+      <div className="bg-white rounded-[8px] border border-[#f0f0f0]" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
       {isLoading ? (
         <LoadingSpinner />
       ) : !data?.data?.length ? (
         <div className="text-center py-12 text-[0.88rem] text-[#9ca3af]">{t('mentoring.noSessionsFound')}</div>
       ) : (
         <>
-          <div className="bg-white rounded-[8px] border border-[#f0f0f0] overflow-hidden" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
@@ -267,11 +267,11 @@ export function MentoringSessionsPage() {
                 </tbody>
               </table>
             </div>
-          </div>
+
         </>
       )}
-
       {data?.meta && <Pagination currentPage={data.meta.current_page} lastPage={data.meta.last_page} onPageChange={setPage} total={data.meta.total} perPage={perPage} onPerPageChange={(v: number) => { setPerPage(v); setPage(1); }} />}
+      </div>
 
       {/* Create/Edit Form */}
       <SessionForm
